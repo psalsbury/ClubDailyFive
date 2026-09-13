@@ -1,0 +1,6 @@
+AuthType Basic
+AuthName "ClubDailyFive Owner Statistics"
+AuthUserFile /etc/apache2/clubdailyfive-owner.htpasswd
+Require valid-user
+
+Options -Indexes

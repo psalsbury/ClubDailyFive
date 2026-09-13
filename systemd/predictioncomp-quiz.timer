@@ -1,0 +1,11 @@
+[Unit]
+Description=Prepare tomorrow's PredictionComp quizzes nightly
+
+[Timer]
+OnCalendar=*-*-* 23:55:00 Europe/London
+Persistent=true
+RandomizedDelaySec=60
+Unit=predictioncomp-quiz.service
+
+[Install]
+WantedBy=timers.target

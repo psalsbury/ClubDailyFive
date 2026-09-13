@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 120" role="img" aria-labelledby="title desc">
+<title id="title">ClubDailyFive.com</title><desc id="desc">CD5 motion mark and ClubDailyFive.com wordmark</desc>
+<g fill="none">
+  <path fill="#F7F8FC" d="M12 18h76c24 0 42 10 51 27l-25 14c-5-8-14-13-27-13H52c-13 0-22 9-22 22s9 22 22 22h35c13 0 22-5 27-13l25 14c-9 17-27 27-51 27H12C5 108 0 103 0 96V30c0-7 5-12 12-12Z"/>
+  <path fill="#F7F8FC" d="M124 18h62c40 0 66 18 66 50s-26 50-66 50h-62l17-28h43c23 0 38-7 38-22s-15-22-38-22h-43l-17-28Z"/>
+  <path fill="#13D7C5" d="M252 18h104l-12 28h-65l-5 12h42c32 0 52 11 52 30 0 20-21 30-56 30h-83l15-28h67c15 0 25-3 25-10s-10-10-25-10h-76l17-52Z"/>
+  <path fill="#13D7C5" d="m356 18 34 0-25 10h22l-31 9h24l-32 9h-4z"/>
+</g>
+<text x="414" y="75" fill="#F7F8FC" font-family="Inter,Arial,sans-serif" font-weight="800" font-size="42" letter-spacing="-2">ClubDaily<tspan fill="#13D7C5">Five</tspan><tspan fill="#A9B2C4">.com</tspan></text>
+</svg>
