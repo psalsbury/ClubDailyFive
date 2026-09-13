@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse, datetime as dt, hashlib, json, sqlite3, sys
+import argparse, datetime as dt, hashlib, json, sqlite3, sys, re
 from collections import Counter
 from pathlib import Path
 
@@ -19,10 +19,43 @@ VARIANT_PREFIXES = (
     "Another one from the club record: ",
 )
 
-def make_variant(slug: str, q: dict, variant: int) -> dict:
+def leak_safe_question(q: dict) -> str:
+    """Remove any wording that directly supplies the correct answer.
+
+    Match context is preserved, but opponent-answer questions must not name the
+    opponent in their scoreline and first-goal questions use the numeric score
+    rather than a scoreline containing both candidate team names.
+    """
+    text=q['question_text']
+    opts=json.loads(q['options_json'])
+    correct=str(opts[int(q['correct_index'])]).strip()
+    sem=q.get('semantic_key','')
+    if '|high_scoring|' in sem and sem.endswith('|opp'):
+        text=re.sub(re.escape(correct), 'the opposition', text, flags=re.I)
+    elif '|significant_first_goal|' in sem and sem.endswith('|team'):
+        text=re.sub(r'a match that finished .*? (\d+)-(\d+) .*?\?$', r'a match that finished \1-\2?', text)
+    return text
+
+def make_variant(slug: str, club_name: str, q: dict, variant: int) -> dict:
     out = dict(q)
     base_sem = q['semantic_key']
-    text = q['question_text'] if variant == 0 else VARIANT_PREFIXES[variant % len(VARIANT_PREFIXES)] + q['question_text']
+    base_text = leak_safe_question(q)
+    if '|significant_first_goal|' in base_sem and base_sem.endswith('|team'):
+        old_opts=json.loads(q['options_json'])
+        old_correct=str(old_opts[int(q['correct_index'])])
+        def n(v):
+            v=re.sub(r'\b(fc|afc|football club)\b','',v.lower())
+            return re.sub(r'[^a-z0-9]+','',v)
+        club_scored = n(club_name) in n(old_correct) or n(old_correct) in n(club_name)
+        new_correct='The club' if club_scored else 'Their opponent'
+        new_opts=['The club','Their opponent','Neither side','Both sides at the same time']
+        seed=hashlib.sha256((base_sem+'|generic-first-goal').encode()).digest()
+        import random
+        random.Random(seed).shuffle(new_opts)
+        out['options_json']=json.dumps(new_opts,ensure_ascii=False)
+        out['correct_index']=new_opts.index(new_correct)
+        base_text=base_text.replace('Which team scored first', 'Which side scored first')
+    text = base_text if variant == 0 else VARIANT_PREFIXES[variant % len(VARIANT_PREFIXES)] + base_text
     sem = f"v4bank|{slug}|{hashlib.sha256(base_sem.encode()).hexdigest()[:16]}|v{variant}"
     out['question_text'] = text
     out['question_kind'] = 'history'
@@ -30,7 +63,7 @@ def make_variant(slug: str, q: dict, variant: int) -> dict:
     out['content_hash'] = hashlib.sha256((sem + '|' + text).encode()).hexdigest()
     return out
 
-def expand_to_300(slug: str, base: list[dict]) -> list[dict]:
+def expand_to_300(slug: str, club_name: str, base: list[dict]) -> list[dict]:
     if not base:
         raise RuntimeError(f"{slug}: no source-backed questions generated")
     out=[]; variant=0
@@ -38,7 +71,7 @@ def expand_to_300(slug: str, base: list[dict]) -> list[dict]:
         progressed=False
         for q in base:
             if len(out) >= TARGET: break
-            out.append(make_variant(slug,q,variant)); progressed=True
+            out.append(make_variant(slug,club_name,q,variant)); progressed=True
         if not progressed: break
         variant += 1
         if variant >= len(VARIANT_PREFIXES) and len(out) < TARGET:
@@ -47,9 +80,9 @@ def expand_to_300(slug: str, base: list[dict]) -> list[dict]:
             VARIANT_PREFIXES_EXTRA = f"Club record question {variant+1}: "
             for q in base:
                 if len(out) >= TARGET: break
-                copy=dict(q); text=VARIANT_PREFIXES_EXTRA + q['question_text']; base_sem=q['semantic_key']
+                copy=make_variant(slug,club_name,q,variant); text=VARIANT_PREFIXES_EXTRA + leak_safe_question(q); base_sem=q['semantic_key']
                 sem=f"v4bank|{slug}|{hashlib.sha256(base_sem.encode()).hexdigest()[:16]}|v{variant}"
-                copy['question_text']=text; copy['question_kind']='history'; copy['semantic_key']=sem; copy['content_hash']=hashlib.sha256((sem+'|'+text).encode()).hexdigest(); out.append(copy)
+                copy['question_text']=text.replace('Which team scored first','Which side scored first'); copy['question_kind']='history'; copy['semantic_key']=sem; copy['content_hash']=hashlib.sha256((sem+'|'+copy['question_text']).encode()).hexdigest(); out.append(copy)
             variant += 1
     if len(out) != TARGET: raise RuntimeError(f"{slug}: built {len(out)}, expected {TARGET}")
     if len({q['semantic_key'] for q in out}) != TARGET or len({q['content_hash'] for q in out}) != TARGET:
@@ -84,7 +117,7 @@ def main():
     tm=v3.load_all_tm(); fd={y:v3.fetch_fd_season(y) for y in (2023,2024,2025)}
     built={}; report={}
     for c in clubs:
-        base=v3.Builder(c,tm,fd).build(); qs=expand_to_300(c['slug'],base); built[c['id']]=qs
+        base=v3.Builder(c,tm,fd).build(); qs=expand_to_300(c['slug'],c['name'],base); built[c['id']]=qs
         report[c['slug']]={'base_facts':len(base),'questions':len(qs),'categories':dict(sorted(Counter(q['question_kind'] for q in qs).items()))}
     if not all(v['questions']==TARGET for v in report.values()): raise RuntimeError('not all clubs reached 300')
     result={'target_per_club':TARGET,'clubs':report,'all_ready':True}
