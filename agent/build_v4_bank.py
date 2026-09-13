@@ -31,9 +31,33 @@ def leak_safe_question(q: dict) -> str:
     correct=str(opts[int(q['correct_index'])]).strip()
     sem=q.get('semantic_key','')
     if '|high_scoring|' in sem and sem.endswith('|opp'):
-        text=re.sub(re.escape(correct), 'the opposition', text, flags=re.I)
+        # Opponent-answer questions must be written from this club's
+        # perspective. Avoid ambiguous constructions such as
+        # "the opposition 4-3 Nottingham Forest", which can sound as if
+        # Forest won despite actually losing.
+        m=re.search(r"Who did (.+?) play in the high-scoring (\d{4}-\d{2}) league match that finished (.+?)\?", text, re.I)
+        score_m=re.search(r"(.+?)\s+(\d+)-(\d+)\s+(.+)$", m.group(3)) if m else None
+        if m and score_m:
+            club=m.group(1); season=m.group(2)
+            home, hg, ag, away=score_m.group(1), int(score_m.group(2)), int(score_m.group(3)), score_m.group(4)
+            def nn(s): return re.sub(r'[^a-z0-9]+','',s.lower())
+            club_home = nn(club) in nn(home) or nn(home) in nn(club)
+            gf, ga = (hg, ag) if club_home else (ag, hg)
+            venue = 'at home' if club_home else 'away'
+            margin_word = 'narrowly ' if abs(gf-ga) == 1 else ''
+            if gf > ga:
+                text=f"Who did {club} beat {venue} in the high-scoring {season} league match that {club} {margin_word}won {gf}-{ga}?"
+            elif gf < ga:
+                text=f"Who did {club} lose to {venue} in the high-scoring {season} league match that {club} {margin_word}lost {gf}-{ga}?"
+            else:
+                text=f"Who did {club} draw with {venue} in the high-scoring {season} league match that finished {gf}-{ga}?"
+        else:
+            text=re.sub(re.escape(correct), 'the opposition', text, flags=re.I)
     elif '|significant_first_goal|' in sem and sem.endswith('|team'):
         text=re.sub(r'a match that finished .*? (\d+)-(\d+) .*?\?$', r'a match that finished \1-\2?', text)
+    # Cup questions must always identify the competition explicitly.
+    if re.search(r'\bthe cup\b', text, re.I):
+        raise RuntimeError(f"Ambiguous cup wording in question: {text}")
     return text
 
 def make_variant(slug: str, club_name: str, q: dict, variant: int) -> dict:

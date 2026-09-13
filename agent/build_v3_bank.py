@@ -24,7 +24,7 @@ DATASET_URL = "https://github.com/dcaribou/transfermarkt-datasets"
 TM_IDS = {"arsenal":11,"aston-villa":405,"bournemouth":989,"brentford":1148,"brighton":1237,"chelsea":631,"coventry-city":990,"crystal-palace":873,"everton":29,"fulham":931,"hull-city":3008,"ipswich-town":677,"leeds-united":399,"liverpool":31,"manchester-city":281,"manchester-united":985,"newcastle-united":762,"nottingham-forest":703,"sunderland":289,"tottenham-hotspur":148}
 FD_ALIASES = {"Arsenal":"arsenal","Aston Villa":"aston-villa","Bournemouth":"bournemouth","Brentford":"brentford","Brighton":"brighton","Chelsea":"chelsea","Coventry":"coventry-city","Crystal Palace":"crystal-palace","Everton":"everton","Fulham":"fulham","Hull":"hull-city","Ipswich":"ipswich-town","Leeds":"leeds-united","Liverpool":"liverpool","Man City":"manchester-city","Man United":"manchester-united","Newcastle":"newcastle-united","Nott'm Forest":"nottingham-forest","Sunderland":"sunderland","Tottenham":"tottenham-hotspur"}
 FD_DIVS=("E0","E1","E2","E3")
-COMP_NAMES={"FAC":"FA Cup","CL":"UEFA Champions League","EL":"UEFA Europa League","UCOL":"UEFA Conference League","GBCS":"Community Shield"}
+COMP_NAMES={"FAC":"FA Cup","EFL":"EFL Cup","LC":"EFL Cup","CL":"UEFA Champions League","EL":"UEFA Europa League","UCOL":"UEFA Conference League","GBCS":"Community Shield"}
 
 def norm(s): return " ".join(re.sub(r"[^a-z0-9]+"," ",(s or "").lower()).split())
 def hsh(s): return hashlib.sha256(s.encode("utf-8")).hexdigest()
@@ -193,7 +193,7 @@ class Builder:
         for y in (2023,2024,2025):
             league=sorted([g for g in self.games if g.get("season")==str(y) and g.get("competition_id")=="GB1"],key=lambda g:g["date"]); sig=[]
             if league:sig.extend([("first league game",league[0]),("last league game",league[-1])])
-            sig.extend(("cup "+g["round"].lower(),g) for g in self.games if g.get("season")==str(y) and g.get("competition_id") in ("FAC","CL","EL","UCOL") and any(x in (g.get("round") or "").lower() for x in ("semi","final")))
+            sig.extend((COMP_NAMES.get(g["competition_id"], g["competition_id"])+" "+g["round"].lower(),g) for g in self.games if g.get("season")==str(y) and g.get("competition_id") in ("FAC","CL","EL","UCOL") and any(x in (g.get("round") or "").lower() for x in ("semi","final")))
             for label,g in sig:
                 events=sorted(ev_by_game.get(g["game_id"],[]),key=lambda e:int(e["minute"]))
                 if not events:continue
