@@ -47,8 +47,8 @@ def make_variant(slug: str, club_name: str, q: dict, variant: int) -> dict:
             v=re.sub(r'\b(fc|afc|football club)\b','',v.lower())
             return re.sub(r'[^a-z0-9]+','',v)
         club_scored = n(club_name) in n(old_correct) or n(old_correct) in n(club_name)
-        new_correct='The club' if club_scored else 'Their opponent'
-        new_opts=['The club','Their opponent','Neither side','Both sides at the same time']
+        new_correct='The named team' if club_scored else 'Their opponent'
+        new_opts=['The named team','Their opponent','Neither side','Both sides at the same time']
         seed=hashlib.sha256((base_sem+'|generic-first-goal').encode()).digest()
         import random
         random.Random(seed).shuffle(new_opts)
