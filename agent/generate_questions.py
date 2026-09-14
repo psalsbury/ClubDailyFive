@@ -66,6 +66,9 @@ def main():
   con=sqlite3.connect(DB,timeout=60); con.row_factory=sqlite3.Row; con.execute('pragma foreign_keys=on'); clubs=con.execute('select id,slug,name from clubs where active=1 order by name').fetchall()
   if a.self_test:
     counts=dict(con.execute("select c.slug,count(q.id) from clubs c left join questions q on q.club_id=c.id and q.semantic_key like 'v4bank|%' group by c.id")); print(json.dumps({'database':con.execute('pragma integrity_check').fetchone()[0],'clubs':len(clubs),'bank_counts':counts,'bank_per_club_required':300,'daily_mix':'4 V4 bank + 1 fresh','recent_cutoff_days':7,'openai_api_required':False})); return
+  from sterling import assert_sterling
+  for question in con.execute("select question_text,options_json,explanation from questions where status='reviewed'"):
+    assert_sterling(dict(question))
   current=load_current(target); os.makedirs(BACKUPS,exist_ok=True); backup=f"{BACKUPS}/clubquiz-before-daily-{dt.datetime.now().strftime('%Y%m%d-%H%M%S')}.sqlite"
   with sqlite3.connect(backup) as dest: con.backup(dest)
   try:
