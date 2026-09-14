@@ -62,65 +62,79 @@ $dateLabel = (new DateTimeImmutable($quizDate))->format('j F Y');
 /* Responsive crest grid and single-screen mobile quiz */
 .club img{width:42px;height:42px;object-fit:contain;flex:0 0 auto}.club-name{line-height:1.1;text-align:right;margin-left:auto}
 @media(max-width:600px){body.quiz-page{overflow:hidden}.wrap{width:min(100% - 20px,760px)}.top{height:52px;padding:9px 0}.hero{padding:14px 0 6px}.hero h1{font-size:2.25rem;margin:.15em 0}.hero p{font-size:.82rem;line-height:1.3;margin:.35em 0}.club-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;padding:6px 0 10px}.club{height:88px;min-height:88px;padding:6px 2px 5px;gap:3px;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:48px 26px;justify-content:stretch;justify-items:center;align-items:center;border-radius:10px;font-size:.59rem;box-shadow:none}.club::before{content:none}.club img{grid-area:1/1;display:block;width:42px;height:42px;align-self:center;justify-self:center;object-fit:contain}.club .club-name{grid-area:2/1;color:var(--ink);width:100%;height:26px;margin:0;display:flex;align-items:flex-start;justify-content:center;text-align:center;line-height:1.1;overflow-wrap:normal;word-break:normal;padding-top:1px}.quiz-head{height:98px;padding:7px 0 3px}.quiz-head h1{font-size:1.65rem;margin:.08em 0}.progress{margin:8px 0}.card{height:calc(100dvh - 150px);min-height:0;padding:12px 15px;border-radius:16px}.question{font-size:1.12rem;min-height:50px;margin:7px 0}.answers{gap:6px}.answer{min-height:42px;padding:8px 11px;font-size:.86rem}.feedback{min-height:72px;margin-top:7px;padding-top:7px;font-size:.76rem;line-height:1.25}.next{padding:8px 14px}.foot{display:none}.result{padding:8px 0}.score{font-size:4rem}}
+.club{position:relative}.club.played{border-color:var(--good);padding-bottom:29px}.club .played-badge{position:absolute;bottom:5px;left:0;right:0;text-align:center;font-size:.65rem;color:var(--good);font-weight:800}
+.share-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
+.share-fallback{width:100%;max-width:520px;min-height:110px;margin-top:12px}
+@media(max-width:600px){.club.played{padding:6px 2px 19px}.club{height:101px;min-height:101px}.club .played-badge{font-size:.55rem;bottom:3px}body.quiz-page:has(#result:not([hidden])){overflow:auto}}
 </style>
 </head>
 <body class="<?= $club ? 'quiz-page' : 'home-page' ?>">
 <main class="wrap">
 <header class="top"><a class="brand" href="/" aria-label="ClubDailyFive.com home"><img src="/assets/clubdailyfive-logo.svg" alt="ClubDailyFive.com" width="450" height="60"></a><span class="date"><?= h($dateLabel) ?></span></header>
-<?php if (!$club): ?>
-<div id="homeChooser"><section class="hero"><div class="eyebrow">Premier League edition</div><h1>Five questions.<br>One club.</h1><p>Pick your team for four questions from the 300-question club bank and one fresh question from current form. If your club has not played in the last 7 days, the fresh question switches to the current season. A complete round lands at midnight UK time.</p></section>
-<section class="club-grid" aria-label="Choose your club"><?php foreach($clubs as $c): ?><a class="club" href="/?club=<?= h($c['slug']) ?>"><img src="<?= h($c['logo_path']) ?>" alt="" width="42" height="42"><span class="club-name"><?= h($c['name']) ?></span></a><?php endforeach ?></section></div>
-<section class="result" id="homeResult" hidden><div class="eyebrow">Today’s result</div><div class="score" id="homeScore"></div><h2 id="homeClub"></h2><div class="tiles" id="homeTiles"></div><div class="streaks"><div class="streak-box"><span class="streak-number" id="homeCompletion">0</span><span class="streak-label">🔥 completion streak</span></div><div class="streak-box"><span class="streak-number" id="homePerfect">0</span><span class="streak-label">⭐ perfect 5/5 streak</span></div></div><p>Today’s round is complete. Come back tomorrow for five new questions.</p><div class="share-actions" aria-label="Share your result"><button class="share-action primary" id="homeWhatsApp">WhatsApp</button><button class="share-action" id="homeFacebook">Facebook</button><button class="share-action" id="homeX">X</button><button class="share-action" id="homeCopy">Copy result</button></div></section>
-<script>
-(()=>{
-const date=<?= json_encode($quizDate) ?>,key=`dailyfive:daily:${date}`;let r;
-try{r=JSON.parse(localStorage.getItem(key))}catch(e){}
-if(!r){for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i)||'';if(k.startsWith('dailyfive:')&&k.endsWith(`:${date}`)&&!k.includes(':streaks:')&&!k.includes(':daily:')){try{r=JSON.parse(localStorage.getItem(k));r.club=k.slice(10,-date.length-1);const s=JSON.parse(localStorage.getItem(`dailyfive:streaks:${r.club}`)||'{}');r.completion=s.completion||0;r.perfect=s.perfect||0;localStorage.setItem(key,JSON.stringify(r));break}catch(e){}}}}
-if(r&&!r.roundId)r=null;if(!r)return;
-document.getElementById('homeChooser').hidden=true;document.getElementById('homeResult').hidden=false;
-document.getElementById('homeScore').textContent=`${r.score}/5`;document.getElementById('homeClub').textContent=`${r.club||'Your club'} Daily Five`;
-document.getElementById('homeTiles').textContent=(r.marks||[]).map(x=>x?'🟩':'⬛').join('');
-document.getElementById('homeCompletion').textContent=r.completion||0;document.getElementById('homePerfect').textContent=r.perfect||0;
-const url=`https://clubdailyfive.com/${r.clubSlug?`?club=${encodeURIComponent(r.clubSlug)}`:''}`;
-const message=`ClubDailyFive.com — ${r.club||'My club'}
-${date}  ${r.score}/5
-${(r.marks||[]).map(x=>x?'🟩':'⬛').join('')}
-🔥 ${r.completion||0} day streak  ⭐ ${r.perfect||0} perfect
 
-Can you beat me?
-${url}`;
-document.getElementById('homeWhatsApp').onclick=()=>window.open(`https://wa.me/?text=${encodeURIComponent(message)}`,'_blank','noopener,noreferrer');
-document.getElementById('homeFacebook').onclick=()=>window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,'_blank','noopener,noreferrer');
-document.getElementById('homeX').onclick=()=>window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(message.replace(url,'').trim())}&url=${encodeURIComponent(url)}`,'_blank','noopener,noreferrer');
-document.getElementById('homeCopy').onclick=async e=>{try{await navigator.clipboard.writeText(message);e.currentTarget.textContent='Copied!'}catch(err){}};
-})();
+<script>
+const playDate=<?= json_encode($quizDate) ?>;
+function stored(key){try{return JSON.parse(localStorage.getItem(key))}catch(e){return null}}
+function resultKey(slug){return `dailyfive:result:${slug}:${playDate}`}
+function clubResult(slug,name){
+ const valid=r=>r&&Array.isArray(r.marks)&&r.marks.length===5;
+ let r=stored(resultKey(slug));if(valid(r))return r;
+ const old=stored(`dailyfive:daily:${playDate}`);
+ r=old&&(old.clubSlug===slug||old.club===name)?old:stored(`dailyfive:${name}:${playDate}`);
+ if(!valid(r))return null;
+ const streak=stored(`dailyfive:streaks:${name}`)||{};
+ r={...r,club:name,clubSlug:slug,completion:r.completion??streak.completion??0,perfect:r.perfect??streak.perfect??0};
+ localStorage.setItem(resultKey(slug),JSON.stringify(r));return r;
+}
+function londonDate(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/London',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())}
+function checkDay(){if(londonDate()!==playDate){location.reload();return false}return true}
+window.addEventListener('pageshow',()=>checkDay());
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkDay()});
+setInterval(checkDay,30000);
+</script>
+
+<?php if (!$club): ?>
+<div id="homeChooser"><section class="hero"><div class="eyebrow">Premier League edition</div><h1>Five questions.<br>Every club.</h1><p>Play each club once a day. Try another team when you finish, or tap a played club to view and share your result. New rounds unlock at midnight UK time.</p></section>
+<section class="club-grid" aria-label="Choose your club"><?php foreach($clubs as $c): ?><a class="club" data-slug="<?= h($c['slug']) ?>" data-name="<?= h($c['name']) ?>" href="/?club=<?= h($c['slug']) ?>"><img src="<?= h($c['logo_path']) ?>" alt="" width="42" height="42"><span class="club-name"><?= h($c['name']) ?></span></a><?php endforeach ?></section></div>
+<script>
+function markClubs(){document.querySelectorAll('.club[data-slug]').forEach(el=>{
+ const r=clubResult(el.dataset.slug,el.dataset.name);
+ el.classList.toggle('played',!!r);
+ let badge=el.querySelector('.played-badge');
+ if(r){if(!badge){badge=document.createElement('span');badge.className='played-badge';el.appendChild(badge)}
+ badge.textContent=`✓ Played · ${r.score}/5`;
+ el.setAttribute('aria-label',`${el.dataset.name}: played today, ${r.score} out of 5. View result`);
+ }else if(badge){badge.remove();el.removeAttribute('aria-label')}
+})}
+markClubs();window.addEventListener('pageshow',markClubs);window.addEventListener('storage',markClubs);
 </script>
 <?php elseif (count($questions) !== 5): ?>
 <section class="quiz-head"><div class="eyebrow"><?= h($club['name']) ?></div><h1>Today’s five</h1></section><div class="empty"><h2>The next round is being prepared.</h2><p>Come back shortly for five fresh questions.</p><a class="again" href="/">Choose another club</a></div>
 <?php else: ?>
 <section class="quiz-head" id="quizHead"><div class="eyebrow"><?= h($club['name']) ?> · 4 club bank + 1 fresh daily</div><h1>Today’s five</h1><div class="streak-mini" id="streakMini" hidden></div><div class="progress" id="progress" aria-label="Quiz progress"></div></section>
 <section class="card" id="quiz" aria-live="polite"><div class="count" id="count"></div><h2 class="question" id="question"></h2><div class="answers" id="answers"></div><div class="feedback" id="feedback"></div><button class="next" id="next">Next question</button></section>
-<section class="result" id="result" hidden><div class="eyebrow">Full time</div><div class="score" id="score"></div><h2 id="resultClub"><?= h($club['name']) ?> Daily Five</h2><div class="tiles" id="tiles"></div><div class="streaks"><div class="streak-box"><span class="streak-number" id="completionStreak">0</span><span class="streak-label">🔥 completion streak</span></div><div class="streak-box"><span class="streak-number" id="perfectStreak">0</span><span class="streak-label">⭐ perfect 5/5 streak</span></div></div><p>Today’s round is complete. Come back tomorrow for five new questions.</p><div class="share-actions" aria-label="Share your result"><button class="share-action primary" id="shareWhatsApp">WhatsApp</button><button class="share-action" id="shareFacebook">Facebook</button><button class="share-action" id="shareX">X</button><button class="share-action" id="shareCopy">Copy result</button></div></section>
+<section class="result" id="result" hidden><div class="eyebrow">Full time</div><div class="score" id="score"></div><h2 id="resultClub"><?= h($club['name']) ?> Daily Five</h2><div class="tiles" id="tiles"></div><div class="streaks"><div class="streak-box"><span class="streak-number" id="completionStreak">0</span><span class="streak-label">🔥 completion streak</span></div><div class="streak-box"><span class="streak-number" id="perfectStreak">0</span><span class="streak-label">⭐ perfect 5/5 streak</span></div></div><p>You’ve played this club today. Try another club, or return after midnight UK time.</p><div class="share-actions" aria-label="Share your result"><button class="share-action primary" id="shareNative">Share result</button><button class="share-action" id="shareCopy">Copy result</button></div><p id="shareStatus" role="status"></p><textarea id="shareFallback" class="share-fallback" aria-label="Result to copy" readonly hidden></textarea><a class="again" href="/">Choose another club</a></section>
 <script>
 const questions=<?= json_encode(array_map(fn($q)=>['id'=>(int)$q['id'],'q'=>$q['question_text'],'o'=>json_decode($q['options_json'],true),'a'=>(int)$q['correct_index'],'e'=>$q['explanation'],'u'=>$q['source_url'],'s'=>$q['source_label']],$questions), JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE) ?>;
 const club=<?= json_encode($club['name']) ?>, clubSlug=<?= json_encode($club['slug']) ?>, quizDate=<?= json_encode($quizDate) ?>, roundId=questions.map(x=>x.id).join('-');
 function anonymousPlayerId(){let id=localStorage.getItem('dailyfive:player-id');if(!id){id=(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2));localStorage.setItem('dailyfive:player-id',id)}return id}
 function track(event){fetch('/track.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({player_id:anonymousPlayerId(),club:clubSlug,event}),keepalive:true}).catch(()=>{})}
-track('selected');track('started');
+track('selected');
 let at=0,score=0,marks=[],resultData=null;const $=id=>document.getElementById(id);
 const streakKey=`dailyfive:streaks:${club}`;
-const dailyKey=`dailyfive:daily:${quizDate}`;
+const dailyKey=resultKey(clubSlug);
+const progressKey=`dailyfive:progress:${clubSlug}:${quizDate}`;
 function yesterday(date){const d=new Date(`${date}T12:00:00Z`);d.setUTCDate(d.getUTCDate()-1);return d.toISOString().slice(0,10)}
 function readStreaks(){try{return JSON.parse(localStorage.getItem(streakKey))||{completion:0,perfect:0}}catch(e){return{completion:0,perfect:0}}}
 function showReturningStreak(){const s=readStreaks();if(s.completion||s.perfect){$('streakMini').innerHTML=`🔥 <b>${s.completion||0}</b> completed &nbsp; ⭐ <b>${s.perfect||0}</b> perfect`;$('streakMini').hidden=false}}
 function updateStreaks(){let s=readStreaks();if(s.lastCompleted!==quizDate){const prev=yesterday(quizDate);s.completion=s.lastCompleted===prev?(s.completion||0)+1:1;s.lastCompleted=quizDate;if(score===5){s.perfect=s.lastPerfect===prev?(s.perfect||0)+1:1;s.lastPerfect=quizDate}else{s.perfect=0;s.lastPerfect=null}localStorage.setItem(streakKey,JSON.stringify(s))}return s}
-function readDailyResult(){try{const saved=JSON.parse(localStorage.getItem(dailyKey));if(saved&&saved.roundId===roundId)return saved;for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i)||'';if(k.startsWith('dailyfive:')&&k.endsWith(`:${quizDate}`)&&!k.includes(':streaks:')&&!k.includes(':daily:')){const old=JSON.parse(localStorage.getItem(k));if(old.roundId!==roundId)continue;old.club=k.slice(10,-quizDate.length-1);const s=JSON.parse(localStorage.getItem(`dailyfive:streaks:${old.club}`)||'{}');old.completion=s.completion||0;old.perfect=s.perfect||0;localStorage.setItem(dailyKey,JSON.stringify(old));return old}}}catch(e){}return null}
+function readDailyResult(){return clubResult(clubSlug,club)}
 function showResult(r){resultData=r;score=Number(r.score)||0;marks=Array.isArray(r.marks)?r.marks:[];$('quiz').hidden=true;$('quizHead').hidden=true;$('result').hidden=false;$('score').textContent=`${score}/5`;$('resultClub').textContent=`${r.club||club} Daily Five`;$('tiles').textContent=marks.map(x=>x?'🟩':'⬛').join('');$('completionStreak').textContent=r.completion||0;$('perfectStreak').textContent=r.perfect||0}
 $('progress').innerHTML=questions.map((_,i)=>`<span class="pip" id="p${i}"></span>`).join('');
 function render(){const x=questions[at];$('count').textContent=`Question ${at+1} of 5`;$('question').textContent=x.q;$('answers').innerHTML='';$('feedback').className='feedback';$('feedback').innerHTML='';$('next').className='next';x.o.forEach((label,i)=>{const b=document.createElement('button');b.className='answer';b.textContent=label;b.onclick=()=>choose(i);$('answers').appendChild(b)});}
-function choose(i){const x=questions[at],buttons=[...document.querySelectorAll('.answer')];buttons.forEach((b,n)=>{b.disabled=true;if(n===x.a)b.classList.add('correct');if(n===i&&i!==x.a)b.classList.add('wrong')});const ok=i===x.a;if(ok)score++;marks.push(ok);$('feedback').innerHTML=`<strong>${ok?'Correct.':'Not quite.'}</strong> ${x.e} <a href="${x.u}" target="_blank" rel="noopener">${x.s} ↗</a>`;$('feedback').classList.add('show');$('next').textContent=at===4?'See result':'Next question';$('next').classList.add('show');document.getElementById(`p${at}`).classList.add('done');}
-$('next').onclick=()=>{if(++at<questions.length)render();else finish()};
-function finish(){track('completed');localStorage.setItem(`dailyfive:${club}:${quizDate}`,JSON.stringify({score,marks}));const s=updateStreaks();const r={club,clubSlug,roundId,score,marks,completion:s.completion||0,perfect:s.perfect||0};localStorage.setItem(dailyKey,JSON.stringify(r));showResult(r)}
+function choose(i){if(!checkDay())return;const done=readDailyResult();if(done){showResult(done);return}if(marks.length>at)return;const x=questions[at],buttons=[...document.querySelectorAll('.answer')];buttons.forEach((b,n)=>{b.disabled=true;if(n===x.a)b.classList.add('correct');if(n===i&&i!==x.a)b.classList.add('wrong')});const ok=i===x.a;if(ok)score++;marks.push(ok);localStorage.setItem(progressKey,JSON.stringify({roundId,marks,score}));$('feedback').innerHTML=`<strong>${ok?'Correct.':'Not quite.'}</strong> ${x.e} <a href="${x.u}" target="_blank" rel="noopener">${x.s} ↗</a>`;$('feedback').classList.add('show');$('next').textContent=at===4?'See result':'Next question';$('next').classList.add('show');document.getElementById(`p${at}`).classList.add('done');}
+$('next').onclick=()=>{if(!checkDay()||marks.length!==at+1)return;if(++at<questions.length)render();else finish()};
+function finish(){const saved=readDailyResult();if(saved){showResult(saved);return}track('completed');localStorage.setItem(`dailyfive:${club}:${quizDate}`,JSON.stringify({score,marks}));const s=updateStreaks();const r={club,clubSlug,roundId,score,marks,completion:s.completion||0,perfect:s.perfect||0};localStorage.setItem(dailyKey,JSON.stringify(r));localStorage.removeItem(progressKey);showResult(r)}
 function currentShare(){
  const r=resultData||{club,clubSlug,score,marks,completion:0,perfect:0};
  const url=`https://clubdailyfive.com/?club=${encodeURIComponent(r.clubSlug||clubSlug)}`;
@@ -133,11 +147,27 @@ Can you beat me?
 ${url}`;
  return {url,message};
 }
-$('shareWhatsApp').onclick=()=>{const x=currentShare();window.open(`https://wa.me/?text=${encodeURIComponent(x.message)}`,'_blank','noopener,noreferrer')};
-$('shareFacebook').onclick=()=>{const x=currentShare();window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(x.url)}`,'_blank','noopener,noreferrer')};
-$('shareX').onclick=()=>{const x=currentShare();window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(x.message.replace(x.url,'').trim())}&url=${encodeURIComponent(x.url)}`,'_blank','noopener,noreferrer')};
-$('shareCopy').onclick=async e=>{const x=currentShare();try{await navigator.clipboard.writeText(x.message);e.currentTarget.textContent='Copied!'}catch(err){}};
-const completed=readDailyResult();if(completed)showResult(completed);else{showReturningStreak();render()}
+
+async function copyResult(){const message=currentShare().message;
+ try{await navigator.clipboard.writeText(message);$('shareStatus').textContent='Result copied! Paste it into a message.'}
+ catch(e){$('shareFallback').hidden=false;$('shareFallback').value=message;$('shareFallback').focus();$('shareFallback').select();$('shareStatus').textContent='Select and copy your result below.'}
+}
+$('shareNative').onclick=async()=>{
+ if(navigator.share){try{await navigator.share({text:currentShare().message});return}catch(e){if(e.name==='AbortError')return}}
+ await copyResult();
+};
+$('shareCopy').onclick=copyResult;
+const completed=readDailyResult();
+if(completed)showResult(completed);else{
+ const progress=stored(progressKey);
+ if(progress&&progress.roundId===roundId&&Array.isArray(progress.marks)&&progress.marks.length<=5){
+  marks=progress.marks;score=marks.filter(Boolean).length;at=marks.length;
+ }
+ if(at===5)finish();else{track('started');showReturningStreak();render()}
+}
+window.addEventListener('storage',()=>{const r=readDailyResult();if(r)showResult(r);else{const p=stored(progressKey);if(p&&p.roundId===roundId&&p.marks.length>marks.length)location.reload()}});
+window.addEventListener('pageshow',()=>{const r=readDailyResult();if(r)showResult(r)});
+
 </script>
 <?php endif ?>
 <footer class="foot">Independent supporter quiz. Not affiliated with or endorsed by the Premier League or any club.</footer>
