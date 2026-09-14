@@ -9,7 +9,7 @@ $clubs=$qdb->query("SELECT c.slug,c.name,
  COUNT(q.id) questions,
  SUM(CASE WHEN q.use_count>0 THEN 1 ELSE 0 END) questions_used,
  COALESCE(SUM(q.use_count),0) total_uses,
- MAX(CASE WHEN q.semantic_key LIKE 'bank|%' THEN q.created_at END) replenished
+ MAX(CASE WHEN q.semantic_key LIKE 'v4bank|%' THEN q.created_at END) replenished
  FROM clubs c LEFT JOIN questions q ON q.club_id=c.id
  WHERE c.active=1 GROUP BY c.id ORDER BY c.name")->fetchAll(PDO::FETCH_ASSOC);
 $analytics=[];
@@ -30,7 +30,8 @@ $players=$adb->query("SELECT player_id,
 $usage=[];
 $stmt=$udb->prepare("SELECT calls FROM api_football_daily_usage WHERE utc_day=?");
 for($i=6;$i>=0;$i--){$d=(new DateTimeImmutable('today',new DateTimeZone('UTC')))->modify("-$i days")->format('Y-m-d');$stmt->execute([$d]);$usage[$d]=(int)($stmt->fetchColumn()?:0);}
-$lastReplenish=max(array_filter(array_column($clubs,'replenished')))?:'Not recorded';
+$replenishmentDates=array_filter(array_column($clubs,'replenished'));
+$lastReplenish=$replenishmentDates ? max($replenishmentDates) : 'Not recorded';
 ?>
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#07101e"><title>Owner statistics — ClubDailyFive.com</title>
