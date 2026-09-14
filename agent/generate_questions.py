@@ -2,6 +2,7 @@
 from __future__ import annotations
 import argparse,csv,datetime as dt,hashlib,io,json,os,random,sqlite3,sys,urllib.request
 from zoneinfo import ZoneInfo
+from question_variety import select_varied, validate_round
 DB=os.getenv('QUIZ_DB','/var/lib/predictioncomp/clubquiz.sqlite'); BACKUPS='/var/backups/predictioncomp-question-db'; UK=ZoneInfo('Europe/London')
 DIVS=('E0','E1','E2','E3')
 ALIASES={'Arsenal':'arsenal','Aston Villa':'aston-villa','Bournemouth':'bournemouth','Brentford':'brentford','Brighton':'brighton','Chelsea':'chelsea','Coventry':'coventry-city','Crystal Palace':'crystal-palace','Everton':'everton','Fulham':'fulham','Hull':'hull-city','Ipswich':'ipswich-town','Leeds':'leeds-united','Liverpool':'liverpool','Man City':'manchester-city','Man United':'manchester-united','Newcastle':'newcastle-united',"Nott'm Forest":'nottingham-forest','Sunderland':'sunderland','Tottenham':'tottenham-hotspur'}
@@ -43,12 +44,13 @@ def scoreopts(a,b,seed):
   random.Random(hashlib.sha256(seed.encode()).digest()).shuffle(cand); vals=cand[:4]
   if correct not in vals: vals[-1]=correct
   return vals,vals.index(correct)
-def insert_fresh(con,club,target,rows):
+def insert_fresh(con,club,target,rows,selector_override=None):
   rows=sorted(rows,key=lambda r:r['_date'],reverse=True)
   if not rows: raise RuntimeError(f'No current-season completed matches for {club["name"]}')
   latest=rows[0]; gf,ga,opp,yellow,red=persp(latest); home=latest['HomeTeam']==latest['_alias']; venue=('at home to' if home else 'away to'); age=(dt.date.fromisoformat(target)-latest['_date']).days
   selector=int(hashlib.sha256(f'{target}|{club["slug"]}|fresh'.encode()).hexdigest(),16)%4
-  if 0<=age<=7:
+  if selector_override is not None: selector=selector_override
+  if 0<=age<=7 or selector in (0,1):
     if selector==0:
       val=yellow; opts,idx=numopts(val,f'{target}|{club["slug"]}|yellow'); text=f"How many yellow cards did {club['name']} receive in their most recent league match against {opp}?"; exp=f"{club['name']} received {val} yellow cards in that match."; slot='recent-yellow'
     elif selector==1:
@@ -57,6 +59,8 @@ def insert_fresh(con,club,target,rows):
       opts,idx=scoreopts(gf,ga,f'{target}|{club["slug"]}|score'); val=f'{gf}-{ga}'; text=f"What was the score for {club['name']} in their most recent league match {venue} {opp}?"; exp=f"{club['name']} played {venue} {opp}; the score for {club['name']} was {val}."; slot='recent-score'
   else:
     opts,idx=scoreopts(gf,ga,f'{target}|{club["slug"]}|season-score'); val=f'{gf}-{ga}'; text=f"What was the score for {club['name']} in their latest completed league match this season, played {venue} {opp}?"; exp=f"{club['name']} played {venue} {opp}; the score for {club['name']} was {val}."; slot='season-score'
+  if age>7:
+    text=text.replace('most recent league match', 'latest completed league match this season')
   key=f'dailyfresh|{target}|{club["slug"]}|{slot}'; payload=json.dumps(opts,ensure_ascii=False); ch=hashlib.sha256((text+'|'+key).encode()).hexdigest()
   con.execute('delete from daily_questions where question_id in (select id from questions where semantic_key=?)',(key,)); con.execute('delete from questions where semantic_key=?',(key,))
   con.execute('insert into questions(club_id,question_text,options_json,correct_index,explanation,source_url,source_label,content_hash,semantic_key,status,question_kind,fact_date,use_count,last_used_date) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)',(club['id'],text,payload,idx,exp,latest['_url'],'Football-Data.co.uk current-season records',ch,key,'reviewed','recent',latest['_date'].isoformat(),0,None))
@@ -74,16 +78,23 @@ def main():
   try:
     con.execute('begin immediate'); con.execute('delete from daily_questions where quiz_date=?',(target,)); rounds=[]
     for club in clubs:
-      bank=ranked(con.execute("select id,use_count,last_used_date,semantic_key from questions where club_id=? and status='reviewed' and semantic_key like 'v4bank|%'",(club['id'],)).fetchall(),target)
+      bank=ranked(con.execute("select id,use_count,last_used_date,semantic_key,question_text from questions where club_id=? and status='reviewed' and semantic_key like 'v4bank|%'",(club['id'],)).fetchall(),target)
       if len(bank)!=300: raise RuntimeError(f"{club['slug']} has {len(bank)} V4 bank questions, expected 300")
-      selected=[]; seen_facts=set()
-      for r in bank:
-        fact=r['semantic_key'].rsplit('|v',1)[0]
-        if fact in seen_facts: continue
-        selected.append(r); seen_facts.add(fact)
-        if len(selected)==4: break
-      if len(selected)!=4: raise RuntimeError(f"{club['slug']} could not select 4 distinct V4 source facts")
-      ids=[r['id'] for r in selected]; ids.append(insert_fresh(con,club,target,current.get(club['slug'],[])))
+      for choice in (None,0,1,2):
+        con.execute("savepoint fresh_choice")
+        fresh_id=insert_fresh(con,club,target,current.get(club['slug'],[]),choice)
+        fresh=con.execute("select * from questions where id=?",(fresh_id,)).fetchone()
+        try:
+          selected=select_varied(bank,fresh)
+        except RuntimeError:
+          con.execute("rollback to fresh_choice")
+          con.execute("release fresh_choice")
+          continue
+        con.execute("release fresh_choice")
+        break
+      else: raise RuntimeError(f"{club['slug']}: cannot build five different question types")
+      validate_round([*selected,fresh])
+      ids=[r['id'] for r in selected]+[fresh_id]
       random.Random(hashlib.sha256(f'{target}|{club["slug"]}|shuffle'.encode()).digest()).shuffle(ids); rounds.append((club,ids))
     for club,ids in rounds:
       for pos,qid in enumerate(ids,1):
