@@ -6,6 +6,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import build_v3_bank as v3
+from question_dates import dated_opponent_question
 from question_variety import banned_question
 
 DB = v3.DB
@@ -36,7 +37,7 @@ def leak_safe_question(q: dict) -> str:
         # perspective. Avoid ambiguous constructions such as
         # "the opposition 4-3 Nottingham Forest", which can sound as if
         # Forest won despite actually losing.
-        m=re.search(r"Who did (.+?) play in the high-scoring (\d{4}-\d{2}) league match that finished (.+?)\?", text, re.I)
+        m=re.search(r"Who did (.+?) play in the high-scoring (\d{4}-\d{2}) league match(?: on \d{1,2} [A-Za-z]+ \d{4})? that finished (.+?)\?", text, re.I)
         score_m=re.search(r"(.+?)\s+(\d+)-(\d+)\s+(.+)$", m.group(3)) if m else None
         if m and score_m:
             club=m.group(1); season=m.group(2)
@@ -65,7 +66,7 @@ def leak_safe_question(q: dict) -> str:
     # Cup questions must always identify the competition explicitly.
     if re.search(r'\bthe cup\b', text, re.I):
         raise RuntimeError(f"Ambiguous cup wording in question: {text}")
-    return text
+    return dated_opponent_question(text, q.get("fact_date"))
 
 def make_variant(slug: str, club_name: str, q: dict, variant: int) -> dict:
     out = dict(q)

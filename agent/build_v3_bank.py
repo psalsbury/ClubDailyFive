@@ -101,7 +101,7 @@ class Builder:
                 self.add("high_scoring",base+"|clubgoals",f"How many goals did {self.name} score in their high-scoring {season} league match {venue} {v['opp']}?",v["gf"],[max(0,int(v['gf'])-1),int(v['gf'])+1,int(v['gf'])+2,int(v['ga'])],f"{self.name} scored {v['gf']}; the match finished {score}.",r["_url"],r["_date"])
                 hg,ag=int(r['FTHG']),int(r['FTAG']); score_pool=[f"{r['HomeTeam']} {a}-{b} {r['AwayTeam']}" for a,b in ((hg+1,ag),(hg,ag+1),(max(0,hg-1),ag),(hg,max(0,ag-1)),(ag,hg))]
                 self.add("high_scoring",base+"|score",f"What was the final score in {self.name}'s high-scoring {season} league match {venue} {v['opp']}?",score,score_pool,f"The match finished {score}.",r["_url"],r["_date"])
-                self.add("high_scoring",base+"|opp",f"Who did {self.name} play in the high-scoring {season} league match that finished {score}?",v["opp"],opponents,f"The opponents were {v['opp']}; the match finished {score}.",r["_url"],r["_date"])
+                self.add("high_scoring",base+"|opp",f"Who did {self.name} play in the high-scoring {season} league match on {d.day} {d.strftime('%B')} {d.year} that finished {score}?",v["opp"],opponents,f"The opponents were {v['opp']}; the match finished {score}.",r["_url"],r["_date"])
             results=[fd_view(r)["result"] for r in rows]
             for typ,code,label in (("win","W","winning"),("draw","D","drawing"),("loss","L","losing")):
                 best_start=best_len=cur_start=cur_len=0
