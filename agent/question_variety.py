@@ -10,6 +10,7 @@ def question_topics(row):
         elif any(x in text for x in ("how many goals","score in","score for","score when","final score")):
             topics.add("match_score")
     if "first goal" in text or "scored first" in text: topics.add("first_goal")
+    if any(x in text for x in ("league wins","league draws","league losses")): topics.add("season_record")
     if "manager" in text: topics.add("managers")
     if "transfer" in text: topics.add("transfers")
     if "attendance" in text: topics.add("attendance")
