@@ -41,7 +41,13 @@ def leak_safe_question(q: dict) -> str:
             club=m.group(1); season=m.group(2)
             home, hg, ag, away=score_m.group(1), int(score_m.group(2)), int(score_m.group(3)), score_m.group(4)
             def nn(s): return re.sub(r'[^a-z0-9]+','',s.lower())
-            club_home = nn(club) in nn(home) or nn(home) in nn(club)
+            # The correct opponent comes directly from the structured match.
+            # Never infer home/away by comparing abbreviated club display names.
+            opponent_home = nn(correct) == nn(home)
+            opponent_away = nn(correct) == nn(away)
+            if opponent_home == opponent_away:
+                raise RuntimeError(f"Cannot resolve opponent in source scoreline: {text}")
+            club_home = opponent_away
             gf, ga = (hg, ag) if club_home else (ag, hg)
             venue = 'at home' if club_home else 'away'
             margin_word = 'narrowly ' if abs(gf-ga) == 1 else ''
