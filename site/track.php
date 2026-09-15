@@ -7,10 +7,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); echo '{"ok
 $origin = (string)($_SERVER['HTTP_ORIGIN'] ?? '');
 if ($origin !== '' && !preg_match('#^https://(www\.)?clubdailyfive\.com$#i', $origin)) { http_response_code(403); echo '{"ok":false}'; exit; }
 $data = json_decode((string)file_get_contents('php://input'), true);
-$player = (string)($data['player_id'] ?? '');
 $club = preg_replace('/[^a-z0-9-]/', '', strtolower((string)($data['club'] ?? '')));
 $event = (string)($data['event'] ?? '');
-if (!preg_match('/^[a-zA-Z0-9_-]{16,64}$/', $player) || !in_array($event, ['selected','started','completed','shown'], true) || $club === '') {
+if (!in_array($event, ['selected','started','completed','shown'], true) || $club === '') {
     http_response_code(422); echo '{"ok":false}'; exit;
 }
 $quiz = new PDO('sqlite:/var/lib/clubdailyfive/clubquiz.sqlite', null, null, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
@@ -46,8 +45,28 @@ if ($event === 'shown') {
     }
     echo '{"ok":true}'; exit;
 }
+// Ignore legacy page events. No identity is accepted or persisted.
+if (!in_array($event, ['started','completed'], true) || ($data['analytics_version'] ?? null) !== 2) {
+    echo '{"ok":true}'; exit;
+}
+$today = new DateTimeImmutable('today');
+if (($data['play_date'] ?? '') !== $today->format('Y-m-d')) {
+    http_response_code(422); echo '{"ok":false}'; exit;
+}
+$weekStart = $today->modify('monday this week')->format('Y-m-d');
+$monthStart = $today->format('Y-m-01');
+$retainFrom = min($weekStart, $monthStart);
 $db = new PDO('sqlite:/var/lib/clubdailyfive/analytics.sqlite', null, null, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
 $db->exec('PRAGMA busy_timeout=3000');
-$stmt = $db->prepare('INSERT OR IGNORE INTO player_events(player_id,club_slug,event_type,event_date) VALUES(?,?,?,?)');
-$stmt->execute([$player,$club,$event,(new DateTimeImmutable('now',new DateTimeZone('Europe/London')))->format('Y-m-d')]);
+$db->beginTransaction();
+try {
+    $stmt = $db->prepare('INSERT INTO club_daily_totals(event_date,club_slug,started,completed) VALUES(?,?,?,?)
+        ON CONFLICT(event_date,club_slug) DO UPDATE SET started=started+excluded.started,completed=completed+excluded.completed');
+    $stmt->execute([$today->format('Y-m-d'), $club, $event === 'started' ? 1 : 0, $event === 'completed' ? 1 : 0]);
+    $prune = $db->prepare('DELETE FROM club_daily_totals WHERE event_date<?');
+    $prune->execute([$retainFrom]);
+    $db->commit();
+} catch (Throwable $e) {
+    $db->rollBack(); throw $e;
+}
 echo '{"ok":true}';

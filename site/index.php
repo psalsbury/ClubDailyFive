@@ -74,6 +74,7 @@ $dateLabel = (new DateTimeImmutable($quizDate))->format('j F Y');
 
 <script>
 const playDate=<?= json_encode($quizDate) ?>;
+try{localStorage.removeItem('dailyfive:player-id');for(const key of Object.keys(localStorage)){if(key.startsWith('dailyfive:counted:')&&!key.includes(`:${playDate}:`))localStorage.removeItem(key)}}catch(e){}
 function stored(key){try{return JSON.parse(localStorage.getItem(key))}catch(e){return null}}
 function resultKey(slug){return `dailyfive:result:${slug}:${playDate}`}
 function clubResult(slug,name){
@@ -117,10 +118,14 @@ markClubs();window.addEventListener('pageshow',markClubs);window.addEventListene
 <script>
 const questions=<?= json_encode(array_map(fn($q)=>['id'=>(int)$q['id'],'q'=>$q['question_text'],'o'=>json_decode($q['options_json'],true),'a'=>(int)$q['correct_index'],'e'=>$q['explanation'],'u'=>$q['source_url'],'s'=>$q['source_label']],$questions), JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE) ?>;
 const club=<?= json_encode($club['name']) ?>, clubSlug=<?= json_encode($club['slug']) ?>, quizDate=<?= json_encode($quizDate) ?>, roundId=questions.map(x=>x.id).join('-');
-function anonymousPlayerId(){let id=localStorage.getItem('dailyfive:player-id');if(!id){id=(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2));localStorage.setItem('dailyfive:player-id',id)}return id}
 const sourceQuizDate=<?= json_encode($sourceQuizDate) ?>;
-function track(event,questionId=null){fetch('/track.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({player_id:anonymousPlayerId(),club:clubSlug,event,question_id:questionId,quiz_date:sourceQuizDate}),keepalive:true}).catch(()=>{})}
-track('selected');
+function track(event,questionId=null){
+ const send=()=>fetch('/track.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({club:clubSlug,event,question_id:questionId,quiz_date:sourceQuizDate,play_date:playDate,analytics_version:2}),keepalive:true}).catch(()=>{});
+ if(event==='shown'){send();return}
+ const key=`dailyfive:counted:${clubSlug}:${playDate}:${event}`;
+ const once=()=>{try{if(localStorage.getItem(key))return;localStorage.setItem(key,'1')}catch(e){return}return send()};
+ if(navigator.locks){navigator.locks.request(key,once).catch(()=>{})}else{once()}
+}
 let at=0,score=0,marks=[],resultData=null;const $=id=>document.getElementById(id);
 const streakKey=`dailyfive:streaks:${club}`;
 const dailyKey=resultKey(clubSlug);
@@ -163,6 +168,7 @@ if(completed)showResult(completed);else{
  const progress=stored(progressKey);
  if(progress&&progress.roundId===roundId&&Array.isArray(progress.marks)&&progress.marks.length<=5){
   marks=progress.marks;score=marks.filter(Boolean).length;at=marks.length;
+  if(at>0)localStorage.setItem(`dailyfive:counted:${clubSlug}:${playDate}:started`,'1');
  }
  if(at===5)finish();else{track('started');showReturningStreak();render()}
 }

@@ -58,7 +58,10 @@ def main():
         con.backup(dest)
     today = dt.datetime.now(ZoneInfo('Europe/London')).date().isoformat()
     with sqlite3.connect('file:' + str(Path(DB).with_name('analytics.sqlite')) + '?mode=ro', uri=True) as analytics:
-        played = {r[0] for r in analytics.execute("SELECT DISTINCT club_slug FROM player_events WHERE event_date=? AND event_type IN ('started','completed')", (today,))}
+        if analytics.execute("SELECT 1 FROM sqlite_master WHERE name='club_daily_totals'").fetchone():
+            played = {r[0] for r in analytics.execute("SELECT club_slug FROM club_daily_totals WHERE event_date=? AND (started>0 OR completed>0)", (today,))}
+        else:
+            played = {r[0] for r in analytics.execute("SELECT DISTINCT club_slug FROM player_events WHERE event_date=? AND event_type IN ('started','completed')", (today,))}
     print(json.dumps({'backup': backup, **migrate(con, today, played)}))
 
 
