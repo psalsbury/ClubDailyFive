@@ -45,3 +45,5 @@ The owner page now reads only a small `club_daily_totals` table and the club nam
 Only daily totals needed for the current month or overlapping current week are retained; each aggregate write prunes older dates. Question-use records remain separate anonymous question/day flags, with no player linkage. Existing locally saved game results and daily play limits remain intact.
 
 High-scoring opponent questions must include the full recorded match date (for example, 1 February 2025). Both bank builders enforce this. `agent/migrate_question_dates.py --apply` adds dates in place to existing entries without changing answers, question IDs, round selections or usage history.
+
+All full dates displayed in questions, answer options and explanations use DD-MMM-YYYY (for example, 01-Feb-2025). The date formatter preserves season labels, URLs and internal ISO dates. Both historical builders and the fresh-question generator apply this format. Existing records can be updated with `agent/migrate_display_dates.py --apply`.

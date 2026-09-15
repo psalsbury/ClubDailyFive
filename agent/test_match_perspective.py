@@ -8,7 +8,7 @@ class MatchPerspectiveTests(unittest.TestCase):
   for club,alias in [('Nottingham Forest',"Nott'm Forest"),('Manchester City','Man City'),('Manchester United','Man United'),('Brighton & Hove Albion','Brighton')]:
    for hg,ag in [(7,0),(0,7),(3,3)]:
     home=self.render(club,alias,hg,ag,'Opponent','Opponent')
-    self.assertIn('1 February 2025',home)
+    self.assertIn('01-Feb-2025',home)
     self.assertIn('at home',home);self.assertIn(f'{hg}-{ag}',home)
     self.assertIn('beat' if hg>ag else 'lose to' if hg<ag else 'draw with',home)
     away=self.render(club,'Opponent',hg,ag,alias,'Opponent')
@@ -20,7 +20,7 @@ class MatchPerspectiveTests(unittest.TestCase):
   row={'question_text':"Who did Nottingham Forest play in the high-scoring 2024-25 league match on 1 February 2025 that finished Nott'm Forest 7-0 Brighton?",'options_json':json.dumps(['Brighton','Other A','Other B','Other C']),'correct_index':0,'semantic_key':'v3bank|test|high_scoring|match|opp','fact_date':'2025-02-01'}
   text=leak_safe_question(row)
   self.assertIn('beat at home',text)
-  self.assertEqual(text.count('1 February 2025'),1)
+  self.assertEqual(text.count('01-Feb-2025'),1)
   self.assertEqual(dated_opponent_question(text,row['fact_date']),text)
   self.assertNotIn('Brighton',text)
  def test_unresolved_opponent_rejected(self):

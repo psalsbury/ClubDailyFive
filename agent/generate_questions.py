@@ -2,6 +2,7 @@
 from __future__ import annotations
 import argparse,csv,datetime as dt,hashlib,io,json,os,random,sqlite3,sys,urllib.request
 from zoneinfo import ZoneInfo
+from display_dates import display_date
 from question_variety import select_varied, validate_round, banned_question
 DB=os.getenv('QUIZ_DB','/var/lib/clubdailyfive/clubquiz.sqlite'); BACKUPS='/var/backups/predictioncomp-question-db'; UK=ZoneInfo('Europe/London')
 DIVS=('E0','E1','E2','E3')
@@ -69,12 +70,12 @@ def insert_fresh(con,club,target,rows,selector_override=None):
     field=('HY' if home else 'AY') if slot=='yellow' else ('HR' if home else 'AR')
     if not (latest.get(field) or '').strip():raise FreshUnavailable('Card statistic unavailable')
     val=int(latest[field]);opts,idx=numopts(val,f'{date}|{club["slug"]}|{slot}')
-    text=f"How many {slot} cards did {club['name']} receive in their league match against {opp} on {date}?"
-    exp=f"{club['name']} received {val} {slot} cards against {opp} on {date}."
+    text=f"How many {slot} cards did {club['name']} receive in their league match against {opp} on {display_date(date)}?"
+    exp=f"{club['name']} received {val} {slot} cards against {opp} on {display_date(date)}."
   else:
     opts,idx=scoreopts(gf,ga,f'{date}|{club["slug"]}|score')
-    text=f"What was the score for {club['name']} in their league match {venue} {opp} on {date}?"
-    exp=f"{club['name']} played {venue} {opp} on {date}; the score for {club['name']} was {gf}-{ga}."
+    text=f"What was the score for {club['name']} in their league match {venue} {opp} on {display_date(date)}?"
+    exp=f"{club['name']} played {venue} {opp} on {display_date(date)}; the score for {club['name']} was {gf}-{ga}."
   key=f'matchfact|{club["slug"]}|{date}|{slot}'
   existing=con.execute('select id from questions where semantic_key=?',(key,)).fetchone()
   if existing:return existing[0]
@@ -97,8 +98,8 @@ def insert_season_fact(con,club,target,rows,slot):
     if existing['use_count']:raise FreshUnavailable('Season fact already asked')
     return existing['id']
   wording={'wins':'league wins','draws':'league draws','losses':'league losses','goals-scored':'goals scored in the league','goals-conceded':'goals conceded in the league','yellow':'yellow cards in the league','red':'red cards in the league'}[slot]
-  text=f"How many {wording} had {club['name']} recorded in {season}, through {date}?"
-  exp=f"Across their {len(rows)} completed league matches through {date}, {club['name']} recorded {val} {wording}."
+  text=f"How many {wording} had {club['name']} recorded in {season}, through {display_date(date)}?"
+  exp=f"Across their {len(rows)} completed league matches through {display_date(date)}, {club['name']} recorded {val} {wording}."
   opts,answer=numopts(val,key);payload=json.dumps(opts)
   con.execute('insert into questions(club_id,question_text,options_json,correct_index,explanation,source_url,source_label,content_hash,semantic_key,status,question_kind,fact_date,use_count,last_used_date) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)',(club['id'],text,payload,answer,exp,rows[0]['_url'],'Football-Data.co.uk season records',hashlib.sha256(key.encode()).hexdigest(),key,'reviewed','recent',date,0,None))
   return con.execute('select id from questions where semantic_key=?',(key,)).fetchone()[0]

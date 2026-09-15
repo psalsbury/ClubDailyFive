@@ -87,8 +87,9 @@ class Builder:
         opts=unique_options(str(correct),pool,semantic)
         if not opts or len(set(x.casefold() for x in opts))!=4:return
         from sterling import sterling_question
+        from display_dates import format_question
         self.keys.add(semantic); self.q.append({"question_text":text,"options_json":json.dumps(opts,ensure_ascii=False),"correct_index":opts.index(str(correct)),"explanation":explanation,"source_url":source_url,"source_label":"Transfermarkt open dataset" if "transfermarkt" in source_url.lower() or source_url==DATASET_URL else "Football-Data.co.uk","content_hash":hsh(semantic+"|"+text),"semantic_key":semantic,"status":"reviewed","question_kind":category,"fact_date":fact_date})
-        self.q[-1] = sterling_question(self.q[-1])
+        self.q[-1] = format_question(sterling_question(self.q[-1]))
     def fd_last3(self):
         for y in (2023,2024,2025):
             rows=sorted(self.fd[y].get(self.slug,[]),key=lambda r:r["_date"])
