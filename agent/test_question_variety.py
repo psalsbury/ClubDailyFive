@@ -1,7 +1,7 @@
 import datetime as dt
 import sqlite3
 import unittest
-from question_variety import question_topics, select_varied, validate_round
+from question_variety import question_topics, select_varied, validate_round, banned_question
 from generate_questions import ranked, DB
 
 class VarietyTests(unittest.TestCase):
@@ -21,11 +21,11 @@ class VarietyTests(unittest.TestCase):
     def test_no_repetitive_fallback(self):
         r={"question_text":"Who was the manager?", "semantic_key":"v4|a|v0"}
         with self.assertRaises(RuntimeError):
-            select_varied([r],{"question_text":"What was the attendance?"})
+            select_varied([r],{"question_text":"What was the attendance?", "fact_date":"2026-09-01"})
 
     def test_all_clubs_and_fresh_types(self):
         con=sqlite3.connect("file:"+DB+"?mode=ro",uri=True); con.row_factory=sqlite3.Row
-        fresh=[{"question_text":x} for x in ("What was the score for Arsenal?", "How many yellow cards did Arsenal receive?", "How many red cards did Arsenal receive?")]
+        fresh=[{"question_text":x,"fact_date":"2026-09-01"} for x in ("What was the score for Arsenal?", "How many yellow cards did Arsenal receive?", "How many red cards did Arsenal receive?")]
         for question in con.execute("select question_text from questions"):
             self.assertTrue(question_topics(question))
         total=0

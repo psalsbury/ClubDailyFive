@@ -200,7 +200,6 @@ class Builder:
                 events=sorted(ev_by_game.get(g["game_id"],[]),key=lambda e:int(e["minute"]))
                 if not events:continue
                 first=events[0]; scoring=first["club_name"]; minute=int(first["minute"]); half="first half" if minute<=45 else "second half"; teams=[g["home_club_name"],g["away_club_name"],"Neither team","Both teams simultaneously"]; score=f"{g['home_club_name']} {g['home_club_goals']}-{g['away_club_goals']} {g['away_club_name']}"
-                self.add("significant_first_goal",f"{g['game_id']}|team",f"Which team scored first in {self.name}'s {label} of {season_label(y)}, a match that finished {score}?",scoring,teams,f"{scoring} scored first, in minute {minute}.",g["url"],g["date"])
                 self.add("significant_first_goal",f"{g['game_id']}|half",f"In which half was the first goal scored in {self.name}'s {label} of {season_label(y)}, which finished {score}?",half,["first half","second half","extra time","no goals were scored"],f"The first goal was scored in minute {minute}, in the {half}.",g["url"],g["date"])
     def build(self):
         self.fd_last3(); self.managers(); self.player_season_stats(); self.transfer_questions(); self.attendance(); self.cups(); self.hattricks_and_reds(); self.significant_match_events(); self.q.sort(key=lambda q:(q["question_kind"],q["semantic_key"])); return self.q

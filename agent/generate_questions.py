@@ -2,7 +2,7 @@
 from __future__ import annotations
 import argparse,csv,datetime as dt,hashlib,io,json,os,random,sqlite3,sys,urllib.request
 from zoneinfo import ZoneInfo
-from question_variety import select_varied, validate_round
+from question_variety import select_varied, validate_round, banned_question
 DB=os.getenv('QUIZ_DB','/var/lib/clubdailyfive/clubquiz.sqlite'); BACKUPS='/var/backups/predictioncomp-question-db'; UK=ZoneInfo('Europe/London')
 DIVS=('E0','E1','E2','E3')
 ALIASES={'Arsenal':'arsenal','Aston Villa':'aston-villa','Bournemouth':'bournemouth','Brentford':'brentford','Brighton':'brighton','Chelsea':'chelsea','Coventry':'coventry-city','Crystal Palace':'crystal-palace','Everton':'everton','Fulham':'fulham','Hull':'hull-city','Ipswich':'ipswich-town','Leeds':'leeds-united','Liverpool':'liverpool','Man City':'manchester-city','Man United':'manchester-united','Newcastle':'newcastle-united',"Nott'm Forest":'nottingham-forest','Sunderland':'sunderland','Tottenham':'tottenham-hotspur'}
@@ -153,8 +153,9 @@ def main():
   try:
     con.execute('begin immediate'); con.execute('delete from daily_questions where quiz_date=?',(target,)); rounds=[]
     for club in clubs:
-      bank=ranked(con.execute("select id,use_count,last_used_date,semantic_key,question_text from questions where club_id=? and status='reviewed' and semantic_key like 'v4bank|%'",(club['id'],)).fetchall(),target)
-      if len(bank)!=300: raise RuntimeError(f"{club['slug']} has {len(bank)} V4 bank questions, expected 300")
+      bank=ranked(con.execute("select * from questions where club_id=? and status='reviewed' and semantic_key like 'v4bank|%'",(club['id'],)).fetchall(),target)
+      bank = [q for q in bank if not banned_question(q)]
+      if len(bank)<4: raise RuntimeError(f"{club['slug']}: insufficient eligible bank questions")
       selected,fresh=choose_round(con,club,target,current.get(club['slug'],[]),bank)
       fresh_id=fresh['id']
       validate_round([*selected,fresh])
@@ -162,7 +163,7 @@ def main():
       random.Random(hashlib.sha256(f'{target}|{club["slug"]}|shuffle'.encode()).digest()).shuffle(ids); rounds.append((club,ids))
     for club,ids in rounds:
       for pos,qid in enumerate(ids,1):
-        con.execute('insert into daily_questions(club_id,quiz_date,position,question_id) values(?,?,?,?)',(club['id'],target,pos,qid)); con.execute('update questions set use_count=use_count+1,last_used_date=? where id=?',(target,qid))
+        con.execute('insert into daily_questions(club_id,quiz_date,position,question_id) values(?,?,?,?)',(club['id'],target,pos,qid))
     con.execute("insert into generation_runs(run_date,finished_at,status,notes) values(?,CURRENT_TIMESTAMP,'complete',?)",(target,f'V4: 4/300 least-recently-used bank + 1 unused match fact/recent-season fallback; 10-day recent cutoff; backup={backup}')); con.commit()
   except Exception: con.rollback(); raise
   print(f'published {len(clubs)*5} questions for {target}')

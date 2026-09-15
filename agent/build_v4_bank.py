@@ -6,6 +6,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import build_v3_bank as v3
+from question_variety import banned_question
 
 DB = v3.DB
 TARGET = 300
@@ -94,6 +95,7 @@ def make_variant(slug: str, club_name: str, q: dict, variant: int) -> dict:
     return out
 
 def expand_to_300(slug: str, club_name: str, base: list[dict]) -> list[dict]:
+    base = [q for q in base if not banned_question(q)]
     if not base:
         raise RuntimeError(f"{slug}: no source-backed questions generated")
     out=[]; variant=0
