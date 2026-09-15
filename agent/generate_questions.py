@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse,csv,datetime as dt,hashlib,io,json,os,random,sqlite3,sys,urllib.request
 from zoneinfo import ZoneInfo
 from question_variety import select_varied, validate_round
-DB=os.getenv('QUIZ_DB','/var/lib/predictioncomp/clubquiz.sqlite'); BACKUPS='/var/backups/predictioncomp-question-db'; UK=ZoneInfo('Europe/London')
+DB=os.getenv('QUIZ_DB','/var/lib/clubdailyfive/clubquiz.sqlite'); BACKUPS='/var/backups/predictioncomp-question-db'; UK=ZoneInfo('Europe/London')
 DIVS=('E0','E1','E2','E3')
 ALIASES={'Arsenal':'arsenal','Aston Villa':'aston-villa','Bournemouth':'bournemouth','Brentford':'brentford','Brighton':'brighton','Chelsea':'chelsea','Coventry':'coventry-city','Crystal Palace':'crystal-palace','Everton':'everton','Fulham':'fulham','Hull':'hull-city','Ipswich':'ipswich-town','Leeds':'leeds-united','Liverpool':'liverpool','Man City':'manchester-city','Man United':'manchester-united','Newcastle':'newcastle-united',"Nott'm Forest":'nottingham-forest','Sunderland':'sunderland','Tottenham':'tottenham-hotspur'}
 def season_start(d): return d.year if d.month>=7 else d.year-1

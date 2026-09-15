@@ -2,9 +2,9 @@
 declare(strict_types=1);
 date_default_timezone_set('Europe/London');
 function h(mixed $v): string { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
-$qdb=new PDO('sqlite:/var/lib/predictioncomp/clubquiz.sqlite',null,null,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
-$adb=new PDO('sqlite:/var/lib/predictioncomp/analytics.sqlite',null,null,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
-$udb=new PDO('sqlite:/var/lib/predictioncomp/api_football_quota.sqlite',null,null,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+$qdb=new PDO('sqlite:/var/lib/clubdailyfive/clubquiz.sqlite',null,null,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+$adb=new PDO('sqlite:/var/lib/clubdailyfive/analytics.sqlite',null,null,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+$udb=new PDO('sqlite:/var/lib/clubdailyfive/api_football_quota.sqlite',null,null,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
 $clubs=$qdb->query("SELECT c.slug,c.name,
  COUNT(q.id) questions,
  SUM(CASE WHEN q.use_count>0 THEN 1 ELSE 0 END) questions_used,

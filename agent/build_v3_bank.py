@@ -16,8 +16,8 @@ import urllib.request
 from collections import Counter, defaultdict
 from pathlib import Path
 
-DB = os.getenv("QUIZ_DB", "/var/lib/predictioncomp/clubquiz.sqlite")
-TM_DIR = Path(os.getenv("TM_DATA_DIR", "/var/lib/predictioncomp/transfermarkt-data"))
+DB = os.getenv("QUIZ_DB", "/var/lib/clubdailyfive/clubquiz.sqlite")
+TM_DIR = Path(os.getenv("TM_DATA_DIR", "/var/lib/clubdailyfive/transfermarkt-data"))
 BACKUPS = Path("/var/backups/predictioncomp-question-db")
 TARGET = 300
 DATASET_URL = "https://github.com/dcaribou/transfermarkt-datasets"

@@ -13,11 +13,11 @@ $event = (string)($data['event'] ?? '');
 if (!preg_match('/^[a-zA-Z0-9_-]{16,64}$/', $player) || !in_array($event, ['selected','started','completed'], true) || $club === '') {
     http_response_code(422); echo '{"ok":false}'; exit;
 }
-$quiz = new PDO('sqlite:/var/lib/predictioncomp/clubquiz.sqlite', null, null, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+$quiz = new PDO('sqlite:/var/lib/clubdailyfive/clubquiz.sqlite', null, null, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
 $check = $quiz->prepare('SELECT 1 FROM clubs WHERE slug=? AND active=1');
 $check->execute([$club]);
 if (!$check->fetchColumn()) { http_response_code(422); echo '{"ok":false}'; exit; }
-$db = new PDO('sqlite:/var/lib/predictioncomp/analytics.sqlite', null, null, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+$db = new PDO('sqlite:/var/lib/clubdailyfive/analytics.sqlite', null, null, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
 $db->exec('PRAGMA busy_timeout=3000');
 $stmt = $db->prepare('INSERT OR IGNORE INTO player_events(player_id,club_slug,event_type,event_date) VALUES(?,?,?,?)');
 $stmt->execute([$player,$club,$event,(new DateTimeImmutable('now',new DateTimeZone('Europe/London')))->format('Y-m-d')]);

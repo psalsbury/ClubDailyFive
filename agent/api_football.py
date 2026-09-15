@@ -11,7 +11,7 @@ import urllib.parse
 import urllib.request
 
 API_BASE = "https://v3.football.api-sports.io"
-QUOTA_DB = os.getenv("API_FOOTBALL_QUOTA_DB", "/var/lib/predictioncomp/api_football_quota.sqlite")
+QUOTA_DB = os.getenv("API_FOOTBALL_QUOTA_DB", "/var/lib/clubdailyfive/api_football_quota.sqlite")
 DAILY_LIMIT = 95
 
 

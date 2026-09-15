@@ -6,7 +6,7 @@ from sterling import sterling_question, assert_sterling
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument("--apply",action="store_true")
-    parser.add_argument("--db",default="/var/lib/predictioncomp/clubquiz.sqlite")
+    parser.add_argument("--db",default="/var/lib/clubdailyfive/clubquiz.sqlite")
     args=parser.parse_args()
     con=sqlite3.connect(args.db,timeout=60); con.row_factory=sqlite3.Row
     rows=[dict(r) for r in con.execute("select * from questions")]

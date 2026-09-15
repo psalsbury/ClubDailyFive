@@ -2,7 +2,7 @@
 declare(strict_types=1);
 date_default_timezone_set('Europe/London');
 
-const DB_PATH = '/var/lib/predictioncomp/clubquiz.sqlite';
+const DB_PATH = '/var/lib/clubdailyfive/clubquiz.sqlite';
 
 function db(): PDO {
     $pdo = new PDO('sqlite:' . DB_PATH, null, null, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
