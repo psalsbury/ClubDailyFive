@@ -44,6 +44,10 @@ if ($club) {
     $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 $dateLabel = (new DateTimeImmutable($quizDate))->format('j F Y');
+$canonicalUrl = 'https://clubdailyfive.com/';
+if ($club) {
+    $canonicalUrl .= '?club=' . rawurlencode((string)$club['slug']);
+}
 ?>
 <!doctype html>
 <html lang="en">
@@ -52,6 +56,7 @@ $dateLabel = (new DateTimeImmutable($quizDate))->format('j F Y');
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07101e">
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="canonical" href="<?= h($canonicalUrl) ?>">
 <title><?= $club ? h($club['name']).' — ClubDailyFive.com' : 'ClubDailyFive.com — The Daily Football Quiz' ?></title>
 <meta name="description" content="ClubDailyFive.com — five fresh questions about your football club every day. Play, learn and share your score.">
 <style>
@@ -66,6 +71,18 @@ $dateLabel = (new DateTimeImmutable($quizDate))->format('j F Y');
 .share-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
 .share-fallback{width:100%;max-width:520px;min-height:110px;margin-top:12px}
 @media(max-width:600px){.club.played{padding:6px 2px 19px}.club{height:101px;min-height:101px}.club .played-badge{font-size:.55rem;bottom:3px}body.quiz-page:has(#result:not([hidden])){overflow:auto}}
+/* Keep all 20 clubs in four columns and five rows at every viewport width. */
+.club-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+/* Club status and streaks stay below each crest on every screen size. */
+.club,.club.played{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:42px 2.2em auto;justify-items:center;align-content:start;gap:4px;height:auto;min-height:0;padding:10px 4px}
+.club img{grid-area:1/1}
+.club .club-name{grid-area:2/1;text-align:center;justify-content:center;align-items:center;display:flex;width:100%;height:auto;margin:0;padding:0;color:var(--ink)}
+.club .club-info{grid-area:3/1;display:grid;gap:2px;width:100%;text-align:center;font-size:.7rem;line-height:1.25;font-weight:500}
+.club .club-streaks-line{white-space:nowrap}
+.club .club-played-tick{position:absolute;top:4px;right:4px;display:flex;align-items:center;justify-content:center;width:18px;height:18px;color:var(--good);font-size:18px;line-height:1;font-weight:900;pointer-events:none}
+.club .club-status{font-weight:750}
+.club.played .club-status{color:var(--good)}
+@media(max-width:600px){.club,.club.played{padding:6px 2px;gap:3px}.club .club-info{font-size:clamp(.5rem,2.1vw,.65rem);letter-spacing:-.02em}}
 </style>
 </head>
 <body class="<?= $club ? 'quiz-page' : 'home-page' ?>">
@@ -100,14 +117,35 @@ setInterval(checkDay,30000);
 <script>
 function markClubs(){document.querySelectorAll('.club[data-slug]').forEach(el=>{
  const r=clubResult(el.dataset.slug,el.dataset.name);
+ const s=stored(`dailyfive:streaks:${el.dataset.name}`)||{};
+ const d=new Date(`${playDate}T12:00:00Z`);d.setUTCDate(d.getUTCDate()-1);
+ const prev=d.toISOString().slice(0,10);
+ const active=date=>date===playDate||date===prev;
+ const count=value=>Math.max(0,Math.floor(Number(value)||0));
+ const completion=count(r?(r.completion??s.completion):(active(s.lastCompleted)?s.completion:0));
+ const perfect=count(r?(r.perfect??s.perfect):(active(s.lastCompleted)&&active(s.lastPerfect)?s.perfect:0));
+ const progress=stored(`dailyfive:progress:${el.dataset.slug}:${playDate}`);
+ const started=progress&&Array.isArray(progress.marks)&&progress.marks.length>0;
+ const status=r?'':started?'In progress today':'';
  el.classList.toggle('played',!!r);
- let badge=el.querySelector('.played-badge');
- if(r){if(!badge){badge=document.createElement('span');badge.className='played-badge';el.appendChild(badge)}
- badge.textContent=`✓ Played · ${r.score}/5`;
- el.setAttribute('aria-label',`${el.dataset.name}: played today, ${r.score} out of 5. View result`);
- }else if(badge){badge.remove();el.removeAttribute('aria-label')}
+ let tick=el.querySelector('.club-played-tick');
+ if(r&&!tick){tick=document.createElement('span');tick.className='club-played-tick';tick.textContent='✓';tick.setAttribute('aria-hidden','true');tick.title='Played today';el.appendChild(tick)}
+ if(!r&&tick)tick.remove();
+ let info=el.querySelector('.club-info');
+ if(!info){info=document.createElement('span');info.className='club-info';
+ for(const cls of ['club-status','club-streaks-line']){const line=document.createElement('span');line.className=cls;info.appendChild(line)}
+ el.appendChild(info)}
+ info.querySelector('.club-status').textContent=status;
+ info.querySelector('.club-status').hidden=!status;
+ const streaks=info.querySelector('.club-streaks-line');
+ streaks.textContent=`🔥 ${completion} · ⭐ ${perfect}`;
+ streaks.hidden=!(completion>0||perfect>0);
+ streaks.title=`Completion streak: ${completion} days; perfect 5/5 streak: ${perfect} days`;
+ info.hidden=!status&&streaks.hidden;
+ el.setAttribute('aria-label',`${el.dataset.name}: ${r?`Played today, ${r.score} out of 5`:status||'Not played today'}. Completion streak: ${completion} days. Perfect streak: ${perfect} days.`);
 })}
 markClubs();window.addEventListener('pageshow',markClubs);window.addEventListener('storage',markClubs);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)markClubs()});
 </script>
 <?php elseif (count($questions) !== 5): ?>
 <section class="quiz-head"><div class="eyebrow"><?= h($club['name']) ?></div><h1>Today’s five</h1></section><div class="empty"><h2>The next round is being prepared.</h2><p>Come back shortly for five fresh questions.</p><a class="again" href="/">Choose another club</a></div>

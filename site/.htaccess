@@ -1,5 +1,16 @@
 DirectoryIndex index.php
 Options -Indexes
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Keep one indexable origin. Preserve the path and query string so club
+  # links continue to open the requested quiz after the permanent redirect.
+  RewriteCond %{HTTPS} !=on [OR]
+  RewriteCond %{HTTP_HOST} !^clubdailyfive\.com$ [NC]
+  RewriteRule ^ https://clubdailyfive.com%{REQUEST_URI} [R=301,L,NE]
+</IfModule>
+
 <FilesMatch "\.(sqlite|db|sql|bak)$">
   Require all denied
 </FilesMatch>
