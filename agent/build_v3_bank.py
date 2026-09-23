@@ -13,6 +13,7 @@ import random
 import re
 import sqlite3
 import urllib.request
+from attendance_options import attendance_options
 from collections import Counter, defaultdict
 from pathlib import Path
 
@@ -158,9 +159,10 @@ class Builder:
         for y in range(2021,2026):
             gs=[g for g in self.games if g.get("season")==str(y) and g.get("competition_id")=="GB1" and g.get("home_club_id")==str(self.cid) and (g.get("attendance") or "").isdigit()]
             if len(gs)<15:continue
-            hi=max(gs,key=lambda g:int(g["attendance"])); lo=min(gs,key=lambda g:int(g["attendance"])); season=season_label(y); opp_pool=[g["away_club_name"] for g in gs]; att_pool=[g["attendance"] for g in gs]
+            hi=max(gs,key=lambda g:int(g["attendance"])); lo=min(gs,key=lambda g:int(g["attendance"])); season=season_label(y); opp_pool=[g["away_club_name"] for g in gs]; capacity_ceiling=int(hi["attendance"])
             for tag,g,word in (("highest",hi,"highest"),("lowest",lo,"lowest")):
-                self.add("attendance",f"{y}|{tag}|number",f"What was {self.name}'s {word} home league attendance in {season}?",g["attendance"],att_pool,f"The {word} home league attendance was {int(g['attendance']):,}, against {g['away_club_name']}.",g["url"],g["date"])
+                attendance=int(g["attendance"]); att_pool=attendance_options(attendance,capacity_ceiling,f"{self.slug}|{y}|{tag}")
+                self.add("attendance",f"{y}|{tag}|number",f"What was {self.name}'s {word} home league attendance in {season}?",str(attendance),att_pool,f"The {word} home league attendance was {attendance:,}, against {g['away_club_name']}.",g["url"],g["date"])
                 self.add("attendance",f"{y}|{tag}|opponent",f"Who did {self.name} play when they recorded their {word} home league attendance of {season}?",g["away_club_name"],opp_pool,f"They played {g['away_club_name']}; the attendance was {int(g['attendance']):,}.",g["url"],g["date"])
     def cups(self):
         for y in range(2022,2026):

@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse,csv,datetime as dt,hashlib,io,json,os,random,sqlite3,sys,urllib.request
 from zoneinfo import ZoneInfo
 from display_dates import display_date
+from attendance_options import migrate_attendance_options
 from question_variety import select_varied, validate_round, banned_question
 DB=os.getenv('QUIZ_DB','/var/lib/clubdailyfive/clubquiz.sqlite'); BACKUPS='/var/backups/predictioncomp-question-db'; UK=ZoneInfo('Europe/London')
 DIVS=('E0','E1','E2','E3')
@@ -144,8 +145,9 @@ def main():
   con=sqlite3.connect(DB,timeout=60); con.row_factory=sqlite3.Row; con.execute('pragma foreign_keys=on'); clubs=con.execute('select id,slug,name from clubs where active=1 order by name').fetchall()
   if a.self_test:
     counts=dict(con.execute("select c.slug,count(q.id) from clubs c left join questions q on q.club_id=c.id and q.semantic_key like 'v4bank|%' group by c.id")); print(json.dumps({'database':con.execute('pragma integrity_check').fetchone()[0],'clubs':len(clubs),'bank_counts':counts,'bank_per_club_required':300,'daily_mix':'4 bank + 1 unused match fact or recent-season fallback','recent_cutoff_days':10,'openai_api_required':False})); return
+  attendance_updates=migrate_attendance_options(con); con.commit()
   if con.execute('select count(*) from daily_questions where quiz_date=?',(target,)).fetchone()[0]:
-    print(f'Round already published for {target}; preserving player questions'); return
+    print(f'Round already published for {target}; preserving player questions; updated {attendance_updates} attendance questions'); return
   from sterling import assert_sterling
   for question in con.execute("select question_text,options_json,explanation from questions where status='reviewed'"):
     assert_sterling(dict(question))
