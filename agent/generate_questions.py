@@ -94,10 +94,20 @@ def insert_season_fact(con,club,target,rows,slot):
   y=season_start(dt.date.fromisoformat(target));season=f'{y}-{str(y+1)[-2:]}'
   val=values[slot];date=max(r['_date'] for r in rows).isoformat()
   key=f'seasonfact|{club["slug"]}|{season}|{slot}|{val}'
-  existing=con.execute('select id,use_count from questions where semantic_key=?',(key,)).fetchone()
+  existing=con.execute('select id,use_count,fact_date,status from questions where semantic_key=?',(key,)).fetchone()
   if existing:
-    if existing['use_count']:raise FreshUnavailable('Season fact already asked')
-    return existing['id']
+    # The same aggregate value can recur after later fixtures. Never revive an
+    # older snapshot merely because its numeric answer happens to be unchanged.
+    if existing['status'] != 'reviewed' or existing['fact_date'] != date or existing['use_count']:
+      existing=None
+    else:
+      return existing['id']
+  if existing is None:
+    key=f'seasonfact|{club["slug"]}|{season}|{slot}|{val}|through-{date}'
+    same=con.execute('select id,use_count from questions where semantic_key=?',(key,)).fetchone()
+    if same:
+      if same['use_count']:raise FreshUnavailable('Season fact already asked')
+      return same['id']
   wording={'wins':'league wins','draws':'league draws','losses':'league losses','goals-scored':'goals scored in the league','goals-conceded':'goals conceded in the league','yellow':'yellow cards in the league','red':'red cards in the league'}[slot]
   text=f"How many {wording} had {club['name']} recorded in {season}, through {display_date(date)}?"
   exp=f"Across their {len(rows)} completed league matches through {display_date(date)}, {club['name']} recorded {val} {wording}."
@@ -154,7 +164,15 @@ def main():
   current=load_current(target); os.makedirs(BACKUPS,exist_ok=True); backup=f"{BACKUPS}/clubquiz-before-daily-{dt.datetime.now().strftime('%Y%m%d-%H%M%S')}.sqlite"
   with sqlite3.connect(backup) as dest: con.backup(dest)
   try:
-    con.execute('begin immediate'); con.execute('delete from daily_questions where quiz_date=?',(target,)); rounds=[]
+    con.execute('begin immediate')
+    # Season-to-date aggregate questions are snapshots. Retire older snapshots
+    # whenever newer completed league data exists for that club.
+    for club in clubs:
+      rows=current.get(club['slug'],[])
+      if not rows: continue
+      latest=max(r['_date'] for r in rows).isoformat()
+      con.execute("update questions set status='retired' where club_id=? and status='reviewed' and semantic_key like 'seasonfact|%' and (fact_date is null or fact_date < ?)",(club['id'],latest))
+    con.execute('delete from daily_questions where quiz_date=?',(target,)); rounds=[]
     for club in clubs:
       bank=ranked(con.execute("select * from questions where club_id=? and status='reviewed' and semantic_key like 'v4bank|%'",(club['id'],)).fetchall(),target)
       bank = [q for q in bank if not banned_question(q)]
