@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /owner-stats/
+Disallow: /track.php
+
+Sitemap: https://clubdailyfive.com/sitemap.xml

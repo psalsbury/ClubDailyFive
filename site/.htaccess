@@ -4,6 +4,14 @@ Options -Indexes
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
+  # Permanent, descriptive search landing pages and clean game URLs.
+  RewriteRule ^clubs/([a-z0-9-]+)/?$ seo.php?type=club&club=$1 [L,QSA]
+  RewriteRule ^daily-five/([a-z0-9-]+)/?$ index.php?club=$1 [L,QSA]
+  RewriteRule ^daily-football-quiz/?$ seo.php?type=daily [L,QSA]
+  RewriteRule ^player-wordle-game/?$ seo.php?type=wordle [L,QSA]
+  RewriteRule ^player-wordle/([a-z0-9-]+)/?$ player-wordle/game.php?club=$1 [L,QSA]
+  RewriteRule ^sitemap\.xml$ sitemap.php [L]
+
   # Friendly public information pages.
   RewriteRule ^(about|privacy|contact|how-it-works)/?$ info.php?page=$1 [L,QSA]
 

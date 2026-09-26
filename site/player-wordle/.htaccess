@@ -1,0 +1,8 @@
+<Files "admin.php">
+AuthType Basic
+AuthName "Player Wordle Owner Statistics"
+AuthUserFile /etc/apache2/clubdailyfive-owner.htpasswd
+Require valid-user
+</Files>
+
+Options -Indexes
