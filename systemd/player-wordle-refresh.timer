@@ -1,0 +1,10 @@
+[Unit]
+Description=Run Player Wordle refresh nightly at 22:00 UK
+
+[Timer]
+OnCalendar=*-*-* 22:00:00 Europe/London
+Persistent=true
+Unit=player-wordle-refresh.service
+
+[Install]
+WantedBy=timers.target

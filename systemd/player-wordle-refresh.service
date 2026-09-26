@@ -1,0 +1,9 @@
+[Unit]
+Description=Player Wordle data refresh
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /opt/predictioncomp/bin/agent_job_reporter.py playerwordle
+User=root
