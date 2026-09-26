@@ -4,6 +4,9 @@ Options -Indexes
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
+  # Friendly public information pages.
+  RewriteRule ^(about|privacy|contact|how-it-works)/?$ info.php?page=$1 [L,QSA]
+
   # Keep one indexable origin. Preserve the path and query string so club
   # links continue to open the requested quiz after the permanent redirect.
   RewriteCond %{HTTPS} !=on [OR]
