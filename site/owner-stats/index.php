@@ -2,39 +2,28 @@
 declare(strict_types=1);
 date_default_timezone_set('Europe/London');
 header('Cache-Control: no-store');
-function h(mixed $value): string { return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8'); }
-$today = new DateTimeImmutable('today');
-$day = $today->format('Y-m-d');
-$week = $today->modify('monday this week')->format('Y-m-d');
-$month = $today->format('Y-m-01');
-$options = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
-$qdb = new PDO('sqlite:/var/lib/clubdailyfive/clubquiz.sqlite', null, null, $options);
-$clubs = $qdb->query('SELECT slug,name FROM clubs WHERE active=1 ORDER BY name')->fetchAll(PDO::FETCH_ASSOC);
-$adb = new PDO('sqlite:/var/lib/clubdailyfive/analytics.sqlite', null, null, $options);
-$adb->exec('PRAGMA busy_timeout=3000');
-$stmt = $adb->prepare('SELECT club_slug,
- SUM(CASE WHEN event_date=:day THEN started ELSE 0 END) day_started,
- SUM(CASE WHEN event_date=:day THEN completed ELSE 0 END) day_completed,
- SUM(CASE WHEN event_date>=:week THEN started ELSE 0 END) week_started,
- SUM(CASE WHEN event_date>=:week THEN completed ELSE 0 END) week_completed,
- SUM(CASE WHEN event_date>=:month THEN started ELSE 0 END) month_started,
- SUM(CASE WHEN event_date>=:month THEN completed ELSE 0 END) month_completed
- FROM club_daily_totals WHERE event_date>=:earliest AND event_date<=:day GROUP BY club_slug');
-$stmt->execute([':day'=>$day, ':week'=>$week, ':month'=>$month, ':earliest'=>min($week,$month)]);
-$counts = $stmt->fetchAll(PDO::FETCH_UNIQUE|PDO::FETCH_ASSOC);
-$columns = ['day_started','day_completed','week_started','week_completed','month_started','month_completed'];
-$totals = array_fill_keys($columns, 0);
-foreach ($clubs as $club) foreach ($columns as $column) $totals[$column] += (int)($counts[$club['slug']][$column] ?? 0);
+function h(mixed $v): string { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
+function pct(int $a,int $b): string { return $b>0?number_format($a/$b*100,1).'%':'—'; }
+$today=new DateTimeImmutable('today'); $day=$today->format('Y-m-d'); $week=$today->modify('monday this week')->format('Y-m-d'); $month=$today->format('Y-m-01'); $earliest=min($week,$month);
+$periods=['day'=>['Today',$today->format('j F Y')],'week'=>['This week','From '.(new DateTimeImmutable($week))->format('j F Y')],'month'=>['This month',$today->format('F Y')]];
+$opt=[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION];
+$qdb=new PDO('sqlite:/var/lib/clubdailyfive/clubquiz.sqlite',null,null,$opt);
+$clubs=$qdb->query('SELECT slug,name FROM clubs WHERE active=1 ORDER BY name')->fetchAll(PDO::FETCH_ASSOC);
+$adb=new PDO('sqlite:/var/lib/clubdailyfive/analytics.sqlite',null,null,$opt); $adb->exec('PRAGMA busy_timeout=3000');
+$s=$adb->prepare('SELECT club_slug,SUM(CASE WHEN event_date=:day THEN started ELSE 0 END) day_started,SUM(CASE WHEN event_date=:day THEN completed ELSE 0 END) day_completed,SUM(CASE WHEN event_date>=:week THEN started ELSE 0 END) week_started,SUM(CASE WHEN event_date>=:week THEN completed ELSE 0 END) week_completed,SUM(CASE WHEN event_date>=:month THEN started ELSE 0 END) month_started,SUM(CASE WHEN event_date>=:month THEN completed ELSE 0 END) month_completed FROM club_daily_totals WHERE event_date>=:earliest AND event_date<=:day GROUP BY club_slug');
+$s->execute([':day'=>$day,':week'=>$week,':month'=>$month,':earliest'=>$earliest]); $daily=$s->fetchAll(PDO::FETCH_UNIQUE|PDO::FETCH_ASSOC);
+$wdb=new PDO('sqlite:/var/lib/clubdailyfive/player-wordle/game.sqlite3',null,null,$opt); $wdb->exec('PRAGMA busy_timeout=3000');
+$wclubs=$wdb->query('SELECT id,name FROM clubs WHERE active=1')->fetchAll(PDO::FETCH_ASSOC); $wid=[]; foreach($wclubs as $c)$wid[strtolower($c['name'])]=(int)$c['id'];
+$ws=$wdb->prepare('SELECT club_id,SUM(CASE WHEN stat_date=:day THEN started ELSE 0 END) day_started,SUM(CASE WHEN stat_date=:day THEN completed ELSE 0 END) day_completed,SUM(CASE WHEN stat_date=:day THEN won ELSE 0 END) day_won,SUM(CASE WHEN stat_date>=:week THEN started ELSE 0 END) week_started,SUM(CASE WHEN stat_date>=:week THEN completed ELSE 0 END) week_completed,SUM(CASE WHEN stat_date>=:week THEN won ELSE 0 END) week_won,SUM(CASE WHEN stat_date>=:month THEN started ELSE 0 END) month_started,SUM(CASE WHEN stat_date>=:month THEN completed ELSE 0 END) month_completed,SUM(CASE WHEN stat_date>=:month THEN won ELSE 0 END) month_won FROM aggregate_stats WHERE stat_date>=:earliest AND stat_date<=:day GROUP BY club_id');
+$ws->execute([':day'=>$day,':week'=>$week,':month'=>$month,':earliest'=>$earliest]); $wordle=$ws->fetchAll(PDO::FETCH_UNIQUE|PDO::FETCH_ASSOC);
+$tot=[]; foreach(['daily','wordle'] as $g)foreach(array_keys($periods) as $p)$tot[$g][$p]=['started'=>0,'completed'=>0,'won'=>0];
+foreach($clubs as $c){foreach(array_keys($periods) as $p){$tot['daily'][$p]['started']+=(int)($daily[$c['slug']][$p.'_started']??0);$tot['daily'][$p]['completed']+=(int)($daily[$c['slug']][$p.'_completed']??0);$id=$wid[strtolower($c['name'])]??0;$tot['wordle'][$p]['started']+=(int)($wordle[$id][$p.'_started']??0);$tot['wordle'][$p]['completed']+=(int)($wordle[$id][$p.'_completed']??0);$tot['wordle'][$p]['won']+=(int)($wordle[$id][$p.'_won']??0);}}
 ?>
-<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Owner statistics — ClubDailyFive</title>
-<style>
-:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#07101e;color:#f7f8fc;font:16px system-ui,sans-serif}main{max-width:1100px;margin:auto;padding:28px 16px}h1{margin:12px 0}a{color:#13d7c5}p{color:#a9b2c4;line-height:1.5}.table-wrap{overflow:auto;border:1px solid #273650;border-radius:12px}table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}th,td{padding:12px;border-bottom:1px solid #273650;text-align:right;white-space:nowrap}th:first-child{text-align:left}thead{background:#111c31}thead th{text-align:center}tbody th{font-weight:500}tfoot{font-weight:bold;background:#111c31}.note{font-size:.875rem}
-</style></head><body><main>
-<a href="/">ClubDailyFive.com</a><h1>Round activity</h1>
-<p>Today: <?=h($today->format('j F Y'))?> · Week from <?=h((new DateTimeImmutable($week))->format('j F'))?> · Month: <?=h($today->format('F Y'))?>. All dates use UK time.</p>
-<div class="table-wrap"><table><thead><tr><th rowspan="2" scope="col">Club</th><th colspan="2" scope="colgroup">Today</th><th colspan="2" scope="colgroup">This week</th><th colspan="2" scope="colgroup">This month</th></tr><tr><?php for($i=0;$i<3;$i++): ?><th scope="col">Started</th><th scope="col">Completed</th><?php endfor; ?></tr></thead><tbody>
-<?php foreach($clubs as $club): ?><tr><th scope="row"><?=h($club['name'])?></th><?php foreach($columns as $column): ?><td><?=h($counts[$club['slug']][$column]??0)?></td><?php endforeach; ?></tr><?php endforeach; ?>
-</tbody><tfoot><tr><th scope="row">All clubs</th><?php foreach($columns as $column): ?><td><?=h($totals[$column])?></td><?php endforeach; ?></tr></tfoot></table></div>
-<p class="note">Counts are round starts and completions, not unique people across days or clubs. A player returning on another day counts again. Only daily club totals are stored; there are no individual player records. Weeks begin on Monday.</p>
-</main></body></html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Owner statistics — ClubDailyFive</title><style>
+:root{color-scheme:dark;--bg:#07101e;--panel:#101f31;--line:#28384d;--muted:#a9b2c4;--cyan:#20d9d0;--green:#22c55e}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#f7f8fc;font:16px system-ui,sans-serif}main{max-width:1250px;margin:auto;padding:24px 14px 40px}a{color:var(--cyan);text-decoration:none}.eyebrow{color:var(--cyan);font-size:.78rem;font-weight:800;letter-spacing:.14em;margin-top:14px}h1{margin:.35rem 0}h2{margin:28px 0 10px}p{color:var(--muted);line-height:1.45}.summary{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:20px 0}.game{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px}.game h2{margin:0 0 12px}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.card{background:#14243a;border-radius:11px;padding:11px}.card small{display:block;color:var(--muted);font-size:.72rem}.card strong{display:block;font-size:1.45rem;margin:3px 0}.card span{color:var(--green);font-size:.76rem}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px;background:var(--panel)}table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}th,td{padding:10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}th:first-child{text-align:left;position:sticky;left:0;background:var(--panel)}thead{background:#14243a}thead th{text-align:center}thead th:first-child{background:#14243a}tfoot{font-weight:800;background:#14243a}tfoot th:first-child{background:#14243a}.note{font-size:.85rem}@media(max-width:760px){.summary{grid-template-columns:1fr}.cards{grid-template-columns:repeat(3,1fr)}main{padding:16px 9px}.table-wrap{font-size:.78rem}th,td{padding:8px 7px}}
+</style></head><body><main><a href="/">← ClubDailyFive.com</a><div class="eyebrow">PASSWORD-PROTECTED OWNER VIEW</div><h1>Site usage</h1><p>Aggregate activity for both games in UK time. No names, accounts, IP addresses or individual-player histories are stored.</p>
+<div class="summary"><?php foreach(['daily'=>['Daily Five','Rounds'],'wordle'=>['Player Wordle','Games']] as $g=>$label): ?><section class="game"><h2><?=h($label[0])?></h2><div class="cards"><?php foreach($periods as $p=>$meta): ?><div class="card"><small><?=h($meta[0])?></small><strong><?=number_format($tot[$g][$p]['started'])?> started</strong><span><?=number_format($tot[$g][$p]['completed'])?> completed · <?=pct($tot[$g][$p]['completed'],$tot[$g][$p]['started'])?><?php if($g==='wordle'): ?> · <?=number_format($tot[$g][$p]['won'])?> solved<?php endif; ?></span></div><?php endforeach; ?></div></section><?php endforeach; ?></div>
+<h2>Activity by club</h2><div class="table-wrap"><table><thead><tr><th rowspan="2">Club</th><th colspan="2">Daily Five today</th><th colspan="3">Player Wordle today</th><th colspan="2">Daily Five week</th><th colspan="3">Player Wordle week</th><th colspan="2">Daily Five month</th><th colspan="3">Player Wordle month</th></tr><tr><th>Started</th><th>Done</th><th>Started</th><th>Done</th><th>Solved</th><th>Started</th><th>Done</th><th>Started</th><th>Done</th><th>Solved</th><th>Started</th><th>Done</th><th>Started</th><th>Done</th><th>Solved</th></tr></thead><tbody>
+<?php foreach($clubs as $c): $id=$wid[strtolower($c['name'])]??0; ?><tr><th><?=h($c['name'])?></th><?php foreach(array_keys($periods) as $p): ?><td><?=number_format((int)($daily[$c['slug']][$p.'_started']??0))?></td><td><?=number_format((int)($daily[$c['slug']][$p.'_completed']??0))?></td><td><?=number_format((int)($wordle[$id][$p.'_started']??0))?></td><td><?=number_format((int)($wordle[$id][$p.'_completed']??0))?></td><td><?=number_format((int)($wordle[$id][$p.'_won']??0))?></td><?php endforeach; ?></tr><?php endforeach; ?></tbody>
+<tfoot><tr><th>All clubs</th><?php foreach(array_keys($periods) as $p): ?><td><?=number_format($tot['daily'][$p]['started'])?></td><td><?=number_format($tot['daily'][$p]['completed'])?></td><td><?=number_format($tot['wordle'][$p]['started'])?></td><td><?=number_format($tot['wordle'][$p]['completed'])?></td><td><?=number_format($tot['wordle'][$p]['won'])?></td><?php endforeach; ?></tr></tfoot></table></div>
+<p class="note">Daily Five records round starts and completions. Player Wordle records game starts, completions and successful solves. Refreshes can increase starts, so these are activity counts rather than unique people. Only aggregate statistics are shown; weeks begin on Monday.</p></main></body></html>
