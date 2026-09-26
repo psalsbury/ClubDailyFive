@@ -4,7 +4,7 @@ header('Content-Type: application/xml; charset=UTF-8');
 $pdo = new PDO('sqlite:/var/lib/clubdailyfive/clubquiz.sqlite', null, null, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
 $clubs = $pdo->query("SELECT slug FROM clubs WHERE active=1 ORDER BY slug")->fetchAll(PDO::FETCH_COLUMN);
 $base = 'https://clubdailyfive.com';
-$urls = ['/', '/daily-football-quiz', '/player-wordle-game', '/about', '/how-it-works', '/privacy', '/contact'];
+$urls = ['/', '/about', '/how-it-works', '/privacy', '/contact'];
 foreach ($clubs as $slug) {
     $urls[] = '/clubs/' . rawurlencode((string)$slug);
     $urls[] = '/daily-five/' . rawurlencode((string)$slug);

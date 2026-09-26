@@ -179,8 +179,8 @@ setInterval(checkDay,30000);
 <h1>Your club. <span>Two ways to play.</span></h1>
 
 <div class="home-games">
-<article class="home-game daily"><div class="home-game-head"><span class="home-game-icon">🧠</span><h2><a href="/daily-football-quiz" style="color:inherit;text-decoration:none">Daily Five</a></h2></div><strong>5 QUESTIONS · EVERY DAY</strong><p>History, matches, players, managers, transfers and more. Five fresh challenges for your chosen club.</p></article>
-<article class="home-game wordle"><div class="home-game-head"><span class="home-game-icon">👕</span><h2><a href="/player-wordle-game" style="color:inherit;text-decoration:none">Player Wordle</a></h2></div><strong>1 MYSTERY PLAYER · 5 GUESSES</strong><p>Use the clues from each guess to work out today's hidden player for your chosen club.</p></article>
+<article class="home-game daily"><div class="home-game-head"><span class="home-game-icon">🧠</span><h2>Daily Five</h2></div><strong>5 QUESTIONS · EVERY DAY</strong><p>History, matches, players, managers, transfers and more. Five fresh challenges for your chosen club.</p></article>
+<article class="home-game wordle"><div class="home-game-head"><span class="home-game-icon">👕</span><h2>Player Wordle</h2></div><strong>1 MYSTERY PLAYER · 5 GUESSES</strong><p>Use the clues from each guess to work out today's hidden player for your chosen club.</p></article>
 </div>
 <h2 class="choose-title">Choose your club</h2>
 <p class="choose-sub">Then choose which game you want to play.</p>
