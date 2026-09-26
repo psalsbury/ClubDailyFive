@@ -71,6 +71,9 @@ $structuredData = [
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07101e">
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/assets/icon-192.png">
+<script src="/pwa.js" defer></script>
 <link rel="canonical" href="<?= h($canonicalUrl) ?>">
 <title><?= h($pageTitle) ?></title>
 <meta name="description" content="<?= h($pageDescription) ?>">
