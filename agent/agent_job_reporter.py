@@ -141,7 +141,7 @@ def send_report(subject: str, body: str) -> None:
     message["To"] = TO
     message["Subject"] = subject
     message.set_content(body)
-    subprocess.run([SENDMAIL, "-t", "-oi"], input=message.as_bytes(), check=True)
+    subprocess.run([SENDMAIL, "-f", FROM, "-t", "-oi"], input=message.as_bytes(), check=True)
 
 
 def main():
