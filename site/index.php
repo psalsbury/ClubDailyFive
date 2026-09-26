@@ -83,6 +83,7 @@ if ($club) {
 .club .club-status{font-weight:750}
 .club.played .club-status{color:var(--good)}
 @media(max-width:600px){.club,.club.played{padding:6px 2px;gap:3px}.club .club-info{font-size:clamp(.5rem,2.1vw,.65rem);letter-spacing:-.02em}}
+.info-modal{position:fixed;inset:0;z-index:1000;background:rgba(3,8,16,.82);display:grid;place-items:center;padding:20px}.info-modal[hidden]{display:none!important}.info-dialog{position:relative;width:min(760px,100%);max-height:calc(100dvh - 40px);overflow:auto;border:1px solid var(--line);border-radius:22px;background:#0b1628;padding:clamp(22px,5vw,42px);box-shadow:0 24px 80px rgba(0,0,0,.45)}.info-close{position:absolute;top:12px;right:14px;width:42px;height:42px;border:0;background:transparent;color:var(--ink);font-size:2rem;line-height:1;cursor:pointer;border-radius:50%}.info-close:hover,.info-close:focus-visible{background:var(--panel);outline:2px solid var(--accent)}.info-dialog h1{font-size:clamp(2.2rem,8vw,4rem);letter-spacing:-.055em;margin:.1em 48px .5em 0}.info-dialog h2{font-size:1.2rem;margin-top:1.6em}.info-dialog p,.info-dialog li{color:var(--muted);line-height:1.7}.info-dialog strong{color:var(--ink)}.info-dialog a{color:var(--accent)}body.info-open{overflow:hidden}@media(max-width:600px){.info-modal{padding:0}.info-dialog{width:100%;height:100dvh;max-height:none;border:0;border-radius:0;padding:24px 20px}}
 </style>
 </head>
 <body class="<?= $club ? 'quiz-page' : 'home-page' ?>">
@@ -216,5 +217,13 @@ window.addEventListener('pageshow',()=>{const r=readDailyResult();if(r)showResul
 </script>
 <?php endif ?>
 <footer class="foot"><nav class="foot-links" aria-label="Site information"><a href="/about">About</a><a href="/how-it-works">How it works</a><a href="/privacy">Privacy Policy</a><a href="/contact">Contact</a></nav><span>Independent supporter quiz. Not affiliated with or endorsed by the Premier League or any club.</span></footer>
+<div class="info-modal" id="infoModal" hidden aria-hidden="true"><article class="info-dialog" role="dialog" aria-modal="true" aria-labelledby="infoTitle"><button class="info-close" id="infoClose" type="button" aria-label="Close">×</button><div id="infoContent"></div></article></div>
+<script>
+(()=>{const modal=document.getElementById('infoModal'),content=document.getElementById('infoContent'),close=document.getElementById('infoClose');let scrollY=0,lastFocus=null;
+async function openInfo(a){lastFocus=a;scrollY=window.scrollY;document.body.classList.add('info-open');modal.hidden=false;modal.setAttribute('aria-hidden','false');content.innerHTML='<p>Loading…</p>';try{const r=await fetch(a.href,{headers:{'X-ClubDailyFive-Overlay':'1'}});if(!r.ok)throw new Error();content.innerHTML=await r.text();history.pushState({info:true},'',a.getAttribute('href'));close.focus()}catch(e){location.href=a.href}}
+function closeInfo(fromPop=false){modal.hidden=true;modal.setAttribute('aria-hidden','true');document.body.classList.remove('info-open');window.scrollTo(0,scrollY);if(!fromPop&&location.pathname!=='/')history.back();if(lastFocus)lastFocus.focus()}
+document.querySelectorAll('.foot-links a').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();openInfo(a)}));close.addEventListener('click',()=>closeInfo());modal.addEventListener('click',e=>{if(e.target===modal)closeInfo()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.hidden)closeInfo()});window.addEventListener('popstate',()=>{if(!modal.hidden)closeInfo(true)});
+})();
+</script>
 </main>
 </body></html>
