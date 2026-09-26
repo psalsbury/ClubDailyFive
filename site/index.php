@@ -200,7 +200,7 @@ function markClubs(){document.querySelectorAll('.club[data-slug]').forEach(el=>{
  const progress=stored(`dailyfive:progress:${el.dataset.slug}:${playDate}`);
  const started=progress&&Array.isArray(progress.marks)&&progress.marks.length>0;
  const status=r?'':started?'In progress today':'';
- const pwMap={'manchester-city':'man-city','manchester-united':'man-utd','newcastle-united':'newcastle','tottenham-hotspur':'tottenham'};
+ const pwMap={'coventry-city':'coventry','hull-city':'hull','ipswich-town':'ipswich','leeds-united':'leeds','manchester-city':'man-city','manchester-united':'man-utd','newcastle-united':'newcastle','tottenham-hotspur':'tottenham'};
  let pw={};try{pw=JSON.parse(localStorage.getItem('pw:'+(pwMap[el.dataset.slug]||el.dataset.slug))||'{}')}catch(e){}
  const dailyDone=!!r,wordleDone=pw.date===playDate&&pw.done===true;
  el.classList.toggle('played',dailyDone&&wordleDone);
@@ -224,7 +224,7 @@ function markClubs(){document.querySelectorAll('.club[data-slug]').forEach(el=>{
 })}
 markClubs();window.addEventListener('pageshow',markClubs);window.addEventListener('storage',markClubs);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)markClubs()});
-const pwSlugMap={'manchester-city':'man-city','manchester-united':'man-utd','newcastle-united':'newcastle','tottenham-hotspur':'tottenham'};
+const pwSlugMap={'coventry-city':'coventry','hull-city':'hull','ipswich-town':'ipswich','leeds-united':'leeds','manchester-city':'man-city','manchester-united':'man-utd','newcastle-united':'newcastle','tottenham-hotspur':'tottenham'};
 function pwSlug(slug){return pwSlugMap[slug]||slug}
 function pwStatus(slug){let s={},g={};const p=pwSlug(slug);try{s=JSON.parse(localStorage.getItem('pw:'+p)||'{}');g=JSON.parse(localStorage.getItem('pwgame:'+playDate+':'+p)||'{}')}catch(e){}if(s.date===playDate&&s.done)return '✓ COMPLETED';if(g.attempts>0&&!g.done)return 'IN PROGRESS';return s.streak>0?'🔥 '+s.streak+' STREAK':''}
 function closePicker(){const p=document.getElementById('gamePicker');p.hidden=true;p.setAttribute('aria-hidden','true');document.body.classList.remove('picker-open')}
