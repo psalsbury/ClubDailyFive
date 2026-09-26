@@ -1,0 +1,32 @@
+<?php
+declare(strict_types=1);
+$slug = preg_replace('/[^a-z-]/', '', strtolower((string)($_GET['page'] ?? '')));
+$pages = [
+ 'about' => [
+  'title' => 'About',
+  'description' => 'About ClubDailyFive.com, the free daily football club quiz.',
+  'body' => '<p>ClubDailyFive.com is a free daily football quiz built for supporters who enjoy testing what they know about their club.</p><p>Each Premier League club has a fresh five-question round to play every day. Questions cover club history, players, managers, matches, transfers, trophies, attendances and recent football.</p><p>ClubDailyFive.com is an independent supporter quiz and is not affiliated with, sponsored by, or endorsed by the Premier League or any football club.</p>'
+ ],
+ 'how-it-works' => [
+  'title' => 'How it works',
+  'description' => 'How to play ClubDailyFive.com.',
+  'body' => '<ol><li><strong>Choose a club.</strong> Pick any Premier League club from the home page.</li><li><strong>Answer five questions.</strong> Select one answer for each question. After answering, you will see whether you were correct along with extra context and a source.</li><li><strong>Build your streaks.</strong> Completing a club\'s round contributes to your completion streak. Scoring 5/5 contributes to your perfect streak.</li><li><strong>Share your result.</strong> At full time you can copy or share your score without revealing the answers.</li><li><strong>Come back tomorrow.</strong> New daily rounds unlock at midnight UK time.</li></ol><p>You can play every available club each day, not just the team you support.</p>'
+ ],
+ 'privacy' => [
+  'title' => 'Privacy Policy',
+  'description' => 'Privacy information for ClubDailyFive.com.',
+  'body' => '<p><strong>Last updated: 26 September 2026.</strong></p><p>ClubDailyFive.com is designed to collect as little personal information as practical.</p><h2>Information stored on your device</h2><p>The game uses your browser\'s local storage to remember quiz progress, results and streaks. This information remains in your browser unless you clear it.</p><h2>Site usage information</h2><p>The site may record lightweight, aggregated game activity needed to understand usage and operate the service, such as a quiz being started or completed and which club was played. The site is not intended to build individual player profiles.</p><h2>Server logs</h2><p>Like most websites, the hosting server may create technical logs containing information such as IP address, browser details, requested pages and timestamps. These logs may be used for security, reliability and troubleshooting.</p><h2>External sources</h2><p>Question explanations can link to external sources. Those websites have their own privacy practices.</p><h2>Contact</h2><p>For privacy questions, email <a href="mailto:admin@clubdailyfive.com">admin@clubdailyfive.com</a>.</p>'
+ ],
+ 'contact' => [
+  'title' => 'Contact',
+  'description' => 'Contact ClubDailyFive.com.',
+  'body' => '<p>Found a question that needs correcting, have a suggestion, or want to get in touch about ClubDailyFive.com?</p><p>Email <a class="contact-email" href="mailto:admin@clubdailyfive.com">admin@clubdailyfive.com</a>.</p><p>If you are reporting a quiz question, please include the club, the question wording and the date you saw it where possible.</p>'
+ ]
+];
+if (!isset($pages[$slug])) { http_response_code(404); $slug='about'; }
+$page=$pages[$slug];
+function h(string $v): string { return htmlspecialchars($v, ENT_QUOTES, 'UTF-8'); }
+$canonical='https://clubdailyfive.com/'.$slug;
+?>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07101e"><link rel="icon" href="/assets/favicon.svg" type="image/svg+xml"><link rel="canonical" href="<?= h($canonical) ?>"><title><?= h($page['title']) ?> — ClubDailyFive.com</title><meta name="description" content="<?= h($page['description']) ?>">
+<style>:root{--ink:#f7f8fc;--muted:#a9b2c4;--panel:#111c31;--line:#273650;--accent:#ffcc33;--bg:#07101e}*{box-sizing:border-box}html{background:var(--bg)}body{margin:0;color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at 80% -10%,rgba(255,204,51,.14),transparent 36rem),var(--bg);min-height:100vh}.wrap{width:min(760px,calc(100% - 28px));margin:auto}.top{padding:22px 0}.brand img{display:block;width:clamp(250px,48vw,450px);height:auto}.content{border:1px solid var(--line);border-radius:22px;background:rgba(17,28,49,.9);padding:clamp(22px,5vw,42px);margin:28px 0}.eyebrow{color:var(--accent);text-transform:uppercase;letter-spacing:.14em;font-weight:800;font-size:.75rem}.content h1{font-size:clamp(2.4rem,9vw,4.5rem);line-height:1;letter-spacing:-.055em;margin:.18em 0 .55em}.content h2{font-size:1.25rem;margin-top:1.7em}.content p,.content li{color:var(--muted);font-size:1rem;line-height:1.7}.content strong{color:var(--ink)}a{color:var(--accent)}li{margin:.6em 0}.contact-email{font-size:clamp(1rem,4vw,1.25rem);font-weight:800}.back{display:inline-block;margin-top:20px;text-decoration:none;font-weight:800}.foot{color:#778399;font-size:.76rem;padding:16px 0 36px;text-align:center}.foot nav{display:flex;justify-content:center;flex-wrap:wrap;gap:8px 16px;margin-bottom:10px}.foot nav a{color:#a9b2c4;text-decoration:none}@media(max-width:600px){.top{padding:14px 0}.brand img{width:min(300px,72vw)}.content{margin:10px 0;padding:20px;border-radius:16px}}</style></head><body><main class="wrap"><header class="top"><a class="brand" href="/" aria-label="ClubDailyFive.com home"><img src="/assets/clubdailyfive-logo.svg" alt="ClubDailyFive.com" width="450" height="60"></a></header><article class="content"><div class="eyebrow">ClubDailyFive.com</div><h1><?= h($page['title']) ?></h1><?= $page['body'] ?><a class="back" href="/">← Back to the quiz</a></article><footer class="foot"><nav aria-label="Site information"><a href="/about">About</a><a href="/how-it-works">How it works</a><a href="/privacy">Privacy Policy</a><a href="/contact">Contact</a></nav><span>Independent supporter quiz. Not affiliated with or endorsed by the Premier League or any club.</span></footer></main></body></html>
