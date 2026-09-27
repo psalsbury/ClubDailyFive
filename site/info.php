@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+header('Cache-Control: no-store, max-age=0');
 $slug = preg_replace('/[^a-z-]/', '', strtolower((string)($_GET['page'] ?? '')));
 $pages = [
  'about' => [
