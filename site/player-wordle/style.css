@@ -123,3 +123,25 @@ body.game-complete .choose-club{width:min(360px,100%);margin:12px auto 0}
 body:not(.game-complete) #share,body:not(.game-complete) #choose-club{display:none!important}
 body.game-complete #share:not([hidden]){display:block!important}
 body.game-complete #choose-club:not([hidden]){display:flex!important}.cross-game{width:min(460px,100%);margin:15px auto;padding:14px;border:1px solid #e7c77a;border-radius:16px;background:rgba(231,199,122,.08);display:flex;align-items:center;justify-content:space-between;gap:14px;text-align:left}.cross-game-copy{display:flex;flex-direction:column;gap:3px}.cross-game-copy>span{color:#e7c77a;font-size:.62rem;font-weight:900;letter-spacing:.08em}.cross-game-copy strong{font-size:1rem}.cross-game-copy small{color:#91a69f}.cross-game>a{padding:11px 13px;border-radius:10px;background:#e7c77a;color:#171105;text-decoration:none;font-size:.72rem;font-weight:950;white-space:nowrap}.cross-game.club-complete{border-color:#35d88b;background:rgba(53,216,139,.08);justify-content:center;text-align:center}.cross-game.club-complete .cross-game-copy>span{color:#55df9d}@media(max-width:520px){.cross-game{align-items:stretch;flex-direction:column;text-align:center}.cross-game>a{text-align:center}}
+
+/* ClubDailyFive navy / burgundy theme (v23) */
+:root{--cdf-bg:#07101e;--cdf-panel:#111c31;--cdf-panel-dark:#0b1628;--cdf-line:#273650;--cdf-accent:#ed1c24;--cdf-burgundy:#310817;--cdf-muted:#a9b2c4;--cdf-ink:#f7f8fc}
+html,body{background:var(--cdf-bg);color:var(--cdf-ink)}
+body{background:radial-gradient(circle at 50% -10%,rgba(114,13,43,.58),transparent 34rem),var(--cdf-bg)}
+body:before{background:linear-gradient(105deg,transparent 0 15%,rgba(237,28,36,.035) 35%,transparent 52%),linear-gradient(255deg,transparent 0 18%,rgba(237,28,36,.03) 37%,transparent 54%)}
+.top{background:rgba(7,16,30,.94);border-bottom-color:var(--cdf-line)}
+.wordmark em,.wordmark small,.crown,.eyebrow{color:var(--cdf-accent)}
+.back{color:var(--cdf-muted)}
+.info-button{border-color:#663044;background:#170d18;color:#ff6b72}.info-button:hover{border-color:var(--cdf-accent);background:#26101b}
+.game-club h1{color:var(--cdf-ink)}.attempts{color:var(--cdf-muted)}
+input{background:var(--cdf-panel-dark);border-color:var(--cdf-accent);color:#fff;box-shadow:0 0 28px rgba(237,28,36,.12)}
+.board{background:rgba(11,22,40,.9);border-color:var(--cdf-line)}
+.labels span{color:#c1c8d5}.labels small{color:#778399}.guessrow>b{color:#e5e9f1}.guessrow span{background:#17243a;border-color:#33445f}
+.grey,.guessrow .miss{background:#30394a!important}
+.notice{background:var(--cdf-panel);border-color:var(--cdf-line);color:var(--cdf-muted)}
+#share{background:var(--cdf-accent);color:#fff}
+.choose-club{border-color:var(--cdf-accent);background:rgba(237,28,36,.1)}.choose-club:hover,.choose-club:focus-visible{background:rgba(237,28,36,.18)}.choose-club span{color:#ff5c63}
+.info-dialog{background:var(--cdf-panel-dark);border-color:var(--cdf-line);color:var(--cdf-ink)}.info-close{background:#16233a;border-color:#35465f;color:#dce2ed}.info-intro,.criteria p,.club-player-total span{color:var(--cdf-muted)}.player-counts div,.club-player-total,.criteria .info-note{background:#111c31;border-color:var(--cdf-line)}.player-counts strong,.club-player-total strong{color:#ff5c63}.criteria{border-top-color:var(--cdf-line)}.criteria ol{color:#e1e6ef}.criteria .info-note{border-left-color:var(--cdf-accent);color:#cbd2de}
+.cross-game{border-color:#7f334b;background:rgba(114,13,43,.18)}.cross-game-copy>span{color:#ff7077}.cross-game-copy small,body.game-complete #result p{color:var(--cdf-muted)}.cross-game>a{background:var(--cdf-accent);color:#fff}
+.site-footer{text-align:center;padding:25px 12px;color:#778399;font-size:8px;letter-spacing:3px}.footer-links{display:flex;justify-content:center;flex-wrap:wrap;gap:8px 18px;margin-bottom:12px;letter-spacing:0;font-size:12px}.footer-links a{color:#a9b2c4;text-decoration:none}.footer-links a:hover,.footer-links a:focus-visible{color:#ff5c63;text-decoration:underline;outline:none}
+/* Green remains reserved for correct Wordle clues and completion states. */
