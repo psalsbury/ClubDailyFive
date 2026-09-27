@@ -148,5 +148,5 @@ input{background:var(--cdf-panel-dark);border-color:var(--cdf-accent);color:#fff
 
 /* Pin the Player Wordle footer to the bottom on short pages. */
 body{display:flex;flex-direction:column;min-height:100dvh}
-.game{width:100%;flex:0 0 auto}
+.game{width:100%;flex:0 0 auto;margin:0 auto}
 .site-footer{width:100%;margin-top:auto}
