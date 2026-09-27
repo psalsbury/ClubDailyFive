@@ -145,3 +145,8 @@ input{background:var(--cdf-panel-dark);border-color:var(--cdf-accent);color:#fff
 .cross-game{border-color:#7f334b;background:rgba(114,13,43,.18)}.cross-game-copy>span{color:#ff7077}.cross-game-copy small,body.game-complete #result p{color:var(--cdf-muted)}.cross-game>a{background:var(--cdf-accent);color:#fff}
 .site-footer{text-align:center;padding:25px 12px;color:#778399;font-size:8px;letter-spacing:3px}.footer-links{display:flex;justify-content:center;flex-wrap:wrap;gap:8px 18px;margin-bottom:12px;letter-spacing:0;font-size:12px}.footer-links a{color:#a9b2c4;text-decoration:none}.footer-links a:hover,.footer-links a:focus-visible{color:#ff5c63;text-decoration:underline;outline:none}
 /* Green remains reserved for correct Wordle clues and completion states. */
+
+/* Pin the Player Wordle footer to the bottom on short pages. */
+body{display:flex;flex-direction:column;min-height:100dvh}
+.game{width:100%;flex:0 0 auto}
+.site-footer{width:100%;margin-top:auto}
