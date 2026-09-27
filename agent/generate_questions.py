@@ -35,8 +35,21 @@ def load_current(target):
 def persp(r):
   home=r['HomeTeam']==r['_alias']; gf=int(r['FTHG'] if home else r['FTAG']); ga=int(r['FTAG'] if home else r['FTHG']); opp=r['AwayTeam'] if home else r['HomeTeam']
   yellow=int((r.get('HY') if home else r.get('AY')) or 0); red=int((r.get('HR') if home else r.get('AR')) or 0); return gf,ga,opp,yellow,red
+def semantic_family(row):
+  key=row['semantic_key'] or ''
+  parts=key.rsplit('|',1)
+  return parts[0] if len(parts)==2 and parts[1].startswith('v') and parts[1][1:].isdigit() else key
+
 def ranked(rows,target):
-  return sorted(rows,key=lambda r:(int(r['use_count'] or 0),r['last_used_date'] or '',hashlib.sha256(f'{target}|{r["id"]}'.encode()).hexdigest()))
+  # The bank stores several wording variants for one underlying fact. Rank
+  # by the combined history of the fact family so a rewording is never
+  # mistaken for a new question.
+  rows=list(rows); history={}
+  for row in rows:
+    family=semantic_family(row)
+    used,last=history.get(family,(0,''))
+    history[family]=(used+int(row['use_count'] or 0),max(last,row['last_used_date'] or ''))
+  return sorted(rows,key=lambda r:(history[semantic_family(r)][0],history[semantic_family(r)][1],hashlib.sha256(f'{target}|{r["id"]}'.encode()).hexdigest()))
 def numopts(v,seed):
   vals=list(dict.fromkeys([str(v),str(max(0,v-1)),str(v+1),str(v+2),str(v+3)])); random.Random(hashlib.sha256(seed.encode()).digest()).shuffle(vals); vals=vals[:4]
   if str(v) not in vals: vals[-1]=str(v)

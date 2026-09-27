@@ -2,6 +2,7 @@ import sqlite3
 import unittest
 from question_variety import select_varied, validate_round, banned_question
 from migrate_question_rules import migrate
+from generate_questions import ranked
 
 
 def q(text, date='2025-01-01'):
@@ -19,6 +20,16 @@ class RulesTests(unittest.TestCase):
         result = select_varied(bank, fresh)
         self.assertEqual(result[0]['fact_date'], '2025-02-01')
         validate_round([*result, fresh])
+
+    def test_wording_variant_inherits_family_usage(self):
+        rows = [
+            {'id': 1, 'semantic_key': 'v4bank|forest|same-fact|v0', 'use_count': 1, 'last_used_date': '2026-09-26'},
+            {'id': 2, 'semantic_key': 'v4bank|forest|same-fact|v1', 'use_count': 0, 'last_used_date': None},
+            {'id': 3, 'semantic_key': 'v4bank|forest|different-fact|v0', 'use_count': 0, 'last_used_date': None},
+        ]
+        ordered = ranked(rows, '2026-09-27')
+        self.assertEqual(ordered[0]['id'], 3)
+        self.assertIn(ordered[-1]['id'], (1, 2))
 
     def test_first_team_banned_but_half_allowed(self):
         for text in ['Which team scored first in the match?', 'Archive question: Which side scored first?', 'Which team scored the opening goal?']:
