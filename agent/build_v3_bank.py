@@ -19,7 +19,7 @@ from pathlib import Path
 
 DB = os.getenv("QUIZ_DB", "/var/lib/clubdailyfive/clubquiz.sqlite")
 TM_DIR = Path(os.getenv("TM_DATA_DIR", "/var/lib/clubdailyfive/transfermarkt-data"))
-BACKUPS = Path("/var/backups/predictioncomp-question-db")
+BACKUPS = Path("/var/backups/clubdailyfive-question-db")
 TARGET = 300
 DATASET_URL = "https://github.com/dcaribou/transfermarkt-datasets"
 TM_IDS = {"arsenal":11,"aston-villa":405,"bournemouth":989,"brentford":1148,"brighton":1237,"chelsea":631,"coventry-city":990,"crystal-palace":873,"everton":29,"fulham":931,"hull-city":3008,"ipswich-town":677,"leeds-united":399,"liverpool":31,"manchester-city":281,"manchester-united":985,"newcastle-united":762,"nottingham-forest":703,"sunderland":289,"tottenham-hotspur":148}

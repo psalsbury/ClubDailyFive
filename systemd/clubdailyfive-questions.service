@@ -1,5 +1,5 @@
 [Unit]
-Description=Generate and validate PredictionComp daily football quizzes
+Description=Generate and validate ClubDailyFive daily football quizzes
 After=network-online.target
 Wants=network-online.target
 
@@ -7,12 +7,12 @@ Wants=network-online.target
 Type=oneshot
 User=www-data
 Group=www-data
-EnvironmentFile=-/etc/predictioncomp/quiz-agent.env
-ExecStart=/usr/bin/python3 /opt/predictioncomp/bin/agent_job_reporter.py questions
+EnvironmentFile=-/etc/clubdailyfive/quiz-agent.env
+ExecStart=/usr/bin/python3 /opt/clubdailyfive/bin/agent_job_reporter.py questions
 PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=true
-ReadWritePaths=/var/lib/clubdailyfive /var/backups/predictioncomp-question-db
+ReadWritePaths=/var/lib/clubdailyfive /var/backups/clubdailyfive-question-db
 NoNewPrivileges=true
 LockPersonality=true
 MemoryDenyWriteExecute=true

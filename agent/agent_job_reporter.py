@@ -30,7 +30,7 @@ JOBS = {
     "questions": {
         "label": "ClubDailyFive questions agent",
         "db": "/var/lib/clubdailyfive/clubquiz.sqlite",
-        "commands": [["/usr/bin/python3", "/opt/predictioncomp/bin/generate_questions.py"]],
+        "commands": [["/usr/bin/python3", "/opt/clubdailyfive/bin/generate_questions.py"]],
     },
 }
 

@@ -16,7 +16,7 @@ def main():
         if new!=row: changes.append((row,new))
     print(json.dumps({"questions":len(rows),"converted":len(changes),"samples":[{"question":n["question_text"],"options":json.loads(n["options_json"]),"explanation":n["explanation"]} for _,n in changes[:2]]},ensure_ascii=False))
     if not args.apply or not changes:return
-    folder=Path("/var/backups/predictioncomp-question-db"); folder.mkdir(parents=True,exist_ok=True)
+    folder=Path("/var/backups/clubdailyfive-question-db"); folder.mkdir(parents=True,exist_ok=True)
     backup=folder/("before-sterling-"+dt.datetime.now().strftime("%Y%m%d-%H%M%S")+".sqlite")
     with sqlite3.connect(backup) as dest:con.backup(dest)
     with con:
