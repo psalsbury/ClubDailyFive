@@ -50,6 +50,27 @@ def ranked(rows,target):
     used,last=history.get(family,(0,''))
     history[family]=(used+int(row['use_count'] or 0),max(last,row['last_used_date'] or ''))
   return sorted(rows,key=lambda r:(history[semantic_family(r)][0],history[semantic_family(r)][1],hashlib.sha256(f'{target}|{r["id"]}'.encode()).hexdigest()))
+def eligible_history_bank(con,club_id,target):
+  cutoff=(dt.date.fromisoformat(target)-dt.timedelta(days=14)).isoformat()
+  recent=con.execute("select q.* from daily_questions d join questions q on q.id=d.question_id where d.club_id=? and d.quiz_date>=? and d.quiz_date<?",(club_id,cutoff,target)).fetchall()
+  excluded={semantic_family(q) for q in recent}
+  rows=con.execute("select * from questions where club_id=? and status='reviewed' and semantic_key like 'v4bank|%'",(club_id,)).fetchall()
+  excluded.update(semantic_family(q) for q in rows if (q['last_used_date'] or '')>=cutoff)
+  return ranked((q for q in rows if semantic_family(q) not in excluded),target)
+
+def generic_bank(con,club_id,target):
+  # Track publication as well as play history. Eight facts per club rotate
+  # without repeating across the preceding seven calendar days.
+  cutoff=(dt.date.fromisoformat(target)-dt.timedelta(days=7)).isoformat()
+  published=dict(con.execute("select question_id,max(quiz_date) from daily_questions where club_id=? and quiz_date<? group by question_id",(club_id,target)))
+  rows=con.execute("select * from questions where club_id=? and status='reviewed' and semantic_key like 'generic|%'",(club_id,)).fetchall()
+  eligible=[q for q in rows if published.get(q['id'],'') < cutoff and (q['last_used_date'] or '') < cutoff]
+  if not eligible:raise RuntimeError('Club trivia pool exhausted for '+str(club_id))
+  yesterday=con.execute("select q.semantic_key from daily_questions d join questions q on q.id=d.question_id where d.club_id=? and d.quiz_date=? and q.semantic_key like 'generic|%' limit 1",(club_id,(dt.date.fromisoformat(target)-dt.timedelta(days=1)).isoformat())).fetchone()
+  # Fact categories are explicit in the key; alternate origins, identity and grounds.
+  previous=yesterday[0].split('|')[2] if yesterday else ''
+  return sorted(eligible,key=lambda q:(q['semantic_key'].split('|')[2]==previous,max(published.get(q['id'],''),q['last_used_date'] or ''),hashlib.sha256(f'{target}|{q["id"]}'.encode()).hexdigest()))
+
 def numopts(v,seed):
   vals=list(dict.fromkeys([str(v),str(max(0,v-1)),str(v+1),str(v+2),str(v+3)])); random.Random(hashlib.sha256(seed.encode()).digest()).shuffle(vals); vals=vals[:4]
   if str(v) not in vals: vals[-1]=str(v)
@@ -167,7 +188,7 @@ def main():
   ap=argparse.ArgumentParser(); ap.add_argument('--date'); ap.add_argument('--self-test',action='store_true'); a=ap.parse_args(); target=a.date or (dt.datetime.now(UK).date()+dt.timedelta(days=1)).isoformat()
   con=sqlite3.connect(DB,timeout=60); con.row_factory=sqlite3.Row; con.execute('pragma foreign_keys=on'); clubs=con.execute('select id,slug,name from clubs where active=1 order by name').fetchall()
   if a.self_test:
-    counts=dict(con.execute("select c.slug,count(q.id) from clubs c left join questions q on q.club_id=c.id and q.semantic_key like 'v4bank|%' group by c.id")); print(json.dumps({'database':con.execute('pragma integrity_check').fetchone()[0],'clubs':len(clubs),'bank_counts':counts,'bank_per_club_required':300,'daily_mix':'4 bank + 1 unused match fact or recent-season fallback','recent_cutoff_days':10,'openai_api_required':False})); return
+    counts=dict(con.execute("select c.slug,count(q.id) from clubs c left join questions q on q.club_id=c.id and q.semantic_key like 'v4bank|%' group by c.id")); print(json.dumps({'database':con.execute('pragma integrity_check').fetchone()[0],'clubs':len(clubs),'bank_counts':counts,'bank_per_club_required':300,'daily_mix':'1 club trivia + 3 varied bank + 1 unused match fact or recent-season fallback','recent_cutoff_days':10,'openai_api_required':False})); return
   attendance_updates=migrate_attendance_options(con); con.commit()
   if con.execute('select count(*) from daily_questions where quiz_date=?',(target,)).fetchone()[0]:
     print(f'Round already published for {target}; preserving player questions; updated {attendance_updates} attendance questions'); return
@@ -187,8 +208,8 @@ def main():
       con.execute("update questions set status='retired' where club_id=? and status='reviewed' and semantic_key like 'seasonfact|%' and (fact_date is null or fact_date < ?)",(club['id'],latest))
     con.execute('delete from daily_questions where quiz_date=?',(target,)); rounds=[]
     for club in clubs:
-      bank=ranked(con.execute("select * from questions where club_id=? and status='reviewed' and semantic_key like 'v4bank|%'",(club['id'],)).fetchall(),target)
-      bank = [q for q in bank if not banned_question(q)]
+      bank=eligible_history_bank(con,club['id'],target)
+      bank = generic_bank(con,club['id'],target) + [q for q in bank if not banned_question(q)]
       if len(bank)<4: raise RuntimeError(f"{club['slug']}: insufficient eligible bank questions")
       selected,fresh=choose_round(con,club,target,current.get(club['slug'],[]),bank)
       fresh_id=fresh['id']
@@ -198,7 +219,7 @@ def main():
     for club,ids in rounds:
       for pos,qid in enumerate(ids,1):
         con.execute('insert into daily_questions(club_id,quiz_date,position,question_id) values(?,?,?,?)',(club['id'],target,pos,qid))
-    con.execute("insert into generation_runs(run_date,finished_at,status,notes) values(?,CURRENT_TIMESTAMP,'complete',?)",(target,f'V4: 4/300 least-recently-used bank + 1 unused match fact/recent-season fallback; 10-day recent cutoff; backup={backup}')); con.commit()
+    con.execute("insert into generation_runs(run_date,finished_at,status,notes) values(?,CURRENT_TIMESTAMP,'complete',?)",(target,f'V5: 1 sourced club trivia + 3 varied bank + 1 unused match fact/recent-season fallback; 10-day recent cutoff; backup={backup}')); con.commit()
   except Exception: con.rollback(); raise
   print(f'published {len(clubs)*5} questions for {target}')
 if __name__=='__main__':

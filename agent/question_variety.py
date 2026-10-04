@@ -31,6 +31,8 @@ def match_keys(row):
 
 
 def question_topics(row):
+    if dict(row).get("semantic_key", "").startswith("generic|"):
+        return {"club_trivia"}
     text=row["question_text"].lower()
     topics=set()
     if "high-scoring" in text: topics.add("high_scoring")
@@ -57,8 +59,12 @@ def question_topics(row):
 def select_varied(bank, fresh, count=4):
     if banned_question(fresh):
         raise ValueError('First-scoring team questions are prohibited')
-    used = question_topics(fresh)
-    matches = match_keys(fresh)
+    generic = next((q for q in bank if q["semantic_key"].startswith("generic|") and q["id"] != fresh["id"]), None)
+    if generic is None:
+        raise RuntimeError("No eligible club-trivia question available")
+    used = question_topics(fresh) | question_topics(generic)
+    matches = match_keys(fresh) | match_keys(generic)
+    count -= 1
     candidates = []
     signatures = set()
     for row in bank:
@@ -84,7 +90,7 @@ def select_varied(bank, fresh, count=4):
     result = search(0, [], used, matches)
     if result is None:
         raise RuntimeError('No round satisfies question-family and match uniqueness')
-    return result
+    return [generic, *result]
 
 
 def validate_round(rows):

@@ -1,3 +1,5 @@
+const funnelClub=({coventry:'coventry-city',hull:'hull-city',ipswich:'ipswich-town',leeds:'leeds-united','man-city':'manchester-city','man-utd':'manchester-united',newcastle:'newcastle-united',tottenham:'tottenham-hotspur'})[GAME.club]||GAME.club;
+cdfEvent(funnelClub,'wordle','selected');
 let attempts=0,done=false,marks=[],box=document.querySelector('#guess'),sug=document.querySelector('#suggestions'),rows=document.querySelector('#rows');
 const stateKey='pwgame:'+GAME.date+':'+GAME.club;
 const keys=['debut_age','position','nationality','debut_year','prior_clubs'];
@@ -86,6 +88,7 @@ async function play(id,name){
   sug.innerHTML='';
   box.value='';
   let r=await(await fetch('api.php?action=guess&club='+GAME.club+'&player='+id,{cache:'no-store'})).json();
+  if(attempts===0)cdfEvent(funnelClub,'wordle','started');
   attempts++;
   let row=document.createElement('div');
   row.className='guessrow'+(r.correct?' answerrow':'');
@@ -101,6 +104,7 @@ async function play(id,name){
 
 async function finish(won){
   done=true;
+  cdfEvent(funnelClub,'wordle','completed');
   box.disabled=true;
   setCompletedView();
   let r=await(await fetch('api.php?action=finish&club='+GAME.club+'&won='+(won?1:0)+'&guesses='+attempts+'&_='+Date.now(),{cache:'no-store'})).json();
@@ -121,7 +125,7 @@ async function finish(won){
   document.querySelector('#choose-club').hidden=false;
   sh.onclick=async()=>{
     let t='Player Wordle — '+GAME.name+' — '+GAME.date+'\n'+(won?attempts:'X')+'/5\n'+marks.join('\n')+'\n🔥 Streak '+streak;
-    if(navigator.share)navigator.share({text:t});
-    else{await navigator.clipboard.writeText(t);sh.textContent='Copied!'}
+    if(navigator.share)navigator.share({text:t}).then(()=>cdfEvent(funnelClub,'wordle','shared')).catch(()=>{});
+    else{await navigator.clipboard.writeText(t).then(()=>cdfEvent(funnelClub,'wordle','shared'));sh.textContent='Copied!'}
   }
 }

@@ -1,0 +1,2242 @@
+[
+  {
+    "slug": "arsenal",
+    "key": "generic|arsenal|origins|names-0",
+    "prompt": "What was the club first called?",
+    "answer": "Dial Square",
+    "wrong": [
+      "Boscombe",
+      "Bournemouth and Boscombe Athletic",
+      "Brighton & Hove Rangers"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "arsenal",
+    "key": "generic|arsenal|origins|industries-1",
+    "prompt": "Which industry employed the club's founders?",
+    "answer": "Munitions manufacturing",
+    "wrong": [
+      "Schoolteachers",
+      "Coal mining",
+      "Shipbuilding"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "arsenal",
+    "key": "generic|arsenal|origins|years-2",
+    "prompt": "In which year was the club founded?",
+    "answer": "1886",
+    "wrong": [
+      "1881",
+      "1889",
+      "1896"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "arsenal",
+    "key": "generic|arsenal|grounds|grounds-3",
+    "prompt": "Which ground preceded the Emirates?",
+    "answer": "Highbury",
+    "wrong": [
+      "Dean Court",
+      "Griffin Park",
+      "Withdean Stadium"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "arsenal",
+    "key": "generic|arsenal|grounds|years-4",
+    "prompt": "In which year did the club move to the Emirates?",
+    "answer": "2006",
+    "wrong": [
+      "2001",
+      "2009",
+      "2016"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "arsenal",
+    "key": "generic|arsenal|grounds|players-5",
+    "prompt": "Which former player has a statue outside the Emirates?",
+    "answer": "Dennis Bergkamp",
+    "wrong": [
+      "Steve Fletcher",
+      "Dickie Dowsett",
+      "Peter Osgood"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "arsenal",
+    "key": "generic|arsenal|identity|symbols-6",
+    "prompt": "What weapon is depicted on the club crest?",
+    "answer": "A cannon",
+    "wrong": [
+      "A staff",
+      "A branch of seaweed",
+      "A sword"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "arsenal",
+    "key": "generic|arsenal|identity|mottos-7",
+    "prompt": "What does the old motto Victoria Concordia Crescit mean?",
+    "answer": "Victory through harmony",
+    "wrong": [
+      "Nothing but the best is good enough",
+      "In pursuit of excellence",
+      "Strength through unity"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "aston-villa",
+    "key": "generic|aston-villa|origins|sports-0",
+    "prompt": "Which sport did the founders play before forming a football team?",
+    "answer": "Cricket",
+    "wrong": [
+      "Rugby",
+      "Shinty",
+      "Tennis"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "aston-villa",
+    "key": "generic|aston-villa|origins|years-1",
+    "prompt": "In which year was the football club formed?",
+    "answer": "1874",
+    "wrong": [
+      "1869",
+      "1877",
+      "1884"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "aston-villa",
+    "key": "generic|aston-villa|origins|institutions-2",
+    "prompt": "What religious institution were the founders associated with?",
+    "answer": "A Wesleyan chapel",
+    "wrong": [
+      "A shipbuilding company",
+      "A mining company",
+      "A university"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "aston-villa",
+    "key": "generic|aston-villa|grounds|years-3",
+    "prompt": "In which year did Villa Park become the club's home?",
+    "answer": "1897",
+    "wrong": [
+      "1892",
+      "1900",
+      "1907"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "aston-villa",
+    "key": "generic|aston-villa|grounds|people-4",
+    "prompt": "Which former chairman has a stand named after him at Villa Park?",
+    "answer": "Doug Ellis",
+    "wrong": [
+      "Gus Mears",
+      "Matthew Harding",
+      "Jimmy Hill"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "aston-villa",
+    "key": "generic|aston-villa|identity|animals-5",
+    "prompt": "Which animal is the principal feature of the crest?",
+    "answer": "A lion",
+    "wrong": [
+      "A bumblebee",
+      "An elephant",
+      "A phoenix"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "aston-villa",
+    "key": "generic|aston-villa|identity|countries-6",
+    "prompt": "The lion on the crest has its origins in which country's coat of arms?",
+    "answer": "Scotland",
+    "wrong": [
+      "England",
+      "Wales",
+      "Ireland"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "aston-villa",
+    "key": "generic|aston-villa|identity|years-7",
+    "prompt": "The star on the crest celebrates a European Cup victory in which year?",
+    "answer": "1982",
+    "wrong": [
+      "1977",
+      "1985",
+      "1992"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "bournemouth",
+    "key": "generic|bournemouth|origins|names-0",
+    "prompt": "What was the club called when founded in 1899?",
+    "answer": "Boscombe",
+    "wrong": [
+      "Dial Square",
+      "Bournemouth and Boscombe Athletic",
+      "Brighton & Hove Rangers"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "bournemouth",
+    "key": "generic|bournemouth|origins|years-1",
+    "prompt": "In which year did the club adopt the name AFC Bournemouth?",
+    "answer": "1971",
+    "wrong": [
+      "1966",
+      "1974",
+      "1981"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "bournemouth",
+    "key": "generic|bournemouth|origins|names-2",
+    "prompt": "What was the club's name between 1923 and 1971?",
+    "answer": "Bournemouth and Boscombe Athletic",
+    "wrong": [
+      "Dial Square",
+      "Boscombe",
+      "Brighton & Hove Rangers"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "bournemouth",
+    "key": "generic|bournemouth|grounds|grounds-3",
+    "prompt": "What is the traditional name of the club's home ground?",
+    "answer": "Dean Court",
+    "wrong": [
+      "Highbury",
+      "Griffin Park",
+      "Withdean Stadium"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "bournemouth",
+    "key": "generic|bournemouth|grounds|years-4",
+    "prompt": "In which year did the club's home ground open?",
+    "answer": "1910",
+    "wrong": [
+      "1905",
+      "1913",
+      "1920"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "bournemouth",
+    "key": "generic|bournemouth|grounds|players-5",
+    "prompt": "Which club legend has a stand named after him at the ground?",
+    "answer": "Steve Fletcher",
+    "wrong": [
+      "Dennis Bergkamp",
+      "Dickie Dowsett",
+      "Peter Osgood"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "bournemouth",
+    "key": "generic|bournemouth|identity|players-6",
+    "prompt": "Which former player is depicted heading a ball on the crest?",
+    "answer": "Dickie Dowsett",
+    "wrong": [
+      "Dennis Bergkamp",
+      "Steve Fletcher",
+      "Peter Osgood"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "bournemouth",
+    "key": "generic|bournemouth|identity|teams-7",
+    "prompt": "Which Italian club inspired the red-and-black home colours?",
+    "answer": "AC Milan",
+    "wrong": [
+      "Fulham",
+      "Benfica",
+      "Wimbledon"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "brentford",
+    "key": "generic|brentford|origins|years-0",
+    "prompt": "In which year was the club founded?",
+    "answer": "1889",
+    "wrong": [
+      "1884",
+      "1892",
+      "1899"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "brentford",
+    "key": "generic|brentford|origins|sports-1",
+    "prompt": "Which sport lost to football in the founders' vote?",
+    "answer": "Rugby",
+    "wrong": [
+      "Cricket",
+      "Shinty",
+      "Tennis"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "brentford",
+    "key": "generic|brentford|origins|votes-2",
+    "prompt": "What was the vote in favour of forming a football club?",
+    "answer": "Eight votes to five",
+    "wrong": [
+      "Ten votes to three",
+      "Seven votes to six",
+      "Nine votes to four"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "brentford",
+    "key": "generic|brentford|grounds|grounds-3",
+    "prompt": "Which ground did the club leave in 2020?",
+    "answer": "Griffin Park",
+    "wrong": [
+      "Highbury",
+      "Dean Court",
+      "Withdean Stadium"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "brentford",
+    "key": "generic|brentford|grounds|years-4",
+    "prompt": "In which year did the club move to its new community stadium?",
+    "answer": "2020",
+    "wrong": [
+      "2015",
+      "2023",
+      "2030"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "brentford",
+    "key": "generic|brentford|grounds|sponsors-5",
+    "prompt": "Which company became the community stadium's naming sponsor in 2022?",
+    "answer": "Gtech",
+    "wrong": [
+      "Ricoh",
+      "American Express",
+      "Emirates"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "brentford",
+    "key": "generic|brentford|identity|animals-6",
+    "prompt": "Which insect is central to the crest?",
+    "answer": "A bumblebee",
+    "wrong": [
+      "A lion",
+      "An elephant",
+      "A phoenix"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "brentford",
+    "key": "generic|brentford|identity|colleges-7",
+    "prompt": "The Bees nickname came from a misheard chant by students of which college?",
+    "answer": "Borough Road College",
+    "wrong": [
+      "King's College London",
+      "University College London",
+      "Goldsmiths College"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "brighton",
+    "key": "generic|brighton|origins|years-0",
+    "prompt": "In which year was the present club formed?",
+    "answer": "1901",
+    "wrong": [
+      "1896",
+      "1904",
+      "1911"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "brighton",
+    "key": "generic|brighton|origins|suffixes-1",
+    "prompt": "Which suffix was briefly used before Albion?",
+    "answer": "United",
+    "wrong": [
+      "Rovers",
+      "Athletic",
+      "Wanderers"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "brighton",
+    "key": "generic|brighton|origins|names-2",
+    "prompt": "What was the short-lived local club that folded in 1901 called?",
+    "answer": "Brighton & Hove Rangers",
+    "wrong": [
+      "Dial Square",
+      "Boscombe",
+      "Bournemouth and Boscombe Athletic"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "brighton",
+    "key": "generic|brighton|grounds|grounds-3",
+    "prompt": "Which ground immediately preceded the Amex?",
+    "answer": "Withdean Stadium",
+    "wrong": [
+      "Highbury",
+      "Dean Court",
+      "Griffin Park"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "brighton",
+    "key": "generic|brighton|grounds|years-4",
+    "prompt": "In which year did the club move to the Amex?",
+    "answer": "2011",
+    "wrong": [
+      "2006",
+      "2014",
+      "2021"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "brighton",
+    "key": "generic|brighton|grounds|grounds-5",
+    "prompt": "What is the locational name of the Amex?",
+    "answer": "Falmer Stadium",
+    "wrong": [
+      "Highbury",
+      "Dean Court",
+      "Griffin Park"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "brighton",
+    "key": "generic|brighton|identity|nicknames-6",
+    "prompt": "Which nickname did the club use before Seagulls?",
+    "answer": "The Dolphins",
+    "wrong": [
+      "The Glaziers",
+      "The Saints",
+      "The Theatre of Dreams"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "brighton",
+    "key": "generic|brighton|identity|years-7",
+    "prompt": "In which year did a seagull first appear on the crest?",
+    "answer": "1977",
+    "wrong": [
+      "1972",
+      "1980",
+      "1987"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "chelsea",
+    "key": "generic|chelsea|origins|people-0",
+    "prompt": "Which businessman established the club?",
+    "answer": "Gus Mears",
+    "wrong": [
+      "Doug Ellis",
+      "Matthew Harding",
+      "Jimmy Hill"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "chelsea",
+    "key": "generic|chelsea|origins|teams-1",
+    "prompt": "Which nearby club declined an invitation to use Stamford Bridge before Chelsea formed?",
+    "answer": "Fulham",
+    "wrong": [
+      "AC Milan",
+      "Benfica",
+      "Wimbledon"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "chelsea",
+    "key": "generic|chelsea|origins|venues-2",
+    "prompt": "What type of venue was Stamford Bridge before Chelsea formed?",
+    "answer": "An athletics ground",
+    "wrong": [
+      "A cricket ground",
+      "A rugby ground",
+      "A horse-racing course"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "chelsea",
+    "key": "generic|chelsea|grounds|years-3",
+    "prompt": "In which year was the club formed?",
+    "answer": "1905",
+    "wrong": [
+      "1900",
+      "1908",
+      "1915"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "chelsea",
+    "key": "generic|chelsea|grounds|people-4",
+    "prompt": "Which former vice-chairman has a stand named after him?",
+    "answer": "Matthew Harding",
+    "wrong": [
+      "Doug Ellis",
+      "Gus Mears",
+      "Jimmy Hill"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "chelsea",
+    "key": "generic|chelsea|grounds|players-5",
+    "prompt": "Which former striker has a sculpture outside Stamford Bridge?",
+    "answer": "Peter Osgood",
+    "wrong": [
+      "Dennis Bergkamp",
+      "Steve Fletcher",
+      "Dickie Dowsett"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "chelsea",
+    "key": "generic|chelsea|identity|managers-6",
+    "prompt": "Which manager introduced the lion emblem in 1953?",
+    "answer": "Ted Drake",
+    "wrong": [
+      "Malcolm Allison",
+      "Bill Shankly",
+      "Bob Stokoe"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "chelsea",
+    "key": "generic|chelsea|identity|symbols-7",
+    "prompt": "What does the lion hold on the crest?",
+    "answer": "A staff",
+    "wrong": [
+      "A cannon",
+      "A branch of seaweed",
+      "A sword"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "coventry-city",
+    "key": "generic|coventry-city|grounds|grounds-0",
+    "prompt": "Which ground did the club leave in 2005?",
+    "answer": "Highfield Road",
+    "wrong": [
+      "Highbury",
+      "Dean Court",
+      "Griffin Park"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "coventry-city",
+    "key": "generic|coventry-city|grounds|grounds-1",
+    "prompt": "What was the CBS Arena originally called?",
+    "answer": "Ricoh Arena",
+    "wrong": [
+      "Highbury",
+      "Dean Court",
+      "Griffin Park"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "coventry-city",
+    "key": "generic|coventry-city|grounds|years-2",
+    "prompt": "In which year did the club move from Highfield Road to the arena?",
+    "answer": "2005",
+    "wrong": [
+      "2000",
+      "2008",
+      "2015"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "coventry-city",
+    "key": "generic|coventry-city|grounds|people-3",
+    "prompt": "Which club figure has had a statue outside the arena since 2011?",
+    "answer": "Jimmy Hill",
+    "wrong": [
+      "Godwin",
+      "Edwin",
+      "Morcar"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "coventry-city",
+    "key": "generic|coventry-city|identity|animals-4",
+    "prompt": "Which animal carries a castle on the club crest?",
+    "answer": "An elephant",
+    "wrong": [
+      "A lion",
+      "A bumblebee",
+      "A phoenix"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "coventry-city",
+    "key": "generic|coventry-city|identity|animals-5",
+    "prompt": "Which bird on the crest represents the city's rebirth after wartime destruction?",
+    "answer": "A phoenix",
+    "wrong": [
+      "A lion",
+      "A bumblebee",
+      "An elephant"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "coventry-city",
+    "key": "generic|coventry-city|identity|people-6",
+    "prompt": "The eagle on the crest represents which Earl of Mercia?",
+    "answer": "Leofric",
+    "wrong": [
+      "Godwin",
+      "Edwin",
+      "Morcar"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "coventry-city",
+    "key": "generic|coventry-city|identity|saints-7",
+    "prompt": "Which saint's cross appears on the elephant?",
+    "answer": "St George",
+    "wrong": [
+      "St Andrew",
+      "St David",
+      "St Patrick"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "crystal-palace",
+    "key": "generic|crystal-palace|origins|teams-0",
+    "prompt": "Which Portuguese club inspired the Eagles nickname?",
+    "answer": "Benfica",
+    "wrong": [
+      "AC Milan",
+      "Fulham",
+      "Wimbledon"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "crystal-palace",
+    "key": "generic|crystal-palace|origins|managers-1",
+    "prompt": "Which manager introduced the Eagles nickname?",
+    "answer": "Malcolm Allison",
+    "wrong": [
+      "Ted Drake",
+      "Bill Shankly",
+      "Bob Stokoe"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "crystal-palace",
+    "key": "generic|crystal-palace|origins|events-2",
+    "prompt": "The building behind the club's name was erected for which event?",
+    "answer": "The Great Exhibition of 1851",
+    "wrong": [
+      "The 2002 Commonwealth Games",
+      "The 2012 Olympic Games",
+      "The 1966 World Cup"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "crystal-palace",
+    "key": "generic|crystal-palace|grounds|years-3",
+    "prompt": "In which year did the club begin playing at Selhurst Park?",
+    "answer": "1924",
+    "wrong": [
+      "1919",
+      "1927",
+      "1934"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "crystal-palace",
+    "key": "generic|crystal-palace|grounds|teams-4",
+    "prompt": "Which club shared Selhurst Park from 1991 to 2003?",
+    "answer": "Wimbledon",
+    "wrong": [
+      "AC Milan",
+      "Fulham",
+      "Benfica"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "crystal-palace",
+    "key": "generic|crystal-palace|grounds|fictional-5",
+    "prompt": "Selhurst Park portrays the home of which fictional club in Ted Lasso?",
+    "answer": "AFC Richmond",
+    "wrong": [
+      "Harchester United",
+      "Melchester Rovers",
+      "Warbury Warriors"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "crystal-palace",
+    "key": "generic|crystal-palace|identity|nicknames-6",
+    "prompt": "What nickname preceded the Eagles?",
+    "answer": "The Glaziers",
+    "wrong": [
+      "The Dolphins",
+      "The Saints",
+      "The Theatre of Dreams"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "crystal-palace",
+    "key": "generic|crystal-palace|identity|years-7",
+    "prompt": "Which year replaced 1905 on the crest in 2022?",
+    "answer": "1861",
+    "wrong": [
+      "1856",
+      "1864",
+      "1871"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "everton",
+    "key": "generic|everton|origins|names-0",
+    "prompt": "What was the club originally called?",
+    "answer": "St Domingo's",
+    "wrong": [
+      "Dial Square",
+      "Boscombe",
+      "Bournemouth and Boscombe Athletic"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "everton",
+    "key": "generic|everton|origins|years-1",
+    "prompt": "In which year was the club originally founded?",
+    "answer": "1878",
+    "wrong": [
+      "1873",
+      "1881",
+      "1888"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "everton",
+    "key": "generic|everton|origins|years-2",
+    "prompt": "In which year did the club adopt the Everton name?",
+    "answer": "1879",
+    "wrong": [
+      "1874",
+      "1882",
+      "1889"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "everton",
+    "key": "generic|everton|grounds|grounds-3",
+    "prompt": "Which ground did the men's first team leave in 2025?",
+    "answer": "Goodison Park",
+    "wrong": [
+      "Highbury",
+      "Dean Court",
+      "Griffin Park"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "everton",
+    "key": "generic|everton|grounds|places-4",
+    "prompt": "At which dock was the club's new stadium built?",
+    "answer": "Bramley-Moore Dock",
+    "wrong": [
+      "Albert Dock",
+      "Canning Dock",
+      "Salthouse Dock"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "everton",
+    "key": "generic|everton|grounds|numbers-5",
+    "prompt": "How many years was Goodison Park the men's team's home before the 2025 move?",
+    "answer": "133",
+    "wrong": [
+      "113",
+      "123",
+      "143"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "everton",
+    "key": "generic|everton|identity|landmarks-6",
+    "prompt": "Which landmark is central to the crest?",
+    "answer": "Prince Rupert's Tower",
+    "wrong": [
+      "Wolsey Gate",
+      "Penshaw Monument",
+      "Grey's Monument"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "everton",
+    "key": "generic|everton|identity|mottos-7",
+    "prompt": "What does Nil Satis Nisi Optimum mean?",
+    "answer": "Nothing but the best is good enough",
+    "wrong": [
+      "Victory through harmony",
+      "In pursuit of excellence",
+      "Strength through unity"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "fulham",
+    "key": "generic|fulham|origins|churches-0",
+    "prompt": "Which church was associated with the club's founding?",
+    "answer": "St Andrew's",
+    "wrong": [
+      "St Mark's, Gorton",
+      "St Luke's",
+      "St Mary's"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "fulham",
+    "key": "generic|fulham|origins|years-1",
+    "prompt": "In which year was the club founded?",
+    "answer": "1879",
+    "wrong": [
+      "1874",
+      "1882",
+      "1889"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "fulham",
+    "key": "generic|fulham|origins|nicknames-2",
+    "prompt": "What nickname did the club use before the Cottagers?",
+    "answer": "The Saints",
+    "wrong": [
+      "The Dolphins",
+      "The Glaziers",
+      "The Theatre of Dreams"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "fulham",
+    "key": "generic|fulham|grounds|years-3",
+    "prompt": "In which year did the club first move to Craven Cottage?",
+    "answer": "1896",
+    "wrong": [
+      "1891",
+      "1899",
+      "1906"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "fulham",
+    "key": "generic|fulham|grounds|rivers-4",
+    "prompt": "Which river runs beside Craven Cottage?",
+    "answer": "The Thames",
+    "wrong": [
+      "The Trent",
+      "The Mersey",
+      "The Tyne"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "fulham",
+    "key": "generic|fulham|grounds|players-5",
+    "prompt": "Which club legend has a Grade II-listed stand named after him?",
+    "answer": "Johnny Haynes",
+    "wrong": [
+      "Dennis Bergkamp",
+      "Steve Fletcher",
+      "Dickie Dowsett"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "fulham",
+    "key": "generic|fulham|identity|initials-6",
+    "prompt": "Which three initials appear on the crest?",
+    "answer": "FFC",
+    "wrong": [
+      "FSC",
+      "FCF",
+      "FCC"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "fulham",
+    "key": "generic|fulham|identity|years-7",
+    "prompt": "In which year was the minimalist shield crest introduced?",
+    "answer": "2001",
+    "wrong": [
+      "1996",
+      "2004",
+      "2011"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "hull-city",
+    "key": "generic|hull-city|identity|years-0",
+    "prompt": "In which year was the club founded?",
+    "answer": "1904",
+    "wrong": [
+      "1899",
+      "1907",
+      "1914"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "hull-city",
+    "key": "generic|hull-city|identity|animals-1",
+    "prompt": "Which animal's head is central to the crest?",
+    "answer": "A tiger",
+    "wrong": [
+      "A lion",
+      "A bumblebee",
+      "An elephant"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "hull-city",
+    "key": "generic|hull-city|identity|colours-2",
+    "prompt": "Which two colours explain the Tigers nickname?",
+    "answer": "Amber and black",
+    "wrong": [
+      "Blue and yellow",
+      "Red and black",
+      "Blue and white"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "hull-city",
+    "key": "generic|hull-city|identity|years-3",
+    "prompt": "In which year was Hull City's name restored to the current crest?",
+    "answer": "2019",
+    "wrong": [
+      "2014",
+      "2022",
+      "2029"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "hull-city",
+    "key": "generic|hull-city|grounds|years-4",
+    "prompt": "In which year did the club move into the stadium now known as the MKM?",
+    "answer": "2002",
+    "wrong": [
+      "1997",
+      "2005",
+      "2012"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "hull-city",
+    "key": "generic|hull-city|grounds|rugby-5",
+    "prompt": "Which rugby league club shares the MKM Stadium?",
+    "answer": "Hull F.C.",
+    "wrong": [
+      "Hull Kingston Rovers",
+      "Leeds Rhinos",
+      "Wigan Warriors"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "hull-city",
+    "key": "generic|hull-city|grounds|grounds-6",
+    "prompt": "What was the MKM Stadium originally called?",
+    "answer": "KC Stadium",
+    "wrong": [
+      "Highbury",
+      "Dean Court",
+      "Griffin Park"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "hull-city",
+    "key": "generic|hull-city|grounds|years-7",
+    "prompt": "In which year did MKM become the stadium's naming sponsor?",
+    "answer": "2021",
+    "wrong": [
+      "2016",
+      "2024",
+      "2031"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "ipswich-town",
+    "key": "generic|ipswich-town|origins|years-0",
+    "prompt": "In which year was the club first founded as an amateur team?",
+    "answer": "1878",
+    "wrong": [
+      "1873",
+      "1881",
+      "1888"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4644752",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "ipswich-town",
+    "key": "generic|ipswich-town|origins|sportsclubs-1",
+    "prompt": "With which local sports club did Ipswich A.F.C. merge in 1888?",
+    "answer": "Ipswich Rugby Club",
+    "wrong": [
+      "Stanley Cricket Club",
+      "Ipswich Cricket Club",
+      "Newcastle Rowing Club"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4644752",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "ipswich-town",
+    "key": "generic|ipswich-town|origins|years-2",
+    "prompt": "In which year did the club turn professional?",
+    "answer": "1936",
+    "wrong": [
+      "1931",
+      "1939",
+      "1946"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4644752",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "ipswich-town",
+    "key": "generic|ipswich-town|origins|teams-3",
+    "prompt": "Which club did Ipswich defeat in the 1981 UEFA Cup final?",
+    "answer": "AZ",
+    "wrong": [
+      "AC Milan",
+      "Fulham",
+      "Benfica"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4644752",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "ipswich-town",
+    "key": "generic|ipswich-town|grounds|years-4",
+    "prompt": "In which year did the club first move to Portman Road?",
+    "answer": "1884",
+    "wrong": [
+      "1879",
+      "1887",
+      "1894"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "ipswich-town",
+    "key": "generic|ipswich-town|grounds|players-5",
+    "prompt": "Which former player has a statue outside Portman Road alongside Ramsey and Robson?",
+    "answer": "Kevin Beattie",
+    "wrong": [
+      "Dennis Bergkamp",
+      "Steve Fletcher",
+      "Dickie Dowsett"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "ipswich-town",
+    "key": "generic|ipswich-town|identity|horses-6",
+    "prompt": "What breed of horse is represented on the crest?",
+    "answer": "Suffolk Punch",
+    "wrong": [
+      "Shire",
+      "Clydesdale",
+      "Percheron"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "ipswich-town",
+    "key": "generic|ipswich-town|identity|landmarks-7",
+    "prompt": "Which local landmark is represented by the turrets on the crest?",
+    "answer": "Wolsey Gate",
+    "wrong": [
+      "Prince Rupert's Tower",
+      "Penshaw Monument",
+      "Grey's Monument"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "leeds-united",
+    "key": "generic|leeds-united|origins|names-0",
+    "prompt": "Which earlier club did Leeds United replace?",
+    "answer": "Leeds City",
+    "wrong": [
+      "Dial Square",
+      "Boscombe",
+      "Bournemouth and Boscombe Athletic"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "leeds-united",
+    "key": "generic|leeds-united|origins|years-1",
+    "prompt": "In which year was Leeds United founded?",
+    "answer": "1919",
+    "wrong": [
+      "1914",
+      "1922",
+      "1929"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "leeds-united",
+    "key": "generic|leeds-united|origins|teams-2",
+    "prompt": "From which club did Leeds United acquire Elland Road after Leeds City's demise?",
+    "answer": "Yorkshire Amateurs",
+    "wrong": [
+      "AC Milan",
+      "Fulham",
+      "Benfica"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "leeds-united",
+    "key": "generic|leeds-united|grounds|players-3",
+    "prompt": "Which club captain has a statue outside Elland Road?",
+    "answer": "Billy Bremner",
+    "wrong": [
+      "Dennis Bergkamp",
+      "Steve Fletcher",
+      "Dickie Dowsett"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "leeds-united",
+    "key": "generic|leeds-united|grounds|players-4",
+    "prompt": "Which former defender is commemorated in the name of Elland Road's South Stand?",
+    "answer": "Norman Hunter",
+    "wrong": [
+      "Dennis Bergkamp",
+      "Steve Fletcher",
+      "Dickie Dowsett"
+    ],
+    "source_url": "https://www.leedsunited.com/en/news/the-stand-with-a-bite-a-history-of-the-norman-hunter-stand",
+    "source_label": "Leeds United official history",
+    "category": "grounds"
+  },
+  {
+    "slug": "leeds-united",
+    "key": "generic|leeds-united|identity|roses-5",
+    "prompt": "Which rose features on the crest?",
+    "answer": "The White Rose of York",
+    "wrong": [
+      "The Red Rose of Lancaster",
+      "The Tudor Rose",
+      "The Yellow Rose of Hampshire"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "leeds-united",
+    "key": "generic|leeds-united|identity|years-6",
+    "prompt": "In which year was the current shield crest adopted?",
+    "answer": "1999",
+    "wrong": [
+      "1994",
+      "2002",
+      "2009"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "leeds-united",
+    "key": "generic|leeds-united|identity|colours-7",
+    "prompt": "Which two colours accompany the LUFC lettering on the shield?",
+    "answer": "Blue and yellow",
+    "wrong": [
+      "Amber and black",
+      "Red and black",
+      "Blue and white"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "liverpool",
+    "key": "generic|liverpool|origins|teams-0",
+    "prompt": "Which club used Anfield before Liverpool was founded?",
+    "answer": "Everton",
+    "wrong": [
+      "AC Milan",
+      "Fulham",
+      "Benfica"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "liverpool",
+    "key": "generic|liverpool|origins|people-1",
+    "prompt": "Who established Liverpool after Everton left Anfield?",
+    "answer": "John Houlding",
+    "wrong": [
+      "Doug Ellis",
+      "Gus Mears",
+      "Matthew Harding"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "liverpool",
+    "key": "generic|liverpool|origins|disputes-2",
+    "prompt": "What dispute led Everton to leave Anfield?",
+    "answer": "A dispute over rent",
+    "wrong": [
+      "A dispute over shirt colours",
+      "A dispute over player wages",
+      "A dispute over league membership"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "liverpool",
+    "key": "generic|liverpool|grounds|years-3",
+    "prompt": "In which year was Liverpool founded?",
+    "answer": "1892",
+    "wrong": [
+      "1887",
+      "1895",
+      "1902"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "liverpool",
+    "key": "generic|liverpool|grounds|players-4",
+    "prompt": "Which former player and manager has a stand named after him at Anfield?",
+    "answer": "Kenny Dalglish",
+    "wrong": [
+      "Dennis Bergkamp",
+      "Steve Fletcher",
+      "Dickie Dowsett"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "liverpool",
+    "key": "generic|liverpool|identity|managers-5",
+    "prompt": "Which manager is commemorated by the Anfield gates bearing You'll Never Walk Alone?",
+    "answer": "Bill Shankly",
+    "wrong": [
+      "Ted Drake",
+      "Malcolm Allison",
+      "Bob Stokoe"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "liverpool",
+    "key": "generic|liverpool|identity|animals-6",
+    "prompt": "Which mythical bird represents the club?",
+    "answer": "The Liver bird",
+    "wrong": [
+      "A lion",
+      "A bumblebee",
+      "An elephant"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "liverpool",
+    "key": "generic|liverpool|identity|symbols-7",
+    "prompt": "What does the Liver bird carry in its beak?",
+    "answer": "A branch of seaweed",
+    "wrong": [
+      "A cannon",
+      "A staff",
+      "A sword"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "manchester-city",
+    "key": "generic|manchester-city|origins|churches-0",
+    "prompt": "Which church was associated with the club's 1880 origins?",
+    "answer": "St Mark's, Gorton",
+    "wrong": [
+      "St Andrew's",
+      "St Luke's",
+      "St Mary's"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "manchester-city",
+    "key": "generic|manchester-city|origins|names-1",
+    "prompt": "What was the club called immediately before Manchester City?",
+    "answer": "Ardwick",
+    "wrong": [
+      "Dial Square",
+      "Boscombe",
+      "Bournemouth and Boscombe Athletic"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "manchester-city",
+    "key": "generic|manchester-city|origins|years-2",
+    "prompt": "In which year was the Manchester City name adopted?",
+    "answer": "1894",
+    "wrong": [
+      "1889",
+      "1897",
+      "1904"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "manchester-city",
+    "key": "generic|manchester-city|grounds|grounds-3",
+    "prompt": "Which ground did the club leave in 2003?",
+    "answer": "Maine Road",
+    "wrong": [
+      "Highbury",
+      "Dean Court",
+      "Griffin Park"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "manchester-city",
+    "key": "generic|manchester-city|grounds|events-4",
+    "prompt": "The club's present stadium was originally built for which event?",
+    "answer": "The 2002 Commonwealth Games",
+    "wrong": [
+      "The Great Exhibition of 1851",
+      "The 2012 Olympic Games",
+      "The 1966 World Cup"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "manchester-city",
+    "key": "generic|manchester-city|grounds|years-5",
+    "prompt": "In which year did the club move to the City of Manchester Stadium?",
+    "answer": "2003",
+    "wrong": [
+      "1998",
+      "2006",
+      "2013"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "manchester-city",
+    "key": "generic|manchester-city|identity|counties-6",
+    "prompt": "The red rose on the crest represents which county?",
+    "answer": "Lancashire",
+    "wrong": [
+      "Yorkshire",
+      "Cheshire",
+      "Derbyshire"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "manchester-city",
+    "key": "generic|manchester-city|identity|counts-7",
+    "prompt": "How many rivers are symbolised by the diagonal stripes on the crest?",
+    "answer": "Three",
+    "wrong": [
+      "Two",
+      "Four",
+      "Five"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "manchester-united",
+    "key": "generic|manchester-united|origins|names-0",
+    "prompt": "What was the club originally called?",
+    "answer": "Newton Heath LYR",
+    "wrong": [
+      "Dial Square",
+      "Boscombe",
+      "Bournemouth and Boscombe Athletic"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "manchester-united",
+    "key": "generic|manchester-united|origins|years-1",
+    "prompt": "In which year was the Manchester United name adopted?",
+    "answer": "1902",
+    "wrong": [
+      "1897",
+      "1905",
+      "1912"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "manchester-united",
+    "key": "generic|manchester-united|origins|railways-2",
+    "prompt": "Which railway company's workers founded the club?",
+    "answer": "Lancashire and Yorkshire Railway",
+    "wrong": [
+      "Great Western Railway",
+      "London and North Western Railway",
+      "Midland Railway"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "manchester-united",
+    "key": "generic|manchester-united|grounds|years-3",
+    "prompt": "In which year did Old Trafford become the club's home?",
+    "answer": "1910",
+    "wrong": [
+      "1905",
+      "1913",
+      "1920"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "manchester-united",
+    "key": "generic|manchester-united|grounds|nicknames-4",
+    "prompt": "What is Old Trafford's famous nickname?",
+    "answer": "The Theatre of Dreams",
+    "wrong": [
+      "The Dolphins",
+      "The Glaziers",
+      "The Saints"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "manchester-united",
+    "key": "generic|manchester-united|grounds|players-5",
+    "prompt": "Who joins George Best and Bobby Charlton in the United Trinity statue?",
+    "answer": "Denis Law",
+    "wrong": [
+      "Dennis Bergkamp",
+      "Steve Fletcher",
+      "Dickie Dowsett"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "manchester-united",
+    "key": "generic|manchester-united|identity|towns-6",
+    "prompt": "The Red Devils nickname was borrowed from a rugby league club in which town?",
+    "answer": "Salford",
+    "wrong": [
+      "West Bridgford",
+      "Gateshead",
+      "Stockport"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "manchester-united",
+    "key": "generic|manchester-united|identity|words-7",
+    "prompt": "Which words were removed from the crest in 1998?",
+    "answer": "Football Club",
+    "wrong": [
+      "Manchester United",
+      "Red Devils",
+      "Old Trafford"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "newcastle-united",
+    "key": "generic|newcastle-united|origins|pairs-0",
+    "prompt": "Which two clubs were united in the club's 1892 origins?",
+    "answer": "Newcastle East End and Newcastle West End",
+    "wrong": [
+      "Newcastle North End and Newcastle South End",
+      "Newcastle City and Newcastle Athletic",
+      "Newcastle Rovers and Newcastle Town"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "newcastle-united",
+    "key": "generic|newcastle-united|origins|years-1",
+    "prompt": "In which year was the Newcastle United name chosen?",
+    "answer": "1892",
+    "wrong": [
+      "1887",
+      "1895",
+      "1902"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "newcastle-united",
+    "key": "generic|newcastle-united|origins|sportsclubs-2",
+    "prompt": "Which cricket club was associated with Newcastle East End's origins?",
+    "answer": "Stanley Cricket Club",
+    "wrong": [
+      "West End Cricket Club",
+      "Jesmond Cricket Club",
+      "Gosforth Cricket Club"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "newcastle-united",
+    "key": "generic|newcastle-united|grounds|nicknames-3",
+    "prompt": "What affectionate nickname do fans use for St James' Park?",
+    "answer": "The Cathedral on the hill",
+    "wrong": [
+      "The Dolphins",
+      "The Glaziers",
+      "The Saints"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "newcastle-united",
+    "key": "generic|newcastle-united|grounds|players-4",
+    "prompt": "Which player is commemorated by the Milburn Stand?",
+    "answer": "Jackie Milburn",
+    "wrong": [
+      "Dennis Bergkamp",
+      "Steve Fletcher",
+      "Dickie Dowsett"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "newcastle-united",
+    "key": "generic|newcastle-united|grounds|players-5",
+    "prompt": "Which record Premier League goalscorer has a statue outside St James' Park?",
+    "answer": "Alan Shearer",
+    "wrong": [
+      "Dennis Bergkamp",
+      "Steve Fletcher",
+      "Dickie Dowsett"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "newcastle-united",
+    "key": "generic|newcastle-united|identity|animals-6",
+    "prompt": "What are the mythical sea creatures flanking the club's heraldic crest called?",
+    "answer": "Hippocampi",
+    "wrong": [
+      "A lion",
+      "A bumblebee",
+      "An elephant"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "newcastle-united",
+    "key": "generic|newcastle-united|identity|flags-7",
+    "prompt": "What flag does the lion above the crest's castle hold?",
+    "answer": "St George's pennant",
+    "wrong": [
+      "St Andrew's flag",
+      "The Welsh dragon",
+      "The Union Flag"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "nottingham-forest",
+    "key": "generic|nottingham-forest|origins|sports-0",
+    "prompt": "Which sport did the club's founders play before forming a football team?",
+    "answer": "Shinty",
+    "wrong": [
+      "Cricket",
+      "Rugby",
+      "Tennis"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "nottingham-forest",
+    "key": "generic|nottingham-forest|origins|years-1",
+    "prompt": "In which year was the club founded?",
+    "answer": "1865",
+    "wrong": [
+      "1860",
+      "1868",
+      "1875"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "nottingham-forest",
+    "key": "generic|nottingham-forest|origins|places-2",
+    "prompt": "Which open space gave the club its name?",
+    "answer": "Forest Recreation Ground",
+    "wrong": [
+      "The Meadows",
+      "Wollaton Park",
+      "Colwick Country Park"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "nottingham-forest",
+    "key": "generic|nottingham-forest|grounds|years-3",
+    "prompt": "In which year did the club move to the City Ground?",
+    "answer": "1898",
+    "wrong": [
+      "1893",
+      "1901",
+      "1908"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "nottingham-forest",
+    "key": "generic|nottingham-forest|grounds|rivers-4",
+    "prompt": "Which river runs beside the City Ground?",
+    "answer": "The Trent",
+    "wrong": [
+      "The Thames",
+      "The Mersey",
+      "The Tyne"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "nottingham-forest",
+    "key": "generic|nottingham-forest|grounds|towns-5",
+    "prompt": "In which town is the City Ground located?",
+    "answer": "West Bridgford",
+    "wrong": [
+      "Salford",
+      "Gateshead",
+      "Stockport"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "nottingham-forest",
+    "key": "generic|nottingham-forest|identity|people-6",
+    "prompt": "Who won the competition to design the tree crest in 1974?",
+    "answer": "David Lewis",
+    "wrong": [
+      "Doug Ellis",
+      "Gus Mears",
+      "Matthew Harding"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "nottingham-forest",
+    "key": "generic|nottingham-forest|identity|honours-7",
+    "prompt": "What do the two stars above the crest commemorate?",
+    "answer": "Two European Cup victories",
+    "wrong": [
+      "Two FA Cup victories",
+      "Two league titles",
+      "Two League Cup victories"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "sunderland",
+    "key": "generic|sunderland|origins|industries-0",
+    "prompt": "Which occupation did the club's original founders have?",
+    "answer": "Schoolteachers",
+    "wrong": [
+      "Munitions manufacturing",
+      "Coal mining",
+      "Shipbuilding"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "sunderland",
+    "key": "generic|sunderland|origins|people-1",
+    "prompt": "Who called the meeting that led to the club's foundation?",
+    "answer": "James Allan",
+    "wrong": [
+      "Doug Ellis",
+      "Gus Mears",
+      "Matthew Harding"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "sunderland",
+    "key": "generic|sunderland|origins|years-2",
+    "prompt": "In which year was the club founded?",
+    "answer": "1879",
+    "wrong": [
+      "1874",
+      "1882",
+      "1889"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "sunderland",
+    "key": "generic|sunderland|grounds|grounds-3",
+    "prompt": "Which ground did the club leave in 1997?",
+    "answer": "Roker Park",
+    "wrong": [
+      "Highbury",
+      "Dean Court",
+      "Griffin Park"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "sunderland",
+    "key": "generic|sunderland|grounds|places-4",
+    "prompt": "Which former colliery site became the Stadium of Light?",
+    "answer": "Monkwearmouth Colliery",
+    "wrong": [
+      "Hylton Colliery",
+      "Wallsend Colliery",
+      "Barton Colliery"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "sunderland",
+    "key": "generic|sunderland|grounds|managers-5",
+    "prompt": "Which 1973 FA Cup-winning manager has a statue outside the stadium?",
+    "answer": "Bob Stokoe",
+    "wrong": [
+      "Ted Drake",
+      "Malcolm Allison",
+      "Bill Shankly"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "sunderland",
+    "key": "generic|sunderland|identity|landmarks-6",
+    "prompt": "Which monument appears on the crest alongside Wearmouth Bridge?",
+    "answer": "Penshaw Monument",
+    "wrong": [
+      "Prince Rupert's Tower",
+      "Wolsey Gate",
+      "Grey's Monument"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "sunderland",
+    "key": "generic|sunderland|identity|mottos-7",
+    "prompt": "What does Consectatio Excellentiae mean?",
+    "answer": "In pursuit of excellence",
+    "wrong": [
+      "Victory through harmony",
+      "Nothing but the best is good enough",
+      "Strength through unity"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "tottenham-hotspur",
+    "key": "generic|tottenham-hotspur|origins|people-0",
+    "prompt": "Which medieval knight inspired the Hotspur name?",
+    "answer": "Henry Percy",
+    "wrong": [
+      "Doug Ellis",
+      "Gus Mears",
+      "Matthew Harding"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "tottenham-hotspur",
+    "key": "generic|tottenham-hotspur|origins|years-1",
+    "prompt": "In which year was Hotspur Football Club formed?",
+    "answer": "1882",
+    "wrong": [
+      "1877",
+      "1885",
+      "1892"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "tottenham-hotspur",
+    "key": "generic|tottenham-hotspur|origins|years-2",
+    "prompt": "In which year was Tottenham added to the club's name?",
+    "answer": "1884",
+    "wrong": [
+      "1879",
+      "1887",
+      "1894"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4592046/what-is-the-history-behind-every-premier-league-clubs-name",
+    "source_label": "Premier League club history",
+    "category": "origins"
+  },
+  {
+    "slug": "tottenham-hotspur",
+    "key": "generic|tottenham-hotspur|grounds|grounds-3",
+    "prompt": "Which ground preceded the club's present stadium?",
+    "answer": "White Hart Lane",
+    "wrong": [
+      "Highbury",
+      "Dean Court",
+      "Griffin Park"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "tottenham-hotspur",
+    "key": "generic|tottenham-hotspur|grounds|years-4",
+    "prompt": "In which year did Tottenham Hotspur Stadium open?",
+    "answer": "2019",
+    "wrong": [
+      "2014",
+      "2022",
+      "2029"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "tottenham-hotspur",
+    "key": "generic|tottenham-hotspur|grounds|stands-5",
+    "prompt": "Which stand is the stadium's large single-tier home end?",
+    "answer": "The South Stand",
+    "wrong": [
+      "The North Stand",
+      "The East Stand",
+      "The West Stand"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4725666/all-you-need-to-know-about-the-20-premier-league-stadiums",
+    "source_label": "Premier League club history",
+    "category": "grounds"
+  },
+  {
+    "slug": "tottenham-hotspur",
+    "key": "generic|tottenham-hotspur|identity|animals-6",
+    "prompt": "Which bird stands on a football on the crest?",
+    "answer": "A cockerel",
+    "wrong": [
+      "A lion",
+      "A bumblebee",
+      "An elephant"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  },
+  {
+    "slug": "tottenham-hotspur",
+    "key": "generic|tottenham-hotspur|identity|years-7",
+    "prompt": "In which year was the club name removed from the simplified crest?",
+    "answer": "2024",
+    "wrong": [
+      "2019",
+      "2027",
+      "2034"
+    ],
+    "source_url": "https://www.premierleague.com/en/news/4726407/all-20-premier-league-clubs-badges-explained",
+    "source_label": "Premier League club history",
+    "category": "identity"
+  }
+]

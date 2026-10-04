@@ -73,7 +73,7 @@ $structuredData = [
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/assets/icon-192.png">
-<script src="/pwa.js" defer></script>
+<script src="/pwa.js" defer></script><script src="/engagement.js?v=1"></script>
 <link rel="canonical" href="<?= h($canonicalUrl) ?>">
 <title><?= h($pageTitle) ?></title>
 <meta name="description" content="<?= h($pageDescription) ?>">
@@ -157,6 +157,7 @@ $structuredData = [
 .picker-footer-links{position:relative;z-index:3;margin:auto 0 0;padding:14px 4px 2px;display:flex;justify-content:center;flex-wrap:wrap;gap:8px 16px;font-size:.72rem}
 .picker-footer-links a{color:#a9b2c4;text-decoration:none}.picker-footer-links a:hover,.picker-footer-links a:focus-visible{color:#ff5c63;text-decoration:underline;outline:none}
 @media(max-height:720px){.picker-footer-links{padding-top:7px;font-size:.65rem}}
+.question-report{margin-top:8px;font-size:.72rem;color:var(--muted)}.question-report summary{cursor:pointer}.report-reasons{display:flex;flex-wrap:wrap;gap:5px;margin:7px 0}.report-reasons button{background:#0b1628;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:9px;cursor:pointer}.report-reasons button:disabled{opacity:.6}
 </style>
 </head>
 <body class="<?= $club ? 'quiz-page' : 'home-page' ?>">
@@ -241,7 +242,7 @@ const pwSlugMap={'coventry-city':'coventry','hull-city':'hull','ipswich-town':'i
 function pwSlug(slug){return pwSlugMap[slug]||slug}
 function pwStatus(slug){let s={},g={};const p=pwSlug(slug);try{s=JSON.parse(localStorage.getItem('pw:'+p)||'{}');g=JSON.parse(localStorage.getItem('pwgame:'+playDate+':'+p)||'{}')}catch(e){}if(s.date===playDate&&s.done)return '✓ COMPLETED';if(g.attempts>0&&!g.done)return 'IN PROGRESS';return s.streak>0?'🔥 '+s.streak+' STREAK':''}
 function closePicker(){const p=document.getElementById('gamePicker');p.hidden=true;p.setAttribute('aria-hidden','true');document.body.classList.remove('picker-open')}
-function openPicker(el){const slug=el.dataset.slug,name=el.dataset.name,shortName=name.replace(/^Nottingham /,'').replace(/^Manchester /,'').replace(/ United$/,'').replace(/ City$/,'');document.getElementById('pickerClub').textContent=name;document.getElementById('dailyFiveDesc').textContent=`5 questions about ${shortName}`;document.getElementById('playerWordleDesc').textContent=`Guess today's ${shortName} player`;document.getElementById('pickerLogo').src=el.dataset.logo;document.getElementById('pickerLogo').alt=name+' crest';document.getElementById('dailyFiveChoice').href='/daily-five/'+encodeURIComponent(slug);document.getElementById('playerWordleChoice').href='/player-wordle/game.php?club='+encodeURIComponent(pwSlug(slug));const r=clubResult(slug,name),ds=stored(`dailyfive:streaks:${name}`)||{},ps=pwStatus(slug),dailyStreak=Number(ds.completion)||0;document.getElementById('dailyScore').textContent=r?`✓ ${r.score}/5`:'';document.getElementById('dailyFiveState').textContent=dailyStreak?`🔥 ${dailyStreak} day streak`:(r?'✓ Completed today':'');document.getElementById('wordleScore').textContent=ps.includes('COMPLETED')?'✓ 5/5':'';document.getElementById('playerWordleState').textContent=ps.replace('✓ COMPLETED','Completed today');const pwRaw=(()=>{try{return JSON.parse(localStorage.getItem('pw:'+pwSlug(slug))||'{}')}catch(e){return {}}})();const combo=(r&&ps.includes('COMPLETED'))?Math.min(dailyStreak||1,Number(pwRaw.streak)||1):0;document.getElementById('comboStreak').textContent=combo?`🔥 ${combo} days`:'🔥 —';const p=document.getElementById('gamePicker');p.hidden=false;p.setAttribute('aria-hidden','false');document.body.classList.add('picker-open');document.getElementById('pickerClose').focus()}
+function openPicker(el){const slug=el.dataset.slug,name=el.dataset.name,shortName=name.replace(/^Nottingham /,'').replace(/^Manchester /,'').replace(/ United$/,'').replace(/ City$/,'');document.getElementById('pickerClub').textContent=name;document.getElementById('dailyFiveDesc').textContent=`5 questions about ${shortName}`;document.getElementById('playerWordleDesc').textContent=`Guess today's ${shortName} player`;document.getElementById('pickerLogo').src=el.dataset.logo;document.getElementById('pickerLogo').alt=name+' crest';document.getElementById('dailyFiveChoice').href='/daily-five/'+encodeURIComponent(slug);document.getElementById('playerWordleChoice').href='/player-wordle/game.php?club='+encodeURIComponent(pwSlug(slug));const r=clubResult(slug,name),ds=stored(`dailyfive:streaks:${name}`)||{},ps=pwStatus(slug),dailyStreak=Number(ds.completion)||0;document.getElementById('dailyScore').textContent=r?`✓ ${r.score}/5`:'';document.getElementById('dailyFiveState').textContent=dailyStreak?`🔥 ${dailyStreak} day streak`:(r?'✓ Completed today':'');document.getElementById('wordleScore').textContent=ps.includes('COMPLETED')?'✓ 5/5':'';document.getElementById('playerWordleState').textContent=ps.replace('✓ COMPLETED','Completed today');const pwRaw=(()=>{try{return JSON.parse(localStorage.getItem('pw:'+pwSlug(slug))||'{}')}catch(e){return {}}})();const combo=(r&&ps.includes('COMPLETED'))?Math.min(dailyStreak||1,Number(pwRaw.streak)||1):0;document.getElementById('comboStreak').textContent=combo?`🔥 ${combo} days`:'🔥 —';const p=document.getElementById('gamePicker');p.hidden=false;p.setAttribute('aria-hidden','false');document.body.classList.add('picker-open');document.getElementById('pickerClose').focus();for(const [id,game] of [['dailyFiveChoice','daily'],['playerWordleChoice','wordle']])document.getElementById(id).onclick=()=>{cdfEvent(slug,game,'selected')}}
 document.querySelectorAll('.club[data-slug]').forEach(el=>el.addEventListener('click',e=>{e.preventDefault();openPicker(el)}));
 document.getElementById('pickerClose').addEventListener('click',closePicker);document.getElementById('gamePicker').addEventListener('click',e=>{if(e.target.id==='gamePicker')closePicker()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closePicker()});
 </script>
@@ -249,13 +250,15 @@ document.getElementById('pickerClose').addEventListener('click',closePicker);doc
 <section class="quiz-head"><div class="eyebrow">DAILY FIVE · <?= h($club['name']) ?></div><h1>Today’s five</h1></section><div class="empty"><h2>The next round is being prepared.</h2><p>Come back shortly for five fresh questions.</p><a class="again" href="/">Back to club selection</a></div>
 <?php else: ?>
 <section class="quiz-head" id="quizHead"><div class="eyebrow">DAILY FIVE · <?= h($club['name']) ?></div><h1>Today’s five</h1><div class="streak-mini" id="streakMini" hidden></div><div class="progress" id="progress" aria-label="Quiz progress"></div></section>
-<section class="card" id="quiz" aria-live="polite"><div class="count" id="count"></div><h2 class="question" id="question"></h2><div class="answers" id="answers"></div><div class="feedback" id="feedback"></div><button class="next" id="next">Next question</button></section>
+<section class="card" id="quiz" aria-live="polite"><div class="count" id="count"></div><h2 class="question" id="question"></h2><div class="answers" id="answers"></div><div class="feedback" id="feedback"></div><details id="reportQuestion" class="question-report"><summary>Report this question</summary><div class="report-reasons"><button type="button" data-reason="incorrect">Incorrect answer</button><button type="button" data-reason="outdated">Outdated statistic</button><button type="button" data-reason="repeated">Repeated question</button></div><small id="reportStatus" role="status"></small></details><button class="next" id="next">Next question</button></section>
 <section class="result" id="result" hidden><div class="eyebrow">Full time</div><div class="score" id="score"></div><h2 id="resultClub"><?= h($club['name']) ?> Daily Five</h2><div class="tiles" id="tiles"></div><div class="streaks"><div class="streak-box"><span class="streak-number" id="completionStreak">0</span><span class="streak-label">🔥 completion streak</span></div><div class="streak-box"><span class="streak-number" id="perfectStreak">0</span><span class="streak-label">⭐ perfect 5/5 streak</span></div></div><p>You’ve played this club today. Try another club, or return after midnight UK time.</p><div class="share-actions" aria-label="Share your result"><button class="share-action primary" id="shareNative">Share result</button><button class="share-action" id="shareCopy">Copy result</button></div><p id="shareStatus" role="status"></p><textarea id="shareFallback" class="share-fallback" aria-label="Result to copy" readonly hidden></textarea><a class="again" href="/">Back to club selection</a></section>
 <script>
 const questions=<?= json_encode(array_map(fn($q)=>['id'=>(int)$q['id'],'q'=>$q['question_text'],'o'=>json_decode($q['options_json'],true),'a'=>(int)$q['correct_index'],'e'=>$q['explanation'],'u'=>$q['source_url'],'s'=>$q['source_label']],$questions), JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE) ?>;
 const club=<?= json_encode($club['name']) ?>, clubSlug=<?= json_encode($club['slug']) ?>, quizDate=<?= json_encode($quizDate) ?>, roundId=questions.map(x=>x.id).join('-');
+cdfEvent(clubSlug,'daily','selected');
 const sourceQuizDate=<?= json_encode($sourceQuizDate) ?>;
 function track(event,questionId=null){
+ if(['started','completed'].includes(event))cdfEvent(clubSlug,'daily',event);
  const send=()=>fetch('/track.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({club:clubSlug,event,question_id:questionId,quiz_date:sourceQuizDate,play_date:playDate,analytics_version:2}),keepalive:true}).catch(()=>{});
  if(event==='shown'){send();return}
  const key=`dailyfive:counted:${clubSlug}:${playDate}:${event}`;
@@ -273,8 +276,13 @@ function updateStreaks(){let s=readStreaks();if(s.lastCompleted!==quizDate){cons
 function readDailyResult(){return clubResult(clubSlug,club)}
 function showResult(r){resultData=r;score=Number(r.score)||0;marks=Array.isArray(r.marks)?r.marks:[];$('quiz').hidden=true;$('quizHead').hidden=true;$('result').hidden=false;$('score').textContent=`${score}/5`;$('resultClub').textContent=`${r.club||club} Daily Five`;$('tiles').textContent=marks.map(x=>x?'🟩':'⬛').join('');$('completionStreak').textContent=r.completion||0;$('perfectStreak').textContent=r.perfect||0}
 $('progress').innerHTML=questions.map((_,i)=>`<span class="pip" id="p${i}"></span>`).join('');
-function render(){const x=questions[at];track('shown',x.id);$('count').textContent=`Question ${at+1} of 5`;$('question').textContent=x.q;$('answers').innerHTML='';$('feedback').className='feedback';$('feedback').innerHTML='';$('next').className='next';x.o.forEach((label,i)=>{const b=document.createElement('button');b.className='answer';b.textContent=label;b.onclick=()=>choose(i);$('answers').appendChild(b)});}
-function choose(i){if(!checkDay())return;const done=readDailyResult();if(done){showResult(done);return}if(marks.length>at)return;const x=questions[at],buttons=[...document.querySelectorAll('.answer')];buttons.forEach((b,n)=>{b.disabled=true;if(n===x.a)b.classList.add('correct');if(n===i&&i!==x.a)b.classList.add('wrong')});const ok=i===x.a;if(ok)score++;marks.push(ok);localStorage.setItem(progressKey,JSON.stringify({roundId,marks,score}));$('feedback').innerHTML=`<strong>${ok?'Correct.':'Not quite.'}</strong> ${x.e} <a href="${x.u}" target="_blank" rel="noopener">${x.s} ↗</a>${ok?'<span class="correct-confirm" aria-label="Correct answer">✓</span>':''}`;$('feedback').classList.add('show');$('next').textContent=at===4?'See result':'Next question';$('next').classList.add('show');document.getElementById(`p${at}`).classList.add('done');}
+function render(){const x=questions[at];$('reportQuestion').open=false;$('reportStatus').textContent='';document.querySelectorAll('[data-reason]').forEach(b=>b.disabled=false);track('shown',x.id);$('count').textContent=`Question ${at+1} of 5`;$('question').textContent=x.q;$('answers').innerHTML='';$('feedback').className='feedback';$('feedback').innerHTML='';$('next').className='next';x.o.forEach((label,i)=>{const b=document.createElement('button');b.className='answer';b.textContent=label;b.onclick=()=>choose(i);$('answers').appendChild(b)});}
+function choose(i){if(!checkDay())return;if(at===0&&marks.length===0)track('started');const done=readDailyResult();if(done){showResult(done);return}if(marks.length>at)return;const x=questions[at],buttons=[...document.querySelectorAll('.answer')];buttons.forEach((b,n)=>{b.disabled=true;if(n===x.a)b.classList.add('correct');if(n===i&&i!==x.a)b.classList.add('wrong')});const ok=i===x.a;if(ok)score++;marks.push(ok);localStorage.setItem(progressKey,JSON.stringify({roundId,marks,score}));$('feedback').innerHTML=`<strong>${ok?'Correct.':'Not quite.'}</strong> ${x.e} <a href="${x.u}" target="_blank" rel="noopener">${x.s} ↗</a>${ok?'<span class="correct-confirm" aria-label="Correct answer">✓</span>':''}`;$('feedback').classList.add('show');$('next').textContent=at===4?'See result':'Next question';$('next').classList.add('show');document.getElementById(`p${at}`).classList.add('done');}
+document.querySelectorAll('[data-reason]').forEach(b=>b.onclick=async()=>{
+ const buttons=[...document.querySelectorAll('[data-reason]')];buttons.forEach(x=>x.disabled=true);$('reportStatus').textContent='Sending…';
+ try{const r=await fetch('/engagement.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({club:clubSlug,event:'report',question_id:questions[at].id,quiz_date:sourceQuizDate,reason:b.dataset.reason})});if(!r.ok)throw Error();$('reportStatus').textContent='Thanks — your report has been saved for review.'}
+ catch(e){$('reportStatus').textContent='Could not send. Please try again.';buttons.forEach(x=>x.disabled=false)}
+});
 $('next').onclick=()=>{if(!checkDay()||marks.length!==at+1)return;if(++at<questions.length)render();else finish()};
 function finish(){const saved=readDailyResult();if(saved){showResult(saved);return}track('completed');localStorage.setItem(`dailyfive:${club}:${quizDate}`,JSON.stringify({score,marks}));const s=updateStreaks();const r={club,clubSlug,roundId,score,marks,completion:s.completion||0,perfect:s.perfect||0};localStorage.setItem(dailyKey,JSON.stringify(r));localStorage.removeItem(progressKey);showResult(r)}
 function currentShare(){
@@ -291,11 +299,11 @@ ${url}`;
 }
 
 async function copyResult(){const message=currentShare().message;
- try{await navigator.clipboard.writeText(message);$('shareStatus').textContent='Result copied! Paste it into a message.'}
+ try{await navigator.clipboard.writeText(message);cdfEvent(clubSlug,'daily','shared');$('shareStatus').textContent='Result copied! Paste it into a message.'}
  catch(e){$('shareFallback').hidden=false;$('shareFallback').value=message;$('shareFallback').focus();$('shareFallback').select();$('shareStatus').textContent='Select and copy your result below.'}
 }
 $('shareNative').onclick=async()=>{
- if(navigator.share){try{await navigator.share({text:currentShare().message});return}catch(e){if(e.name==='AbortError')return}}
+ if(navigator.share){try{await navigator.share({text:currentShare().message});cdfEvent(clubSlug,'daily','shared');return}catch(e){if(e.name==='AbortError')return}}
  await copyResult();
 };
 $('shareCopy').onclick=copyResult;
@@ -306,14 +314,14 @@ if(completed)showResult(completed);else{
   marks=progress.marks;score=marks.filter(Boolean).length;at=marks.length;
   if(at>0)localStorage.setItem(`dailyfive:counted:${clubSlug}:${playDate}:started`,'1');
  }
- if(at===5)finish();else{track('started');showReturningStreak();render()}
+ if(at===5)finish();else{showReturningStreak();render()}
 }
 window.addEventListener('storage',()=>{const r=readDailyResult();if(r)showResult(r);else{const p=stored(progressKey);if(p&&p.roundId===roundId&&p.marks.length>marks.length)location.reload()}});
 window.addEventListener('pageshow',()=>{const r=readDailyResult();if(r)showResult(r)});
 
 </script>
 <?php endif ?>
-<footer class="foot"><nav class="foot-links" aria-label="Site information"><a href="/about">About</a><a href="/how-it-works">How it works</a><a href="/privacy">Privacy Policy</a><a href="/contact">Contact</a></nav><span>Independent supporter quiz. Not affiliated with or endorsed by the Premier League or any club.</span></footer>
+<footer class="foot"><nav class="foot-links" aria-label="Site information"><a href="/about">About</a><a href="/how-it-works">How it works</a><a href="/privacy">Privacy Policy</a><a href="/contact">Contact</a></nav><span>Independent supporter quiz. Not affiliated with or endorsed by the Premier League or any club.</span><p class="sistersite" style="margin:10px 0 0;font-size:12px;line-height:1.6;color:inherit">More football fun: <a href="https://predictioncomp.com/" style="color:inherit;text-decoration:underline;text-underline-offset:3px">PredictionComp</a> · predict Premier League scores &amp; beat the bots</p></footer>
 <div class="info-modal" id="infoModal" hidden aria-hidden="true"><article class="info-dialog" role="dialog" aria-modal="true" aria-labelledby="infoTitle"><button class="info-close" id="infoClose" type="button" aria-label="Close">×</button><div id="infoContent"></div></article></div>
 <script>
 (()=>{const modal=document.getElementById('infoModal'),content=document.getElementById('infoContent'),close=document.getElementById('infoClose');let scrollY=0,lastFocus=null;
