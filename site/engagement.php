@@ -16,7 +16,18 @@ if($event==='report'){
  $reason=(string)($d['reason']??'');$qid=filter_var($d['question_id']??null,FILTER_VALIDATE_INT);$date=(string)($d['quiz_date']??'');
  if(!in_array($reason,['incorrect','outdated','repeated'],true)||!$qid)respond(422,false);
  $v=$q->prepare('SELECT 1 FROM daily_questions WHERE club_id=? AND quiz_date=? AND question_id=?');$v->execute([$cid,$date,$qid]);if(!$v->fetchColumn())respond(422,false);
- $s=$a->prepare('INSERT OR IGNORE INTO question_reports(question_id,club_slug,quiz_date,reason) VALUES(?,?,?,?)');$s->execute([$qid,$club,$date,$reason]);respond(200,true);
+ $s=$a->prepare('INSERT OR IGNORE INTO question_reports(question_id,club_slug,quiz_date,reason) VALUES(?,?,?,?)');$s->execute([$qid,$club,$date,$reason]);
+ if($s->rowCount()===1){
+  $reportId=(int)$a->lastInsertId();
+  try{
+   require_once __DIR__.'/report-notification.php';
+   $detail=$q->prepare('SELECT question_text,options_json,correct_index,explanation,source_url FROM questions WHERE id=?');$detail->execute([$qid]);
+   $question=$detail->fetch(PDO::FETCH_ASSOC);
+   $clubName=$q->prepare('SELECT name FROM clubs WHERE id=?');$clubName->execute([$cid]);
+   if(!$question||!notifyQuestionReport($question,(string)$clubName->fetchColumn(),$date,$reason,$reportId))error_log('ClubDailyFive report notification could not be queued: '.$reportId);
+  }catch(Throwable $e){error_log('ClubDailyFive report notification failed: '.$reportId);}
+ }
+ respond(200,true);
 }
 if(!in_array($game,['daily','wordle'],true)||!in_array($event,['selected','started','completed','shared'],true)||($d['play_date']??'')!==date('Y-m-d'))respond(422,false);
 $s=$a->prepare('INSERT INTO game_funnel(event_date,club_slug,game,event,total) VALUES(?,?,?,?,1) ON CONFLICT(event_date,club_slug,game,event) DO UPDATE SET total=total+1');$s->execute([date('Y-m-d'),$club,$game,$event]);
