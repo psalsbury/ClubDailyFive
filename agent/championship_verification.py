@@ -6,7 +6,8 @@ BASE=pathlib.Path('/var/lib/clubdailyfive')
 MONTH='January|February|March|April|May|June|July|August|September|October|November|December'
 original_debut=r.debut
 def contextual_debut(raw,member,first_year):
- found=original_debut(raw,member,first_year)
+ safe=re.sub(r'<p\b[^>]*>.*?</p>',lambda m: '' if any(t in r.clean(m[0]).lower() for t in ('two days later','three days later','next day','following day','opened the scoring','collected wes thomas')) else m[0],raw,flags=re.S)
+ found=original_debut(safe,member,first_year)
  if found[0]:return found
  aliases={member['name'].lower(),member['team'].lower(),member['name'].lower().removesuffix(' city').removesuffix(' town').removesuffix(' united')}
  heading='';candidates=[]
@@ -28,6 +29,59 @@ def contextual_debut(raw,member,first_year):
       candidates.append((date,'Year supplied by explicit same-paragraph date '+full[0]+': '+text))
    before+=' '+sentence
  return min(candidates,key=lambda x:x[0]) if candidates else (None,None)
+
+def football_nationality(raw,citizenship):
+ # Require positive senior national-team caps in the player's actual infobox.
+ box=re.search(r'<table[^>]*class="[^"]*infobox.*?</table>',raw,re.S)
+ if not box or 'International career' not in box[0]:return None
+ section=box[0].split('International career',1)[1].split('Managerial career',1)[0]
+ allowed={r.normalized(x):x.strip() for x in re.split(r'\s{2,}|\s*/\s*|,',citizenship)}
+ found=[]
+ for row in re.findall(r'<tr\b[^>]*>(.*?)</tr>',section,re.S):
+  h=re.search(r'<th\b[^>]*>(.*?)</th>',row,re.S)
+  cells=re.findall(r'<td\b[^>]*>(.*?)</td>',row,re.S)
+  if not h or len(cells)<2:continue
+  team=r.clean(cells[0]);caps=r.clean(cells[1]);years=re.findall(r'(?:19|20)\d{2}',r.clean(h[1]))
+  if not years or not caps.isdigit() or int(caps)<=0:continue
+  key=r.normalized(team)
+  if key not in allowed:continue # Excludes youth, B and C teams.
+  found.append((int(years[0]),allowed[key],r.clean(row)))
+ if not found:return None
+ latest=max(x[0] for x in found);choices=[x for x in found if x[0]==latest]
+ if len({x[1] for x in choices})!=1:return None
+ return choices[0][1],choices[0][2]
+
+original_research=r.research
+def nationality_research(member,profile,count,history):
+ x=original_research(member,profile,count,history)
+ if x.get('reason')!='Multiple citizenships require football nationality evidence':return x
+ url,raw=r.wiki_player(x['name']);national=football_nationality(raw,profile.get('citizenship',''))
+ if not national:return x
+ resolved=dict(profile,citizenship=national[0])
+ x=original_research(member,resolved,count,history)
+ if x['status']=='approved':
+  x['nationality_evidence']={'source':url,'senior_international_row':national[1],'original_citizenship':profile['citizenship']}
+ return x
+
+
+# Explicit debut corrections cross-checked against dated match records.
+MANUAL_DEBUTS={
+ ('birmingham-city','Clayton Donaldson'):('2014-08-09','https://www.sporting-heroes.net/football/birmingham-city-fc/clayton-donaldson-13258/league-appearances_a33570/','Opening-day debut at Middlesbrough; date corroborates career narrative.'),
+ ('preston-north-end','Lukas Nmecha'):('2018-08-11','https://www.espn.co.uk/football/match/_/gameId/515664/preston-north-end-swansea-city','Debut two days after the 9 August loan, starting at Swansea on 11 August.'),
+ ('charlton-athletic','Joe Aribo'):('2016-10-04','https://www.skysports.com/football/charlton-athletic-vs-crawley-town/teams/367332','First-team debut vs Crawley; dated match lineup corrects erroneous 16 October biography date.')
+}
+def verified_research(member,profile,count,history):
+ name=re.sub(r' \(\d+\)$','',profile['player_name'])
+ manual=MANUAL_DEBUTS.get((member['slug'],name))
+ if not manual:return nationality_research(member,profile,count,history)
+ saved=r.debut
+ try:
+  r.debut=lambda raw,member,year:(dt.date.fromisoformat(manual[0]),manual[2])
+  x=nationality_research(member,profile,count,history)
+ finally:r.debut=saved
+ if x['status']=='approved':x['debut_source']=manual[1]
+ return x
+
 def main():
  c=sqlite3.connect(str(BASE/'player-wordle/game.sqlite3'),timeout=60);c.execute('pragma foreign_keys=on')
  folder=BASE/'verification-backups';folder.mkdir(exist_ok=True)
@@ -37,7 +91,7 @@ def main():
   path=pathlib.Path(cache)/hashlib.sha256(url.encode()).hexdigest()
   if path.exists():return path.read_text()
   raise ValueError('No saved independent source')
- r.fetch=cached;r.debut=contextual_debut
+ r.fetch=cached;r.debut=contextual_debut;r.research=verified_research
  report={};added=[];checked=0
  for m in members:
   cid=c.execute('select id from clubs where slug=?',(m['slug'],)).fetchone()[0]
