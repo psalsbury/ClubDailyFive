@@ -13,7 +13,11 @@ function db(): PDO {
 function h(string $value): string { return htmlspecialchars($value, ENT_QUOTES, 'UTF-8'); }
 
 $pdo = db();
-$clubs = $pdo->query("SELECT slug,name,accent,logo_path FROM clubs WHERE active=1 ORDER BY name")->fetchAll(PDO::FETCH_ASSOC);
+$clubs = $pdo->query("SELECT slug,name,accent,logo_path,league FROM clubs WHERE active=1 ORDER BY name")->fetchAll(PDO::FETCH_ASSOC);
+$wordleDb = new PDO('sqlite:/var/lib/clubdailyfive/player-wordle/game.sqlite3', null, null, [PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+$wordleReady=$wordleDb->query("SELECT c.slug FROM clubs c JOIN daily_game d ON d.club_id=c.id WHERE d.game_date='".date('Y-m-d')."'")->fetchAll(PDO::FETCH_COLUMN);
+$wordleReady=array_fill_keys($wordleReady,true);
+function wordleSlug(string $slug): string { return ['coventry-city'=>'coventry','hull-city'=>'hull','ipswich-town'=>'ipswich','leeds-united'=>'leeds','manchester-city'=>'man-city','manchester-united'=>'man-utd','newcastle-united'=>'newcastle','tottenham-hotspur'=>'tottenham'][$slug]??$slug; }
 $slug = preg_replace('/[^a-z0-9-]/', '', strtolower((string)($_GET['club'] ?? '')));
 $club = null;
 if ($slug !== '') {
@@ -53,7 +57,7 @@ $pageTitle = $club
     : 'Daily Football Quiz & Player Wordle | ClubDailyFive';
 $pageDescription = $club
     ? 'Play today’s free ' . $club['name'] . ' football quiz: five fresh questions covering players, matches, managers, trophies and club history.'
-    : 'Play two free daily football games for your club: Daily Five football trivia and Player Wordle. Fresh challenges for 20 clubs every day.';
+    : 'Play two free daily football games for your club: Daily Five football trivia and Player Wordle. Premier League, Championship, League One and League Two challenges every day.';
 $structuredData = [
     '@context' => 'https://schema.org',
     '@type' => $club ? 'Game' : 'WebSite',
@@ -158,6 +162,13 @@ $structuredData = [
 .picker-footer-links a{color:#a9b2c4;text-decoration:none}.picker-footer-links a:hover,.picker-footer-links a:focus-visible{color:#ff5c63;text-decoration:underline;outline:none}
 @media(max-height:720px){.picker-footer-links{padding-top:7px;font-size:.65rem}}
 .question-report{margin-top:8px;font-size:.72rem;color:var(--muted)}.question-report summary{cursor:pointer}.report-reasons{display:flex;flex-wrap:wrap;gap:5px;margin:7px 0}.report-reasons button{background:#0b1628;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:9px;cursor:pointer}.report-reasons button:disabled{opacity:.6}
+/* League selection uses the same compact club grid and two-game picker. */
+.league-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:5px;margin:12px 0 20px;border:1px solid var(--line);border-radius:13px;background:#111c31}
+.league-tabs button{padding:14px 4px;background:transparent;border:0;border-radius:9px;color:var(--muted);font:inherit;font-size:.85rem;font-weight:800;cursor:pointer}
+.league-tabs button[aria-pressed="true"]{background:#ffcc33;color:#07101e}
+.league-tabs button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.club[hidden]{display:none!important}.game-choice.building{opacity:.75;cursor:default}.game-choice.building .play-bar{background:#283a52;color:#c3cddd;font-size:.72rem}
+@media(max-width:600px){.league-tabs{margin:8px 0 10px}.league-tabs button{font-size:.7rem;padding:12px 3px}.home-page .club-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 </style>
 </head>
 <body class="<?= $club ? 'quiz-page' : 'home-page' ?>">
@@ -189,17 +200,19 @@ setInterval(checkDay,30000);
 <?php if (!$club): ?>
 <div id="homeChooser">
 <section class="home-intro">
-<div class="eyebrow">Two daily football games · All 20 clubs</div>
+<div class="eyebrow">Two daily football games · Four leagues</div>
 <h1>Your club. <span>Two ways to play.</span></h1>
 
 <div class="home-games">
 <article class="home-game daily"><div class="home-game-head"><span class="home-game-icon">🧠</span><h2>Daily Five</h2></div><strong>5 QUESTIONS · EVERY DAY</strong><p>History, matches, players, managers, transfers and more. Five fresh challenges for your chosen club.</p></article>
 <article class="home-game wordle"><div class="home-game-head"><span class="home-game-icon">👕</span><h2>Player Wordle</h2></div><strong>1 MYSTERY PLAYER · 5 GUESSES</strong><p>Use the clues from each guess to work out today's hidden player for your chosen club.</p></article>
 </div>
-<h2 class="choose-title">Choose your club</h2>
+<nav class="league-tabs" aria-label="Choose a league">
+<?php foreach(['premier-league'=>'Premier League','championship'=>'Championship','league-one'=>'League One','league-two'=>'League Two'] as $key=>$label): ?><button type="button" data-league="<?=h($key)?>" aria-pressed="<?=$key==='premier-league'?'true':'false'?>"><?=h($label)?></button><?php endforeach ?>
+</nav><h2 class="choose-title" id="leagueTitle">Premier League</h2>
 <p class="choose-sub">Then choose which game you want to play.</p>
 </section>
-<section class="club-grid" aria-label="Choose your club"><?php foreach($clubs as $c): ?><a class="club" data-slug="<?= h($c['slug']) ?>" data-name="<?= h($c['name']) ?>" data-logo="<?= h($c['logo_path']) ?>" href="/clubs/<?= h($c['slug']) ?>"><img src="<?= h($c['logo_path']) ?>" alt="<?= h($c['name']) ?> crest" width="42" height="42"><span class="club-name"><?= h($c['name']) ?></span></a><?php endforeach ?></section></div>
+<section class="club-grid" aria-label="Choose your club"><?php foreach($clubs as $c): ?><a class="club" data-slug="<?= h($c['slug']) ?>" data-name="<?= h($c['name']) ?>" data-league="<?= h($c['league']) ?>" data-wordle-ready="<?=isset($wordleReady[wordleSlug($c['slug'])])?'1':'0'?>" data-logo="<?= h($c['logo_path']) ?>" href="/clubs/<?= h($c['slug']) ?>"><img src="<?= h($c['logo_path']) ?>" alt="<?= h($c['name']) ?> crest" width="42" height="42"><span class="club-name"><?= h($c['name']) ?></span></a><?php endforeach ?></section></div>
 <div class="game-picker" id="gamePicker" hidden aria-hidden="true"><section class="game-picker-card" role="dialog" aria-modal="true" aria-labelledby="pickerClub"><button class="picker-close" id="pickerClose" type="button" aria-label="Close">×</button><div class="picker-brand"><span>⚽</span><b>CLUB <em>DAILY</em> FIVE</b></div><div class="picker-head"><img id="pickerLogo" src="" alt=""><div><h2 id="pickerClub"></h2></div></div><div class="games-panel"><a class="game-choice daily-card" id="dailyFiveChoice" href="#"><div class="game-choice-top"><span class="game-icon">🧠</span><strong>DAILY FIVE</strong><span class="game-score" id="dailyScore"></span><span class="game-state" id="dailyFiveState"></span></div><p id="dailyFiveDesc">Five questions about your club.</p><span class="play-bar">PLAY DAILY FIVE <b>→</b></span></a><a class="game-choice wordle-card" id="playerWordleChoice" href="#"><div class="game-choice-top"><span class="game-icon">👕</span><strong>PLAYER WORDLE</strong><span class="game-score" id="wordleScore"></span><span class="game-state" id="playerWordleState"></span></div><p id="playerWordleDesc">Guess today's player.</p><span class="play-bar">PLAY PLAYER WORDLE <b>→</b></span></a><div class="club-combo" id="clubCombo"><span>🏆 <b>CLUB STREAK</b><small>Complete both games to keep your streak</small></span><strong id="comboStreak">🔥 —</strong></div></div><nav class="picker-footer-links foot-links" aria-label="Site information"><a href="/about">About</a><a href="/how-it-works">How it works</a><a href="/privacy">Privacy Policy</a><a href="/contact">Contact</a></nav></section></div>
 <script>
 function markClubs(){document.querySelectorAll('.club[data-slug]').forEach(el=>{
@@ -236,13 +249,23 @@ function markClubs(){document.querySelectorAll('.club[data-slug]').forEach(el=>{
  info.hidden=!status&&streaks.hidden;
  el.setAttribute('aria-label',`${el.dataset.name}: ${r?`Played today, ${r.score} out of 5`:status||'Not played today'}. Completion streak: ${completion} days. Perfect streak: ${perfect} days.`);
 })}
+function chooseLeague(key){
+ if(!document.querySelector(`[data-league="${key}"]`))key='premier-league';
+ document.querySelectorAll('.league-tabs button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.league===key)));
+ document.querySelectorAll('.club[data-slug]').forEach(c=>c.hidden=c.dataset.league!==key);
+ document.getElementById('leagueTitle').textContent=document.querySelector(`.league-tabs [data-league="${key}"]`).textContent;
+ try{localStorage.setItem('cdf:league',key)}catch(e){}
+}
+let rememberedLeague='premier-league';try{rememberedLeague=localStorage.getItem('cdf:league')||rememberedLeague}catch(e){}
+chooseLeague(rememberedLeague);
+document.querySelectorAll('.league-tabs button').forEach(b=>b.addEventListener('click',()=>chooseLeague(b.dataset.league)));
 markClubs();window.addEventListener('pageshow',markClubs);window.addEventListener('storage',markClubs);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)markClubs()});
 const pwSlugMap={'coventry-city':'coventry','hull-city':'hull','ipswich-town':'ipswich','leeds-united':'leeds','manchester-city':'man-city','manchester-united':'man-utd','newcastle-united':'newcastle','tottenham-hotspur':'tottenham'};
 function pwSlug(slug){return pwSlugMap[slug]||slug}
 function pwStatus(slug){let s={},g={};const p=pwSlug(slug);try{s=JSON.parse(localStorage.getItem('pw:'+p)||'{}');g=JSON.parse(localStorage.getItem('pwgame:'+playDate+':'+p)||'{}')}catch(e){}if(s.date===playDate&&s.done)return '✓ COMPLETED';if(g.attempts>0&&!g.done)return 'IN PROGRESS';return s.streak>0?'🔥 '+s.streak+' STREAK':''}
 function closePicker(){const p=document.getElementById('gamePicker');p.hidden=true;p.setAttribute('aria-hidden','true');document.body.classList.remove('picker-open')}
-function openPicker(el){const slug=el.dataset.slug,name=el.dataset.name,shortName=name.replace(/^Nottingham /,'').replace(/^Manchester /,'').replace(/ United$/,'').replace(/ City$/,'');document.getElementById('pickerClub').textContent=name;document.getElementById('dailyFiveDesc').textContent=`5 questions about ${shortName}`;document.getElementById('playerWordleDesc').textContent=`Guess today's ${shortName} player`;document.getElementById('pickerLogo').src=el.dataset.logo;document.getElementById('pickerLogo').alt=name+' crest';document.getElementById('dailyFiveChoice').href='/daily-five/'+encodeURIComponent(slug);document.getElementById('playerWordleChoice').href='/player-wordle/game.php?club='+encodeURIComponent(pwSlug(slug));const r=clubResult(slug,name),ds=stored(`dailyfive:streaks:${name}`)||{},ps=pwStatus(slug),dailyStreak=Number(ds.completion)||0;document.getElementById('dailyScore').textContent=r?`✓ ${r.score}/5`:'';document.getElementById('dailyFiveState').textContent=dailyStreak?`🔥 ${dailyStreak} day streak`:(r?'✓ Completed today':'');document.getElementById('wordleScore').textContent=ps.includes('COMPLETED')?'✓ 5/5':'';document.getElementById('playerWordleState').textContent=ps.replace('✓ COMPLETED','Completed today');const pwRaw=(()=>{try{return JSON.parse(localStorage.getItem('pw:'+pwSlug(slug))||'{}')}catch(e){return {}}})();const combo=(r&&ps.includes('COMPLETED'))?Math.min(dailyStreak||1,Number(pwRaw.streak)||1):0;document.getElementById('comboStreak').textContent=combo?`🔥 ${combo} days`:'🔥 —';const p=document.getElementById('gamePicker');p.hidden=false;p.setAttribute('aria-hidden','false');document.body.classList.add('picker-open');document.getElementById('pickerClose').focus();for(const [id,game] of [['dailyFiveChoice','daily'],['playerWordleChoice','wordle']])document.getElementById(id).onclick=()=>{cdfEvent(slug,game,'selected')}}
+function openPicker(el){const slug=el.dataset.slug,name=el.dataset.name,shortName=name.replace(/^Nottingham /,'').replace(/^Manchester /,'').replace(/ United$/,'').replace(/ City$/,'');document.getElementById('pickerClub').textContent=name;document.getElementById('dailyFiveDesc').textContent=`5 questions about ${shortName}`;document.getElementById('playerWordleDesc').textContent=`Guess today's ${shortName} player`;const pwReady=el.dataset.wordleReady==='1',pwLink=document.getElementById('playerWordleChoice');pwLink.classList.toggle('building',!pwReady);pwLink.setAttribute('aria-disabled',String(!pwReady));pwLink.querySelector('.play-bar').innerHTML=pwReady?'PLAY PLAYER WORDLE <b>→</b>':'PLAYER BANK IN PREPARATION';if(!pwReady)document.getElementById('playerWordleDesc').textContent='Player clues are being researched and checked.';document.getElementById('pickerLogo').src=el.dataset.logo;document.getElementById('pickerLogo').alt=name+' crest';document.getElementById('dailyFiveChoice').href='/daily-five/'+encodeURIComponent(slug);document.getElementById('playerWordleChoice').href='/player-wordle/game.php?club='+encodeURIComponent(pwSlug(slug));const r=clubResult(slug,name),ds=stored(`dailyfive:streaks:${name}`)||{},ps=pwStatus(slug),dailyStreak=Number(ds.completion)||0;document.getElementById('dailyScore').textContent=r?`✓ ${r.score}/5`:'';document.getElementById('dailyFiveState').textContent=dailyStreak?`🔥 ${dailyStreak} day streak`:(r?'✓ Completed today':'');document.getElementById('wordleScore').textContent=ps.includes('COMPLETED')?'✓ 5/5':'';document.getElementById('playerWordleState').textContent=ps.replace('✓ COMPLETED','Completed today');const pwRaw=(()=>{try{return JSON.parse(localStorage.getItem('pw:'+pwSlug(slug))||'{}')}catch(e){return {}}})();const combo=(r&&ps.includes('COMPLETED'))?Math.min(dailyStreak||1,Number(pwRaw.streak)||1):0;document.getElementById('comboStreak').textContent=combo?`🔥 ${combo} days`:'🔥 —';const p=document.getElementById('gamePicker');p.hidden=false;p.setAttribute('aria-hidden','false');document.body.classList.add('picker-open');document.getElementById('pickerClose').focus();for(const [id,game] of [['dailyFiveChoice','daily'],['playerWordleChoice','wordle']])document.getElementById(id).onclick=e=>{if(game==='wordle'&&!pwReady){e.preventDefault();return;}cdfEvent(slug,game,'selected')}}
 document.querySelectorAll('.club[data-slug]').forEach(el=>el.addEventListener('click',e=>{e.preventDefault();openPicker(el)}));
 document.getElementById('pickerClose').addEventListener('click',closePicker);document.getElementById('gamePicker').addEventListener('click',e=>{if(e.target.id==='gamePicker')closePicker()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closePicker()});
 </script>

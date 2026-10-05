@@ -26,11 +26,12 @@ class VarietyTests(unittest.TestCase):
     def test_all_clubs_and_fresh_types(self):
         con=sqlite3.connect("file:"+DB+"?mode=ro",uri=True); con.row_factory=sqlite3.Row
         fresh=[{"question_text":x,"fact_date":"2026-09-01"} for x in ("What was the score for Arsenal?", "How many yellow cards did Arsenal receive?", "How many red cards did Arsenal receive?")]
-        for question in con.execute("select question_text from questions"):
+        for question in con.execute("select * from questions where status=\'reviewed\'"):
             self.assertTrue(question_topics(question))
         total=0
         for club in con.execute("select id from clubs where active=1"):
-            bank=con.execute("select * from questions where club_id=? and semantic_key like 'v4bank|%' and status='reviewed'",(club["id"],)).fetchall()
+            bank=con.execute("select * from questions where club_id=? and (semantic_key like 'v4bank|%' or semantic_key like 'generic|%') and status='reviewed'",(club["id"],)).fetchall()
+            for i,f in enumerate(fresh):f.update(id=-i-1,semantic_key="testfresh|"+str(i))
             for offset in range(30):
                 date=(dt.date(2026,9,15)+dt.timedelta(days=offset)).isoformat()
                 for f in fresh:

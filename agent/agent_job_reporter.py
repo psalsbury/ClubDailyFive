@@ -24,13 +24,14 @@ JOBS = {
         "db": "/var/lib/clubdailyfive/player-wordle/game.sqlite3",
         "commands": [
             ["/usr/bin/python3", "/opt/clubdailyfive/player-wordle/collector.py"],
+            ["/usr/bin/python3", "/opt/clubdailyfive/bin/efl_research_job.py", "players"],
             ["/usr/bin/python3", "/opt/clubdailyfive/player-wordle/nightly.py"],
         ],
     },
     "questions": {
         "label": "ClubDailyFive questions agent",
         "db": "/var/lib/clubdailyfive/clubquiz.sqlite",
-        "commands": [["/usr/bin/python3", "/opt/clubdailyfive/bin/generate_questions.py"]],
+        "commands": [["/usr/bin/python3", "/opt/clubdailyfive/bin/efl_research_job.py", "questions"], ["/usr/bin/python3", "/opt/clubdailyfive/bin/generate_questions.py"]],
     },
 }
 

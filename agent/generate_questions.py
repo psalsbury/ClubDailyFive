@@ -8,6 +8,13 @@ from question_variety import select_varied, validate_round, banned_question
 DB=os.getenv('QUIZ_DB','/var/lib/clubdailyfive/clubquiz.sqlite'); BACKUPS='/var/backups/clubdailyfive-question-db'; UK=ZoneInfo('Europe/London')
 DIVS=('E0','E1','E2','E3')
 ALIASES={'Arsenal':'arsenal','Aston Villa':'aston-villa','Bournemouth':'bournemouth','Brentford':'brentford','Brighton':'brighton','Chelsea':'chelsea','Coventry':'coventry-city','Crystal Palace':'crystal-palace','Everton':'everton','Fulham':'fulham','Hull':'hull-city','Ipswich':'ipswich-town','Leeds':'leeds-united','Liverpool':'liverpool','Man City':'manchester-city','Man United':'manchester-united','Newcastle':'newcastle-united',"Nott'm Forest":'nottingham-forest','Sunderland':'sunderland','Tottenham':'tottenham-hotspur'}
+def catalogue_aliases():
+  path='/var/lib/clubdailyfive/efl-clubs.json'
+  if os.path.exists(path):
+    with open(path,encoding='utf-8') as f:
+      return {m['alias']:m['slug'] for m in json.load(f)}
+  return {}
+ALIASES.update(catalogue_aliases())
 def season_start(d): return d.year if d.month>=7 else d.year-1
 def scode(y): return f'{str(y)[-2:]}{str(y+1)[-2:]}'
 def pdate(v):
@@ -76,7 +83,7 @@ def numopts(v,seed):
   if str(v) not in vals: vals[-1]=str(v)
   return vals,vals.index(str(v))
 def scoreopts(a,b,seed):
-  correct=f'{a}-{b}'; cand=list(dict.fromkeys([correct,f'{a+1}-{b}',f'{a}-{b+1}',f'{max(0,a-1)}-{b}',f'{a}-{max(0,b-1)}']))
+  correct=f'{a}-{b}'; cand=list(dict.fromkeys([correct,f'{a+1}-{b}',f'{a}-{b+1}',f'{max(0,a-1)}-{b}',f'{a}-{max(0,b-1)}',f'{a+2}-{b}',f'{a}-{b+2}']))
   random.Random(hashlib.sha256(seed.encode()).digest()).shuffle(cand); vals=cand[:4]
   if correct not in vals: vals[-1]=correct
   return vals,vals.index(correct)
@@ -182,6 +189,20 @@ def choose_round(con,club,target,rows,bank,fixed=None):
       validate_round([*selected,candidate])
     except (RuntimeError,ValueError):continue
     return selected,candidate
+  # New EFL clubs may have sparse current data (or a break in fixtures).
+  # Fall back to a sourced, unused bank fact; never invent a current statistic.
+  efl_slugs=set()
+  if os.path.exists('/var/lib/clubdailyfive/efl-clubs.json'):
+    with open('/var/lib/clubdailyfive/efl-clubs.json',encoding='utf-8') as f:
+      efl_slugs={m['slug'] for m in json.load(f) if m['league']!='premier-league'}
+  if club['slug'] in efl_slugs:
+    for candidate in bank:
+      if candidate['use_count'] or candidate['semantic_key'].startswith('generic|'):continue
+      try:
+        selected=list(fixed) if fixed is not None else select_varied(bank,candidate)
+        validate_round([*selected,candidate])
+      except (RuntimeError,ValueError):continue
+      return selected,candidate
   raise RuntimeError(f'{club["slug"]}: no unused match or recent-season fact fits this round')
 
 def main():
@@ -190,7 +211,9 @@ def main():
   if a.self_test:
     counts=dict(con.execute("select c.slug,count(q.id) from clubs c left join questions q on q.club_id=c.id and q.semantic_key like 'v4bank|%' group by c.id")); print(json.dumps({'database':con.execute('pragma integrity_check').fetchone()[0],'clubs':len(clubs),'bank_counts':counts,'bank_per_club_required':300,'daily_mix':'1 club trivia + 3 varied bank + 1 unused match fact or recent-season fallback','recent_cutoff_days':10,'openai_api_required':False})); return
   attendance_updates=migrate_attendance_options(con); con.commit()
-  if con.execute('select count(*) from daily_questions where quiz_date=?',(target,)).fetchone()[0]:
+  complete={r[0] for r in con.execute('select club_id from daily_questions where quiz_date=? group by club_id having count(*)=5',(target,))}
+  clubs=[c for c in clubs if c['id'] not in complete]
+  if not clubs:
     print(f'Round already published for {target}; preserving player questions; updated {attendance_updates} attendance questions'); return
   from sterling import assert_sterling
   for question in con.execute("select question_text,options_json,explanation from questions where status='reviewed'"):
@@ -206,8 +229,9 @@ def main():
       if not rows: continue
       latest=max(r['_date'] for r in rows).isoformat()
       con.execute("update questions set status='retired' where club_id=? and status='reviewed' and semantic_key like 'seasonfact|%' and (fact_date is null or fact_date < ?)",(club['id'],latest))
-    con.execute('delete from daily_questions where quiz_date=?',(target,)); rounds=[]
+    rounds=[]
     for club in clubs:
+      con.execute('delete from daily_questions where club_id=? and quiz_date=?',(club['id'],target))
       bank=eligible_history_bank(con,club['id'],target)
       bank = generic_bank(con,club['id'],target) + [q for q in bank if not banned_question(q)]
       if len(bank)<4: raise RuntimeError(f"{club['slug']}: insufficient eligible bank questions")

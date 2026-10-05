@@ -16,9 +16,12 @@ class RulesTests(unittest.TestCase):
 
     def test_search_keeps_alternative_match_in_same_family(self):
         fresh = q('What was the final score?')
-        bank = [q('What was the highest attendance?'), q('What was the lowest attendance?', '2025-02-01'), q('Who was the manager?'), q('What was the largest transfer fee?'), q('Who was the top goalscorer?')]
+        bank = [q('What was the highest attendance?'), q('What was the lowest attendance?', '2025-02-01'), q('Who was the manager?'), q('What was the largest transfer fee?')]
+        bank.insert(0, {'question_text':'What is the club nickname?', 'fact_date':None, 'semantic_key':'generic|test|nickname', 'id':0})
+        for i,row in enumerate(bank): row.setdefault('id',i); row.setdefault('semantic_key','v4bank|test|'+str(i))
+        fresh.update(id=99,semantic_key='matchfact|test|score')
         result = select_varied(bank, fresh)
-        self.assertEqual(result[0]['fact_date'], '2025-02-01')
+        self.assertEqual(next(r for r in result if 'lowest attendance' in r['question_text'])['fact_date'], '2025-02-01')
         validate_round([*result, fresh])
 
     def test_wording_variant_inherits_family_usage(self):

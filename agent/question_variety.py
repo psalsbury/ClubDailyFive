@@ -18,6 +18,8 @@ def match_keys(row):
     if row.get('semantic_key', '').startswith('seasonfact|'):
         return set()
     topics = question_topics(row)
+    if row.get('semantic_key','').startswith('v4bank|efl|') and not topics & {'match_score','discipline','cups'}:
+        return set()
     linked = bool(topics & {'high_scoring', 'match_score', 'first_goal', 'attendance', 'cups'})
     linked |= 'hat-trick' in text or 'sent off' in text
     linked |= 'cards' in text and 'match' in text
@@ -32,7 +34,12 @@ def match_keys(row):
 
 def question_topics(row):
     if dict(row).get("semantic_key", "").startswith("generic|"):
-        return {"club_trivia"}
+        return {"club_trivia","player_biography"} if "|player-birth|" in row["semantic_key"] else {"club_trivia"}
+    key=dict(row).get('semantic_key','')
+    if key.startswith('v4bank|efl|'):
+        family=key.split('|')[2]
+        if family not in {'match_score','discipline','season_record','runs','player_scoring','cups','player_biography','player_appearances'}:raise ValueError('Unknown sourced EFL question family')
+        return {family}
     text=row["question_text"].lower()
     topics=set()
     if "high-scoring" in text: topics.add("high_scoring")
@@ -56,10 +63,10 @@ def question_topics(row):
         raise ValueError("Unclassified question type: "+row["question_text"])
     return topics
 
-def select_varied(bank, fresh, count=4):
+def _select_varied_first(bank, fresh, count=4):
     if banned_question(fresh):
         raise ValueError('First-scoring team questions are prohibited')
-    generic = next((q for q in bank if q["semantic_key"].startswith("generic|") and q["id"] != fresh["id"]), None)
+    generic = next((q for q in bank if dict(q).get("semantic_key", "").startswith("generic|") and q["id"] != fresh["id"]), None)
     if generic is None:
         raise RuntimeError("No eligible club-trivia question available")
     used = question_topics(fresh) | question_topics(generic)
@@ -80,6 +87,10 @@ def select_varied(bank, fresh, count=4):
     def search(start, chosen, seen, seen_matches):
         if len(chosen) == count:
             return chosen
+        # A sparse bank cannot supply three different families from two
+        # types, however many date variants it contains. Prune before DFS.
+        available={topics for _,topics,keys in candidates[start:] if not topics & seen and not keys & seen_matches}
+        if len(available)<count-len(chosen):return None
         for i in range(start, len(candidates)):
             row, topics, keys = candidates[i]
             if not topics & seen and not keys & seen_matches:
@@ -107,3 +118,14 @@ def validate_round(rows):
             raise ValueError('Repeated match: ' + ', '.join(sorted(matches & keys)))
         seen.update(topics)
         matches.update(keys)
+
+
+
+def select_varied(bank, fresh, count=4):
+    generics=[q for q in bank if dict(q).get('semantic_key','').startswith('generic|') and q['id']!=fresh['id']]
+    error=None
+    for generic in generics:
+        candidates=[generic]+[q for q in bank if not dict(q).get('semantic_key','').startswith('generic|')]
+        try:return _select_varied_first(candidates,fresh,count)
+        except (RuntimeError,ValueError) as exc:error=exc
+    raise RuntimeError(str(error or 'No eligible club-trivia question available'))
