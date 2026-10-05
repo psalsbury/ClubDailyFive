@@ -6,7 +6,7 @@ from pathlib import Path
 def main():
     root=Path(__file__).resolve().parent
     name=sys.argv[1]
-    commands={'questions':[['build_efl_bank.py']], 'players':[['transfermarkt_players.py']]}
+    commands={'questions':[['build_efl_bank.py']], 'players':[['transfermarkt_players.py']], 'audit':[['collect_efl_players.py','--limit','0','--audit']]}
     if name not in commands:raise SystemExit('Unknown research job')
     try:
         for command in commands[name]:

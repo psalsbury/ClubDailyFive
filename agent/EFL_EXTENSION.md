@@ -9,7 +9,7 @@ Season years distinguish 1990s from 2090s. Future transfers are excluded. The ea
 Separate explicit debut evidence is cross-checked before new playable rows are added. Multiple day/month dates in a sentence are rejected to avoid using transfer dates as debut dates. Existing verified position overrides remain protected. Attacking midfielder is classified as Midfielder.
 
 ## Scheduled operation
-The existing nightly timer runs transfermarkt_players.py through the reporting wrapper, followed by the daily mystery-player publisher. Smaller banks receive fresh evidence research first. At most 40 new evidence-page requests are attempted per run; cached pages are reused, requests are paced and rate limits halt fresh requests. Source failures preserve existing verified games. Research records and playable-player counts are separate in player-bank-progress.json.
+The existing nightly timer runs transfermarkt_players.py through the reporting wrapper, followed by the bounded position audit and daily mystery-player publisher. Smaller banks receive fresh evidence research first. At most 40 new evidence-page requests are attempted per run; cached pages are reused, requests are paced and rate limits halt fresh requests. Source failures preserve existing verified games. Research records and playable-player counts are separate in player-bank-progress.json.
 
 A club still requires at least ten verified players and a published daily game to open; the long-term target is 100. Some clubs have fewer than 100 candidates under the current eligibility criteria. Historical international and cup-final eligibility need separate evidence before expanding these pools.
 

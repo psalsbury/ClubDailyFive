@@ -24,6 +24,7 @@ JOBS = {
         "db": "/var/lib/clubdailyfive/player-wordle/game.sqlite3",
         "commands": [
             ["/usr/bin/python3", "/opt/clubdailyfive/bin/transfermarkt_players.py"],
+            ["/usr/bin/python3", "/opt/clubdailyfive/bin/efl_research_job.py", "audit"],
             ["/usr/bin/python3", "/opt/clubdailyfive/player-wordle/nightly.py"],
         ],
     },
