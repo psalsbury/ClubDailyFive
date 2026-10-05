@@ -1,4 +1,4 @@
-const CACHE='clubdailyfive-v2-efl';
+const CACHE='clubdailyfive-v3-two-leagues';
 const CORE=['/','/offline.html','/manifest.webmanifest','/pwa.js','/assets/favicon.svg','/assets/icon-192.png','/assets/icon-512.png','/assets/clubdailyfive-logo.svg'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(CORE)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));

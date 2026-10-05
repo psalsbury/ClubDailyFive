@@ -57,7 +57,7 @@ $pageTitle = $club
     : 'Daily Football Quiz & Player Wordle | ClubDailyFive';
 $pageDescription = $club
     ? 'Play today’s free ' . $club['name'] . ' football quiz: five fresh questions covering players, matches, managers, trophies and club history.'
-    : 'Play two free daily football games for your club: Daily Five football trivia and Player Wordle. Premier League, Championship, League One and League Two challenges every day.';
+    : 'Play two free daily football games for your club: Daily Five football trivia and Player Wordle. Premier League and Championship challenges every day.';
 $structuredData = [
     '@context' => 'https://schema.org',
     '@type' => $club ? 'Game' : 'WebSite',
@@ -163,7 +163,7 @@ $structuredData = [
 @media(max-height:720px){.picker-footer-links{padding-top:7px;font-size:.65rem}}
 .question-report{margin-top:8px;font-size:.72rem;color:var(--muted)}.question-report summary{cursor:pointer}.report-reasons{display:flex;flex-wrap:wrap;gap:5px;margin:7px 0}.report-reasons button{background:#0b1628;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:9px;cursor:pointer}.report-reasons button:disabled{opacity:.6}
 /* League selection uses the same compact club grid and two-game picker. */
-.league-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:5px;margin:12px 0 20px;border:1px solid var(--line);border-radius:13px;background:#111c31}
+.league-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;padding:5px;margin:12px 0 20px;border:1px solid var(--line);border-radius:13px;background:#111c31}
 .league-tabs button{padding:14px 4px;background:transparent;border:0;border-radius:9px;color:var(--muted);font:inherit;font-size:.85rem;font-weight:800;cursor:pointer}
 .league-tabs button[aria-pressed="true"]{background:#ffcc33;color:#07101e}
 .league-tabs button:focus-visible{outline:2px solid #fff;outline-offset:2px}
@@ -202,7 +202,7 @@ setInterval(checkDay,30000);
 <?php if (!$club): ?>
 <div id="homeChooser">
 <section class="home-intro">
-<div class="eyebrow">Two daily football games · Four leagues</div>
+<div class="eyebrow">Two daily football games · Premier League &amp; Championship</div>
 <h1>Your club. <span>Two ways to play.</span></h1>
 
 <div class="home-games">
@@ -210,7 +210,7 @@ setInterval(checkDay,30000);
 <article class="home-game wordle"><div class="home-game-head"><span class="home-game-icon">👕</span><h2>Player Wordle</h2></div><strong>1 MYSTERY PLAYER · 5 GUESSES</strong><p>Use the clues from each guess to work out today's hidden player for your chosen club.</p></article>
 </div>
 <nav class="league-tabs" aria-label="Choose a league">
-<?php foreach(['premier-league'=>'Premier League','championship'=>'Championship','league-one'=>'League One','league-two'=>'League Two'] as $key=>$label): ?><button type="button" data-league="<?=h($key)?>" aria-pressed="<?=$key==='premier-league'?'true':'false'?>"><?=h($label)?></button><?php endforeach ?>
+<?php foreach(['premier-league'=>'Premier League','championship'=>'Championship'] as $key=>$label): ?><button type="button" data-league="<?=h($key)?>" aria-pressed="<?=$key==='premier-league'?'true':'false'?>"><?=h($label)?></button><?php endforeach ?>
 </nav><h2 class="choose-title" id="leagueTitle">Premier League</h2>
 <p class="choose-sub">Then choose which game you want to play.</p>
 </section>

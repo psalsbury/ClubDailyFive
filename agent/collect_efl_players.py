@@ -73,6 +73,9 @@ def debut(raw,member,first_year):
             # Require a full date in the debut sentence itself, not a nearby transfer date.
             found=re.findall(r'\b(\d{1,2} (?:January|February|March|April|May|June|July|August|September|October|November|December) (?:19|20)\d{2})\b',sentence)
             if len(found)!=1:continue
+            # Multiple day/month dates may mean the full date is a transfer, not the debut.
+            partial=re.findall(r'\b\d{1,2} (?:January|February|March|April|May|June|July|August|September|October|November|December)\b',sentence)
+            if len(partial)!=1:continue
             date=dt.datetime.strptime(found[0],'%d %B %Y').date()
             if date.year not in (first_year,first_year+1) or date>dt.datetime.now(UK).date():continue
             dates.append((date,sentence))
@@ -87,7 +90,7 @@ def research(member,profile,count,history):
     rows=career(raw);match=[i for i,(_,team) in enumerate(rows) if normalized(team)==normalized(member['name']) or normalized(team)==normalized(member['team'].removesuffix(' FC').removesuffix(' AFC'))]
     if not match:return {'status':'review','reason':'Cannot verify senior club career','source':url,'name':name}
     start=match[0];first=rows[start][0]
-    if first<dt.datetime.now(UK).year-10:return {'status':'review','reason':'Historical eligibility needs additional evidence','source':url,'name':name}
+    if first<dt.datetime.now(UK).year-10 and not history:return {'status':'review','reason':'Historical eligibility needs additional evidence','source':url,'name':name}
     date,evidence=debut(raw,member,first)
     if not date:return {'status':'review','reason':'Exact competitive debut date not sourced','source':url,'name':name}
     dob=dt.date.fromisoformat(profile['date_of_birth']);age=date.year-dob.year-((date.month,date.day)<(dob.month,dob.day))

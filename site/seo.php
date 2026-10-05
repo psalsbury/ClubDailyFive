@@ -22,7 +22,7 @@ if ($club) {
     $ready->execute([playerSlug($club['slug']),date('Y-m-d')]);
     $wordleReady = (bool)$ready->fetchColumn();
 }
-$leagueNames = ['premier-league'=>'Premier League','championship'=>'Championship','league-one'=>'League One','league-two'=>'League Two'];
+$leagueNames = ['premier-league'=>'Premier League','championship'=>'Championship'];
 $facts = [
  'arsenal'=>'Test your knowledge of Arsenal players, managers, trophies and memorable matches from Highbury to the Emirates era.',
  'aston-villa'=>'Explore Aston Villa history, European success, famous players and memorable matches from Villa Park.',

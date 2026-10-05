@@ -13,6 +13,11 @@ def insert(c,table,row,omit=()):
     row={k:v for k,v in dict(row).items() if k not in omit};keys=list(row)
     c.execute('INSERT OR IGNORE INTO '+table+'('+','.join(keys)+') VALUES('+','.join('?' for _ in keys)+')',list(row.values()))
 def main():
+    scope={m['slug'] for m in __import__('json').load(open(BASE/'efl-clubs.json'))}
+    for path in (BASE/'clubquiz-efl-staging.sqlite',):
+        check=connect(path)
+        assert all(r['slug'] in scope for r in check.execute('select slug from clubs')), 'Staging contains parked clubs'
+        check.close()
     q=connect(BASE/'clubquiz.sqlite');s=connect(BASE/'clubquiz-efl-staging.sqlite');backup(q,'quiz')
     original=[tuple(r) for r in q.execute('select * from daily_questions order by club_id,quiz_date,position')]
     if 'league' not in {r[1] for r in q.execute('pragma table_info(clubs)')}:q.execute("alter table clubs add column league TEXT NOT NULL DEFAULT 'premier-league'")
@@ -26,6 +31,8 @@ def main():
     assert original==[tuple(r) for r in q.execute('select * from daily_questions order by club_id,quiz_date,position')]
     print('QUIZ',dict(q.execute('select league,count(*) from clubs group by league')),'questions',q.execute('select count(*) from questions').fetchone()[0])
     w=connect(BASE/'player-wordle/game.sqlite3');t=connect(BASE/'player-wordle/efl-staging.sqlite3');backup(w,'wordle');protection(w)
+    aliases={'man-city':'manchester-city','man-utd':'manchester-united','newcastle':'newcastle-united','tottenham':'tottenham-hotspur','leeds':'leeds-united','coventry':'coventry-city','hull':'hull-city','ipswich':'ipswich-town'}
+    assert all(aliases.get(r['slug'],r['slug']) in scope for r in t.execute('select slug from clubs')), 'Wordle staging contains parked clubs'
     original_games=[tuple(r) for r in w.execute('select * from daily_game order by game_date,club_id')]
     original_players=w.execute('select count(*) from players').fetchone()[0]
     with w:

@@ -46,7 +46,7 @@ def performances(members):
     with open('/var/lib/clubdailyfive/player-sources/performances.csv',newline='',encoding='utf-8-sig') as f:
         for r in csv.DictReader(f):
             slug=wanted.get(r['team_name']);match=re.match(r'(\d{2})/',r['season_name'])
-            if not slug or not match or int(match[1])+2000<2016:continue
+            if not slug or not match or (2000+int(match[1]) if int(match[1])<50 else 1900+int(match[1]))<2016:continue
             count=int(float(r['nb_on_pitch'] or 0));players[slug][r['player_id']]+=count;pids.add(r['player_id'])
     profiles={}
     with open('/var/lib/clubdailyfive/player-sources/profiles.csv',newline='',encoding='utf-8-sig') as f:

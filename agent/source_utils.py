@@ -42,7 +42,7 @@ def broad_position(text):
     if re.search(r'goalkeeper|\bkeeper\b',text):groups.add('Goalkeeper')
     if re.search(r'defender|centre.back|center.back|full.back|wing.back|left.back|right.back',text):groups.add('Defender')
     if re.search(r'midfield|\bplaymaker\b',text):groups.add('Midfielder')
-    if re.search(r'forward|striker|winger|centre.forward|center.forward|\battack\b',text):groups.add('Forward')
+    if re.search(r'forward|striker|winger|centre.forward|center.forward',text):groups.add('Forward')
     return next(iter(groups)) if len(groups)==1 else None
 
 RANK={'Goalkeeper':0,'Defender':1,'Midfielder':2,'Forward':3}

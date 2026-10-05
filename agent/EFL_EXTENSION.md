@@ -1,23 +1,17 @@
-# EFL extension and player research
+# Premier League and Championship
+The site supports 20 Premier League clubs and 24 Championship clubs. Football-Data E0/E1 determines membership. League One and League Two club banks, research queues, analytics, owned crests and page profiles were removed on 5 October 2026. Recovery copies are outside live databases. Shared historical opponent and career source records remain available for supported-club facts.
 
-The home chooser covers the current Football-Data E0/E1/E2/E3 season, with 20 Premier League and 24 clubs in each EFL division. Club identities and source URLs are in efl_catalog.py and efl_clubs_sources.json. Existing club IDs, rounds, games, usage and analytics are preserved.
+## Player research
+The target is 100 playable players per club. transfermarkt_players.py reads player profiles, recent season performances, individual match appearances and transfers. It prepares up to 100 eligible candidates per club and stores attributed evidence in transfermarkt_research. Existing banks above 100 are retained.
 
-## Daily Five
-build_efl_bank.py imports source facts additively: club profile facts, completed historical league results and discipline, complete-season results and runs, FA Cup exits, player biographies and season appearances. It rejects incomplete season aggregates, ambiguous leaders, leaked answers and non-distinct distractors. The publisher preserves complete existing club rounds, requires different question families and match dates, and uses an unused historical fact for EFL clubs when current facts are unavailable. Recent fact-family and generic repeat windows remain enforced.
+Season years distinguish 1990s from 2090s. Future transfers are excluded. The earliest appearance in a partial dataset is never treated as proof of a debut. Citizenship does not automatically establish football nationality. Profiles with uncertain roles, debut dates or previous senior clubs remain in enrichment_queue.
 
-Sources: Football-Data CSVs, Wikipedia club profiles and attributed Transfermarkt profiles/performance records. Durable input datasets live under /var/lib/clubdailyfive/player-sources and /var/lib/clubdailyfive/transfermarkt-data; they are not committed to Git.
-
-## Player Wordle
-collect_efl_players.py requires a sourced exact competitive debut date, complete senior club history, nationality, age, year and an unambiguous prominent position before admitting a new player. It does not approximate debut ages from season start dates or supply a default position. Ambiguous or incomplete candidates stay in efl_player_research and player_candidates. Clubs open when they have at least ten verified players and a published mystery player. The initial release admitted 34 EFL player records; all new EFL Wordle games remain in preparation.
-
-The Hull archive at https://tigerbase.hullcity.com/tigers-players.php?select_col=pos matched 156 Hull records, supporting 17 changes including Markus Henriksen to Midfielder. position_overrides retains evidence and a database trigger protects verified corrections against subsequent imports. The wider position audit is ongoing: disputed roles require review and are not silently rewritten from a player's latest career profile.
+Separate explicit debut evidence is cross-checked before new playable rows are added. Multiple day/month dates in a sentence are rejected to avoid using transfer dates as debut dates. Existing verified position overrides remain protected. Attacking midfielder is classified as Midfielder.
 
 ## Scheduled operation
-The existing question and Wordle timers retain their UK schedule and report wrapper. efl_research_job.py bounds research and allows the publisher to continue using verified banks after a source failure. Wikipedia requests are cached, paced, capped at 100 per process and halted on a 429. Position audit and new-club research receive separate bounded runs. Transient failures are retried on later days. New-player research starts with clubs having the smallest banks.
+The existing nightly timer runs transfermarkt_players.py through the reporting wrapper, followed by the daily mystery-player publisher. Smaller banks receive fresh evidence research first. At most 40 new evidence-page requests are attempted per run; cached pages are reused, requests are paced and rate limits halt fresh requests. Source failures preserve existing verified games. Research records and playable-player counts are separate in player-bank-progress.json.
 
-The optional walkthrough can be dismissed, replayed and completed without making a guess. It explains the five clues and the actual green/amber/grey rules. Local storage remembers dismissal.
+A club still requires at least ten verified players and a published daily game to open; the long-term target is 100. Some clubs have fewer than 100 candidates under the current eligibility criteria. Historical international and cup-final eligibility need separate evidence before expanding these pools.
 
-## Validation and deployment
-deploy_efl_data.py backs up both databases and adds staging records using slug/name ID mappings. It asserts existing rounds and games are unchanged, checks foreign keys/integrity, and tests the Henriksen protection trigger. The one-time staging databases are deployment inputs, not nightly jobs.
-
-The release passed a frozen-fixture 30-day simulation for all 72 new clubs (2,160 rounds / 10,800 slots), the question rule, match perspective, player usage and variety suites, new EFL integrity regressions, PHP syntax checks and all 72 live quiz routes. Browser checks confirmed league filtering, new-club preparation status, guide completion, no guess consumption and remembered dismissal.
+## Daily Five and deployment
+Existing Premier League and Championship rounds and usage records are preserved. The question generator uses only the two supported leagues for catalogue membership, while supported clubs' earlier seasons may include other divisions. Staging deployment rejects parked clubs. Source inputs and database snapshots are not committed to Git.

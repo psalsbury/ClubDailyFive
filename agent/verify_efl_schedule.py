@@ -16,5 +16,5 @@ for day in range(30):
   for pos,q in enumerate(qs,1):
    c.execute('insert into daily_questions values(?,?,?,?)',(club['id'],date,pos,q['id']))
    c.execute('update questions set use_count=use_count+1,last_used_date=? where id=?',(date,q['id']))
- c.commit();print('DAY',day+1,'72 rounds valid',round(time.monotonic()-started,1),flush=True)
-print('PASS 2160 rounds, 10800 slots; no repeated recent facts, distinct topics')
+ c.commit();print('DAY',day+1,f'{len(clubs)} rounds valid',round(time.monotonic()-started,1),flush=True)
+print(f'PASS {30*len(clubs)} rounds, {150*len(clubs)} slots; no repeated recent facts, distinct topics')
