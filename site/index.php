@@ -175,7 +175,7 @@ img[src*="/assets/crests/derby-county.png"],img[src*="/assets/crests/swansea-cit
 </head>
 <body class="<?= $club ? 'quiz-page' : 'home-page' ?>">
 <main class="wrap">
-<header class="top"><a class="brand" href="/" aria-label="ClubDailyFive.com home"><img src="/assets/clubdailyfive-logo.svg" alt="ClubDailyFive.com" width="450" height="60"></a><span class="date"><?= h($dateLabel) ?></span></header>
+<header class="top"><a class="brand" href="/" aria-label="ClubDailyFive.com home"><img src="/assets/clubdailyfive-logo.svg?v=20261005" alt="ClubDailyFive.com" width="450" height="60"></a><span class="date"><?= h($dateLabel) ?></span></header>
 
 <script>
 const playDate=<?= json_encode($quizDate) ?>;
