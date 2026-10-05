@@ -44,6 +44,7 @@ def football_nationality(raw,citizenship):
   team=r.clean(cells[0]);caps=r.clean(cells[1]);years=re.findall(r'(?:19|20)\d{2}',r.clean(h[1]))
   if not years or not caps.isdigit() or int(caps)<=0:continue
   key=r.normalized(team)
+  if key=='republicofireland' and 'ireland' in allowed:key='ireland'
   if key not in allowed:continue # Excludes youth, B and C teams.
   found.append((int(years[0]),allowed[key],r.clean(row)))
  if not found:return None
@@ -66,6 +67,16 @@ def nationality_research(member,profile,count,history):
 
 # Explicit debut corrections cross-checked against dated match records.
 MANUAL_DEBUTS={
+ ('wrexham', 'Ben Tozer'):('2021-08-28', 'https://wrexhamafcarchive.co.uk/player.php?id=2961', 'Archive explicitly gives first competitive debut at Eastleigh.'),
+ ('watford', 'Richarlison'):('2017-08-12', 'https://www.premierleague.com/en/news/449708/britos-in-place-to-frustrate-liverpool', 'Opening-day substitute debut vs Liverpool corroborated by career narrative and match report.'),
+ ('watford', 'Ryan Porteous'):('2023-02-04', 'https://www.skysports.com/football/reading-vs-watford/report/468180', 'Dated match report explicitly identifies debut at Reading.'),
+ ('watford', 'Tom Cleverley'):('2009-08-18', 'https://www.skysports.com/football/news/5499171/watford-chop-down-forest', 'Debut at Nottingham Forest on first loan day; archived BBC match report corroborates debut.'),
+ ('watford', 'Mattie Pollock'):('2022-08-23', 'https://en.wikipedia.org/wiki/Mattie_Pollock', 'Explicit EFL Cup debut vs MK Dons, distinct from later full Championship debut.'),
+ ('portsmouth', 'Colby Bishop'):('2022-07-30', 'https://www.skysports.com/football/sheffield-wednesday-vs-portsmouth/teams/468939', 'Opening competitive fixture after signing; full match logs and lineup corroborated.'),
+ ('portsmouth', 'Luke McGee'):('2017-08-05', 'https://www.skysports.com/football/portsmouth-vs-rochdale/teams/375179', 'Opening competitive fixture after July signing; full match logs and lineup corroborated.'),
+ ('watford', 'William Troost-Ekong'):('2020-10-16', 'https://www.theleaguepaper.com/latest-news/the-league-paper/369064/troostekong-success-starts-at-the-back/', 'First appearance at Derby in 1-0 victory explicitly described as debut; date corroborated by match record.'),
+ ('portsmouth', 'Gavin Bazunu'):('2021-08-14', 'https://www.inkl.com/news/portsmouth-boss-makes-surprise-claim-about-man-city-goalkeeper-gavin-bazunu-following-debut', 'Crewe debut reported 16 August; 14 August fixture corroborated, unused in preceding Millwall cup game.'),
+ ('portsmouth', 'Joe Morrell'):('2021-08-14', 'https://pompey.no/2021/08/15/2021-22-portsmouth-crewe-alexandra-2-0/', 'Debut as 74th-minute substitute vs Crewe; full season match log and report corroborated.'),
  ('birmingham-city','Clayton Donaldson'):('2014-08-09','https://www.sporting-heroes.net/football/birmingham-city-fc/clayton-donaldson-13258/league-appearances_a33570/','Opening-day debut at Middlesbrough; date corroborates career narrative.'),
  ('preston-north-end','Lukas Nmecha'):('2018-08-11','https://www.espn.co.uk/football/match/_/gameId/515664/preston-north-end-swansea-city','Debut two days after the 9 August loan, starting at Swansea on 11 August.'),
  ('charlton-athletic','Joe Aribo'):('2016-10-04','https://www.skysports.com/football/charlton-athletic-vs-crawley-town/teams/367332','First-team debut vs Crawley; dated match lineup corrects erroneous 16 October biography date.')
@@ -79,7 +90,11 @@ def verified_research(member,profile,count,history):
   r.debut=lambda raw,member,year:(dt.date.fromisoformat(manual[0]),manual[2])
   x=nationality_research(member,profile,count,history)
  finally:r.debut=saved
- if x['status']=='approved':x['debut_source']=manual[1]
+ if x['status']=='approved':
+  x['debut_source']=manual[1]
+  if (member['slug'],name)==('wrexham','Ben Tozer'):
+   x['appearances']=141
+   x['appearances_evidence']={'source':manual[1],'competitive_total':141}
  return x
 
 def main():
