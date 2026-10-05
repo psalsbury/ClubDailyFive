@@ -15,3 +15,6 @@ A club still requires at least ten verified players and a published daily game t
 
 ## Daily Five and deployment
 Existing Premier League and Championship rounds and usage records are preserved. The question generator uses only the two supported leagues for catalogue membership, while supported clubs' earlier seasons may include other divisions. Staging deployment rejects parked clubs. Source inputs and database snapshots are not committed to Git.
+
+## Derby historical expansion
+expand_derby_wikipedia.py reads the club's attributed 100-appearance Wikipedia list and linked biographies, supplemented by official Academy Hall of Fame first-team debuts and individually corroborated match reports. It requires sourced birth dates, competitive debut dates, typical positions, nationalities and prior senior careers before promoting rows. All-competition appearances are taken from the list; active stale totals and disputed careers remain in wikipedia_player_research. Database backups and evidence are retained outside Git. The first completed verification increased Derby from 8 to 45 playable players; 100 remains the target, with remaining clue gaps recorded. Existing selected games are preserved.
