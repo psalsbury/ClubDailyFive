@@ -169,6 +169,8 @@ $structuredData = [
 .league-tabs button:focus-visible{outline:2px solid #fff;outline-offset:2px}
 .club[hidden]{display:none!important}.game-choice.building{opacity:.75;cursor:default}.game-choice.building .play-bar{background:#283a52;color:#c3cddd;font-size:.72rem}
 @media(max-width:600px){.league-tabs{margin:8px 0 10px}.league-tabs button{font-size:.7rem;padding:12px 3px}.home-page .club-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+/* Monochrome club crests need light ink on the dark site background. */
+img[src*="/assets/crests/derby-county.png"],img[src*="/assets/crests/swansea-city.png"]{filter:brightness(0) invert(1)}
 </style>
 </head>
 <body class="<?= $club ? 'quiz-page' : 'home-page' ?>">
