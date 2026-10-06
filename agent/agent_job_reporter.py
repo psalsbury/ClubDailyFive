@@ -6,6 +6,8 @@ import argparse
 import datetime as dt
 import os
 import shutil
+import smtplib
+from pathlib import Path
 import sqlite3
 import subprocess
 import tempfile
@@ -143,7 +145,9 @@ def send_report(subject: str, body: str) -> None:
     message["To"] = TO
     message["Subject"] = subject
     message.set_content(body)
-    subprocess.run([SENDMAIL, "-f", FROM, "-t", "-oi"], input=message.as_bytes(), check=True)
+    # Use the local SMTP listener; sandboxed jobs cannot use setgid postdrop.
+    with smtplib.SMTP("127.0.0.1", 25, timeout=30) as smtp:
+        smtp.send_message(message, from_addr=FROM, to_addrs=[TO])
 
 
 def main():
@@ -194,7 +198,17 @@ def main():
     ]
     if error:
         body += ["", "ERROR", "-----", error]
-    send_report(subject, "\n".join(body))
+    report = "\n".join(body)
+    reports = Path("/var/lib/clubdailyfive/job-reports")
+    reports.mkdir(parents=True, exist_ok=True)
+    report_path = reports / f"{args.job}-{now.strftime('%Y%m%d-%H%M%S')}.txt"
+    report_path.write_text(subject + "\n\n" + report, encoding="utf-8")
+    print(report, flush=True)
+    try:
+        send_report(subject, report)
+    except Exception as exc:
+        print(f"Email delivery failed: {type(exc).__name__}: {exc}; report saved at {report_path}", flush=True)
+        raise SystemExit(1)
     if status != "SUCCESS":
         raise SystemExit(1)
 

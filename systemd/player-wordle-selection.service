@@ -1,0 +1,9 @@
+[Unit]
+Description=Fill missing ClubDailyFive Wordle selections after late player imports
+After=player-wordle-refresh.service
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/usr/bin/python3 /opt/clubdailyfive/player-wordle/nightly.py
+TimeoutStartSec=120

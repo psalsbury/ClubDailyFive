@@ -1,0 +1,10 @@
+[Unit]
+Description=Check missing ClubDailyFive Wordle games after midnight
+
+[Timer]
+OnCalendar=*-*-* 00:10:00 Europe/London
+Persistent=true
+Unit=player-wordle-selection.service
+
+[Install]
+WantedBy=timers.target
