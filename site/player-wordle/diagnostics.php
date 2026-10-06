@@ -10,5 +10,7 @@ $db=new PDO('sqlite:/var/lib/clubdailyfive/player-wordle/game.sqlite3');$db->set
 $q=$db->prepare('SELECT id FROM clubs WHERE slug=? AND active=1');$q->execute([substr((string)($data['club']??''),0,80)]);$cid=$q->fetchColumn();$q->closeCursor();if(!$cid){http_response_code(400);exit('{}');}
 $db->exec('CREATE TABLE IF NOT EXISTS diagnostic_counts(stat_date TEXT NOT NULL,club_id INTEGER NOT NULL,event TEXT NOT NULL,total INTEGER NOT NULL,last_seen TEXT NOT NULL,PRIMARY KEY(stat_date,club_id,event))');
 $db->prepare('INSERT INTO diagnostic_counts VALUES(?,?,?,1,?) ON CONFLICT(stat_date,club_id,event) DO UPDATE SET total=total+1,last_seen=excluded.last_seen')->execute([date('Y-m-d'),$cid,$event,date('H:i:s')]);
-$db->prepare('DELETE FROM diagnostic_counts WHERE stat_date<?')->execute([date('Y-m-d',strtotime('-30 days'))]);echo '{"ok":true}';
+$db->exec('CREATE TABLE IF NOT EXISTS diagnostic_events(id INTEGER PRIMARY KEY,stat_date TEXT NOT NULL,event_time TEXT NOT NULL,club_id INTEGER NOT NULL,event TEXT NOT NULL)');
+$db->prepare('INSERT INTO diagnostic_events(stat_date,event_time,club_id,event) VALUES(?,?,?,?)')->execute([date('Y-m-d'),date('H:i:s'),$cid,$event]);
+$db->prepare('DELETE FROM diagnostic_counts WHERE stat_date<?')->execute([date('Y-m-d',strtotime('-30 days'))]);$db->prepare('DELETE FROM diagnostic_events WHERE stat_date<?')->execute([date('Y-m-d',strtotime('-30 days'))]);echo '{"ok":true}';
 }catch(Throwable $e){http_response_code(503);echo '{}';}

@@ -110,12 +110,12 @@ tbody th{font-weight:600}tfoot{font-weight:800;background:#14243a}tfoot th:first
 </table></div>
 <p class="note">A start is recorded when a club game page opens; a completion is recorded when the round ends. Refreshes may increase starts, so these figures describe game activity rather than unique people. Weeks begin on Monday.</p>
 <h2>Wordle diagnostics · today</h2>
-<p class="note">Logging began 6 October 2026. Counts record each step once per page visit. Refreshes can count again. Leaving a page is a signal, not proof of abandonment. No typed names, IP addresses or visitor identifiers are saved. Retention: 30 days.</p>
-<div class="table-wrap"><table><thead><tr><th>Club</th><th>Event</th><th>Count</th><th>Last seen (UK)</th></tr></thead><tbody>
+<p class="note">Every event today, newest first. Individual events have been recorded since 6 October 2026 at 22:05 UK time (earlier ones were only counted). Each step is recorded once per page visit and refreshes can record it again. Leaving a page is a signal, not proof of abandonment. No typed names, IP addresses or visitor identifiers are saved. Retention: 30 days.</p>
+<div class="table-wrap"><table><thead><tr><th>Time (UK)</th><th>Club</th><th>Event</th></tr></thead><tbody>
 <?php
-$exists=$db->query("SELECT name FROM sqlite_master WHERE type='table' AND name='diagnostic_counts'")->fetchColumn();
-if($exists){$diag=$db->prepare('SELECT c.name,d.event,d.total,d.last_seen FROM diagnostic_counts d JOIN clubs c ON c.id=d.club_id WHERE d.stat_date=? ORDER BY c.name,d.event');$diag->execute([$day]);foreach($diag as $d):?>
-<tr><th><?=h($d['name'])?></th><td><?=h(str_replace('_',' ',$d['event']))?></td><td><?=h($d['total'])?></td><td><?=h($d['last_seen'])?></td></tr>
-<?php endforeach;}?>
+$exists=$db->query("SELECT name FROM sqlite_master WHERE type='table' AND name='diagnostic_events'")->fetchColumn();$shown=0;
+if($exists){$diag=$db->prepare('SELECT d.event_time,c.name,d.event FROM diagnostic_events d JOIN clubs c ON c.id=d.club_id WHERE d.stat_date=? ORDER BY d.event_time DESC,d.id DESC');$diag->execute([$day]);foreach($diag as $d):$shown++;?>
+<tr><td><?=h($d['event_time'])?></td><th><?=h($d['name'])?></th><td><?=h(str_replace('_',' ',$d['event']))?></td></tr>
+<?php endforeach;}if(!$shown):?><tr><td colspan="3" class="zero">No events recorded yet today.</td></tr><?php endif;?>
 </tbody></table></div>
 </main></body></html>
