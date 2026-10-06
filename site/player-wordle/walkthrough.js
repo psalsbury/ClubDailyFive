@@ -10,14 +10,14 @@
  ['Grey means keep looking','<div class="guide-example miss">Example: age 18, mystery age 25</div><p>A grey clue is outside the amber range. Combine all five clues when choosing your next player.</p><p>After five guesses, or a correct guess, the answer is revealed and you can share your result. A new player arrives at midnight UK time.</p>']
  ];
  function remember(){try{localStorage.setItem(key,'seen')}catch(e){}}
- function render(){document.getElementById('guideStep').textContent=`STEP ${step+1} OF ${steps.length}`;document.getElementById('guideTitle').textContent=steps[step][0];document.getElementById('guideBody').innerHTML=steps[step][1];document.getElementById('guideBack').hidden=step===0;document.getElementById('guideNext').textContent=step===steps.length-1?'Start playing':'Next';document.getElementById('guideTitle').focus();}
- function close(){remember();offer.hidden=true;dialog.close();(returnFocus?.closest('#walkthroughOffer')?document.getElementById('guess'):returnFocus)?.focus();}
- document.querySelectorAll('[data-guide-open]').forEach(b=>b.addEventListener('click',()=>{returnFocus=b;step=0;dialog.showModal();render();}));
- document.getElementById('guideNext').onclick=()=>{if(step===steps.length-1)close();else{step++;render();}};
+ function render(){window.pwDiagnostic?.('tutorial_step_'+(step+1));document.getElementById('guideStep').textContent=`STEP ${step+1} OF ${steps.length}`;document.getElementById('guideTitle').textContent=steps[step][0];document.getElementById('guideBody').innerHTML=steps[step][1];document.getElementById('guideBack').hidden=step===0;document.getElementById('guideNext').textContent=step===steps.length-1?'Start playing':'Next';document.getElementById('guideTitle').focus();}
+ function close(completed=false){window.pwDiagnostic?.(completed?'tutorial_completed':'tutorial_closed');remember();offer.hidden=true;dialog.close();(returnFocus?.closest('#walkthroughOffer')?document.getElementById('guess'):returnFocus)?.focus();}
+ document.querySelectorAll('[data-guide-open]').forEach(b=>b.addEventListener('click',()=>{returnFocus=b;step=0;dialog.showModal();window.pwDiagnostic?.('tutorial_opened');render();}));
+ document.getElementById('guideNext').onclick=()=>{if(step===steps.length-1)close(true);else{step++;render();}};
  document.getElementById('guideBack').onclick=()=>{if(step>0){step--;render();}};
- document.getElementById('guideClose').onclick=close;
+ document.getElementById('guideClose').onclick=()=>close();
  dialog.addEventListener('cancel',e=>{e.preventDefault();close();});
- document.getElementById('guideDismiss').onclick=()=>{remember();offer.hidden=true;document.getElementById('guess')?.focus();};
+ document.getElementById('guideDismiss').onclick=()=>{window.pwDiagnostic?.('tutorial_dismissed');remember();offer.hidden=true;document.getElementById('guess')?.focus();};
  let seen=false,hasPlayed=false;try{seen=!!localStorage.getItem(key);for(let i=0;i<localStorage.length;i++){if(/^pwgame:|^pw:/.test(localStorage.key(i))){hasPlayed=true;break;}}}catch(e){}
- offer.hidden=seen||hasPlayed;
+ offer.hidden=seen||hasPlayed;if(!offer.hidden)window.pwDiagnostic?.('tutorial_offered');
 })();

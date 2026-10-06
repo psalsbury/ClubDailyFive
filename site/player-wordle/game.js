@@ -1,14 +1,14 @@
 const funnelClub=({coventry:'coventry-city',hull:'hull-city',ipswich:'ipswich-town',leeds:'leeds-united','man-city':'manchester-city','man-utd':'manchester-united',newcastle:'newcastle-united',tottenham:'tottenham-hotspur'})[GAME.club]||GAME.club;
-cdfEvent(funnelClub,'wordle','selected');
+window.cdfEvent?.(funnelClub,'wordle','selected');
 let attempts=0,done=false,marks=[],box=document.querySelector('#guess'),sug=document.querySelector('#suggestions'),rows=document.querySelector('#rows');
 const stateKey='pwgame:'+GAME.date+':'+GAME.club;
 const keys=['debut_age','position','nationality','debut_year','prior_clubs'];
 
 function saveState(){
-  localStorage.setItem(stateKey,JSON.stringify({
+  try{localStorage.setItem(stateKey,JSON.stringify({
     attempts,done,marks,rows:rows.innerHTML,
     result:document.querySelector('#result').innerHTML
-  }));
+  }));}catch(e){window.pwDiagnostic?.('storage_error');}
 }
 
 function appendAnswer(answer){
@@ -85,11 +85,13 @@ box.oninput=()=>{
 
 async function play(id,name){
   if(done)return;
+  window.pwDiagnostic?.('guess_selected');
   sug.innerHTML='';
   box.value='';
   let r=await(await fetch('api.php?action=guess&club='+GAME.club+'&player='+id,{cache:'no-store'})).json();
-  if(attempts===0)cdfEvent(funnelClub,'wordle','started');
+  if(attempts===0)window.cdfEvent?.(funnelClub,'wordle','started');
   attempts++;
+  window.pwDiagnostic?.('guess_'+attempts);
   let row=document.createElement('div');
   row.className='guessrow'+(r.correct?' answerrow':'');
   row.innerHTML=r.correct
@@ -104,7 +106,8 @@ async function play(id,name){
 
 async function finish(won){
   done=true;
-  cdfEvent(funnelClub,'wordle','completed');
+  window.pwDiagnostic?.('completed');
+  window.cdfEvent?.(funnelClub,'wordle','completed');
   box.disabled=true;
   setCompletedView();
   let r=await(await fetch('api.php?action=finish&club='+GAME.club+'&won='+(won?1:0)+'&guesses='+attempts+'&_='+Date.now(),{cache:'no-store'})).json();
@@ -125,7 +128,7 @@ async function finish(won){
   document.querySelector('#choose-club').hidden=false;
   sh.onclick=async()=>{
     let t='Player Wordle — '+GAME.name+' — '+GAME.date+'\n'+(won?attempts:'X')+'/5\n'+marks.join('\n')+'\n🔥 Streak '+streak;
-    if(navigator.share)navigator.share({text:t}).then(()=>cdfEvent(funnelClub,'wordle','shared')).catch(()=>{});
-    else{await navigator.clipboard.writeText(t).then(()=>cdfEvent(funnelClub,'wordle','shared'));sh.textContent='Copied!'}
+    if(navigator.share)navigator.share({text:t}).then(()=>window.cdfEvent?.(funnelClub,'wordle','shared')).catch(()=>{});
+    else{await navigator.clipboard.writeText(t).then(()=>window.cdfEvent?.(funnelClub,'wordle','shared'));sh.textContent='Copied!'}
   }
 }
