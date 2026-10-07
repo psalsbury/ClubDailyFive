@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS returning_activity(event_date TEXT PRIMARY KEY,active INTEGER NOT NULL DEFAULT 0,returned_count INTEGER NOT NULL DEFAULT 0);

@@ -25,6 +25,8 @@ async function getAnswer(){
 
 function setCompletedView(){
   document.body.classList.add('game-complete');
+  const other=document.querySelector('#other-game');if(other){let finished=false;try{finished=!!JSON.parse(localStorage.getItem('dailyfive:result:'+funnelClub+':'+GAME.date)||'null')||!!JSON.parse(localStorage.getItem('dailyfive:'+GAME.name+':'+GAME.date)||'null')}catch(e){}other.hidden=finished;}
+
 }
 
 function restoreState(){
