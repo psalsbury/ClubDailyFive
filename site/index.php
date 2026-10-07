@@ -135,12 +135,12 @@ $structuredData = [
 .game-sample.wordle-sample span:nth-child(2){background:#8a7329;color:#fff4ca}
 .game-sample small{color:var(--muted);font-size:.7rem;margin-left:5px}
 .home-intro .games-return{font-size:.8rem;line-height:1.5;color:var(--muted);margin:0 auto 20px}
-.home-intro .games-start{font-size:.9rem;line-height:1.45;font-weight:650;color:var(--ink);margin:0 auto 12px}
+.home-intro .games-start{font-size:clamp(1.2rem,2.5vw,1.55rem);line-height:1.3;font-weight:850;letter-spacing:-.025em;color:#ffcc33;margin:22px auto 16px}.games-start span{display:inline-block;margin-left:8px;font-size:1.15em}
 .choose-title{text-align:center;margin:18px 0 4px;font-size:clamp(1.25rem,4vw,1.75rem);letter-spacing:-.03em}
 .choose-sub{text-align:center;color:var(--muted);font-size:.84rem;margin:0 0 10px}
 .home-page .club-grid{padding:8px 0 28px;gap:8px}
 @media(min-width:800px){.home-page .club-grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
-@media(max-width:600px){.home-page .top{height:auto;padding:10px 0}.home-page .brand img{width:min(270px,68vw)}.home-intro{padding:8px 0 5px}.home-intro h1{font-size:2rem}.home-games{grid-template-columns:1fr;margin:18px auto 10px;padding:0}.home-game,.home-game+.home-game{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:12px;padding:16px 0;border-left:0}.home-game+.home-game{border-top:1px solid var(--line)}.home-game-head{grid-column:1;gap:8px;margin-bottom:5px}.home-game h2{font-size:1.18rem}.home-game strong{grid-column:1;font-size:.64rem;margin-bottom:6px}.home-game p{grid-column:1 / -1;font-size:.82rem;line-height:1.45}.game-sample{grid-column:2;grid-row:1 / 3;margin:0;align-self:center;gap:3px}.game-sample span{width:18px;height:21px;font-size:.6rem}.game-sample small{display:none}.home-intro .games-return{font-size:.73rem;margin-bottom:14px}.home-intro .games-start{font-size:.82rem;margin-bottom:10px}.choose-title{font-size:1.1rem;margin:10px 0 3px}.choose-sub{font-size:.78rem;margin-bottom:8px}.home-page .club-grid{padding:3px 0 8px}}
+@media(max-width:600px){.home-page .top{height:auto;padding:10px 0}.home-page .brand img{width:min(270px,68vw)}.home-intro{padding:8px 0 5px}.home-intro h1{font-size:2rem}.home-games{grid-template-columns:1fr;margin:18px auto 10px;padding:0}.home-game,.home-game+.home-game{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:12px;padding:16px 0;border-left:0}.home-game+.home-game{border-top:1px solid var(--line)}.home-game-head{grid-column:1;gap:8px;margin-bottom:5px}.home-game h2{font-size:1.18rem}.home-game strong{grid-column:1;font-size:.64rem;margin-bottom:6px}.home-game p{grid-column:1 / -1;font-size:.82rem;line-height:1.45}.game-sample{grid-column:2;grid-row:1 / 3;margin:0;align-self:center;gap:3px}.game-sample span{width:18px;height:21px;font-size:.6rem}.game-sample small{display:none}.home-intro .games-return{font-size:.73rem;margin-bottom:14px}.home-intro .games-start{font-size:1.16rem;margin:18px auto 14px}.choose-title{font-size:1.1rem;margin:10px 0 3px}.choose-sub{font-size:.78rem;margin-bottom:8px}.home-page .club-grid{padding:3px 0 8px}}
 /* Shared ClubDailyFive completed-game hierarchy */
 .result{width:min(620px,100%);margin:0 auto;padding:22px 0 30px}
 .result>.eyebrow{margin-bottom:5px}
@@ -216,7 +216,7 @@ setInterval(checkDay,30000);
 <article class="home-game wordle"><div class="home-game-head"><span class="home-game-icon" aria-hidden="true">👕</span><h2>Player Wordle</h2></div><strong>1 MYSTERY PLAYER · 5 GUESSES</strong><p>Find your club’s mystery player. Each guess reveals colour clues to guide your next.</p><div class="game-sample wordle-sample" aria-hidden="true"><span>✓</span><span>↑</span><span>·</span><span>✓</span><span>·</span><small>Follow the clues</small></div></article>
 </div>
 <p class="games-return">A fresh quiz and mystery player every day. Come back tomorrow to keep your streak going.</p>
-<p class="games-start">To play, choose your league and club below.</p>
+<p class="games-start">Choose your club below to play <span aria-hidden="true">↓</span></p>
 <nav class="league-tabs" aria-label="Choose a league">
 <?php foreach(['premier-league'=>'Premier League','championship'=>'Championship'] as $key=>$label): ?><button type="button" data-league="<?=h($key)?>" aria-pressed="<?=$key==='premier-league'?'true':'false'?>"><?=h($label)?></button><?php endforeach ?>
 </nav><h2 class="choose-title" id="leagueTitle">Premier League</h2>
