@@ -84,3 +84,38 @@
  .game-home-page .daily-return{margin:12px 0 5px}
  .game-home-page .foot{padding:10px 0}
 }
+
+/* Use the available phone height for two readable game tiles. */
+@media(max-width:600px){
+ .game-home-page .wrap{height:100svh;min-height:100svh;display:grid;grid-template-rows:auto auto minmax(0,1fr) auto auto}
+ .game-home-page .game-home-intro{padding:18px 0}
+ .game-home-page .game-home-intro h1{font-size:clamp(1.5rem,6vw,1.9rem)}
+ .game-home-page .game-home-intro p{font-size:1rem}
+ .game-home-page .game-tiles{grid-template-rows:repeat(2,minmax(0,1fr));gap:14px}
+ .game-home-page .game-tile{min-height:0;grid-template-columns:minmax(82px,30%) minmax(0,1fr);padding:14px;gap:12px}
+ .game-home-page .tile-copy{padding:0}
+ .game-home-page .tile-copy h2{font-size:clamp(1.35rem,5.5vw,1.6rem);margin-bottom:10px}
+ .game-home-page .tile-copy p{font-size:.96rem;line-height:1.4;margin-bottom:16px}
+ .game-home-page .tile-action{font-size:1rem;min-height:48px;padding:12px 8px;gap:8px}
+ .game-home-page .daily-return{font-size:.84rem;margin:16px 0 6px}
+ .game-home-page .foot{margin-top:0;padding:12px 0 14px}
+ .game-home-page .foot-links{font-size:.82rem;gap:9px 14px}
+}
+@media(max-width:600px) and (max-height:650px){
+ .game-home-page .top{padding:8px 0}
+ .game-home-page .game-home-intro{padding:10px 0 12px}
+ .game-home-page .game-home-intro h1{font-size:1.5rem}
+ .game-home-page .game-home-intro p{font-size:.9rem}
+ .game-home-page .game-tiles{gap:10px}
+ .game-home-page .game-tile{padding:10px;gap:9px;grid-template-columns:26% minmax(0,1fr)}
+ .game-home-page .tile-copy h2{font-size:1.3rem;margin-bottom:6px}
+ .game-home-page .tile-copy p{font-size:.87rem;margin-bottom:10px;line-height:1.3}
+ .game-home-page .tile-action{font-size:.9rem;min-height:44px;padding:10px 5px}
+ .game-home-page .daily-return{font-size:.76rem;margin:10px 0 4px}
+ .game-home-page .foot{padding:8px 0}
+ .game-home-page .foot-links{font-size:.76rem}
+}
+@media(max-width:600px) and (max-height:500px){
+ .game-home-page .wrap{height:auto;min-height:100svh}
+ .game-home-page .game-tile{min-height:140px}
+}

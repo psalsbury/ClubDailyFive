@@ -95,7 +95,7 @@ if (!$club && $selectedGame !== '') {
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/assets/icon-192.png">
-<?php if (!$club): ?><link rel="stylesheet" href="/assets/game-hub.css?v=20261007-3"><?php endif ?>
+<?php if (!$club): ?><link rel="stylesheet" href="/assets/game-hub.css?v=20261007-4"><?php endif ?>
 <script src="/pwa.js" defer></script><script src="/engagement.js?v=2"></script>
 <link rel="canonical" href="<?= h($canonicalUrl) ?>">
 <title><?= h($pageTitle) ?></title>
