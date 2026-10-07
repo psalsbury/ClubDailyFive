@@ -121,9 +121,14 @@ def insert_fresh(con,club,target,rows,selector_override=None):
   if slot in ('yellow','red'):
     field=('HY' if home else 'AY') if slot=='yellow' else ('HR' if home else 'AR')
     if not (latest.get(field) or '').strip():raise FreshUnavailable('Card statistic unavailable')
-    val=int(latest[field]);opts,idx=numopts(val,f'{date}|{club["slug"]}|{slot}',0,8)
+    val=int(latest[field])
+    # Only ask about cards when this match stood out against the club's season so far.
+    counts=[int(r.get('HY' if r['HomeTeam']==r['_alias'] else 'AY') or 0) for r in rows if (r.get('HY' if r['HomeTeam']==r['_alias'] else 'AY') or '').strip()]
+    avg=sum(counts)/len(counts) if counts else 0
+    if len(counts)<3 or val<=avg:raise FreshUnavailable('Card count not above the season average')
+    opts,idx=numopts(val,f'{date}|{club["slug"]}|{slot}',0,8)
     text=f"How many {slot} cards did {club['name']} receive in their league match against {opp} on {display_date(date)}?"
-    exp=f"{club['name']} received {val} {slot} cards against {opp} on {display_date(date)}."
+    exp=f"{club['name']} received {val} {slot} cards against {opp} on {display_date(date)}; their league average this season is {avg:.1f}."
   else:
     opts,idx=scoreopts(gf,ga,f'{date}|{club["slug"]}|score')
     text=f"What was the score for {club['name']} in their league match {venue} {opp} on {display_date(date)}?"

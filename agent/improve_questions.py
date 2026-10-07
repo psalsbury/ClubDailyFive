@@ -129,6 +129,29 @@ def rebuild_options(row: dict, club: str):
     return None
 
 
+YELLOW_MATCH = re.compile(r'^How many yellow cards did .+ receive against ')
+
+
+def season_of(date: str | None) -> int | None:
+    if not date or not re.match(r'\d{4}-\d{2}', date):
+        return None
+    year, month = int(date[:4]), int(date[5:7])
+    return year if month >= 7 else year - 1
+
+
+def yellow_averages(con) -> dict:
+    """(club_id, season) -> average yellow cards per league match, from every stored match question (any status)."""
+    totals = collections.defaultdict(list)
+    for r in con.execute("select club_id,question_text,options_json,correct_index,fact_date from questions where semantic_key like 'v4bank|efl|discipline|%'"):
+        if not YELLOW_MATCH.match(r['question_text']):
+            continue
+        try:
+            totals[(r['club_id'], season_of(r['fact_date']))].append(int(json.loads(r['options_json'])[int(r['correct_index'])]))
+        except (ValueError, IndexError):
+            continue
+    return {k: sum(v) / len(v) for k, v in totals.items() if len(v) >= 10}
+
+
 def game_id(url: str) -> str | None:
     m = re.search(r'/spielbericht/(?:index/spielbericht/)?(\d+)', url or '')
     return m.group(1) if m else None
@@ -150,12 +173,14 @@ def normalise(con: sqlite3.Connection, today: str | None = None, dry_run=False, 
             if best is None or variant(r['semantic_key']) < variant(best['semantic_key']):
                 keep_family[f] = r
     seen_text = {}
+    yellow_avg = yellow_averages(con)
     for r in rows:
         if r['id'] in protected:
             stats['protected (live round)'] += 1
             continue
         club = clubs.get(r['club_id'], '')
         retire = None
+        note = ''
         f = (r['club_id'], family(r['semantic_key']))
         if f in keep_family and keep_family[f]['id'] != r['id']:
             retire = 'padding variant of the same fact'
@@ -163,10 +188,23 @@ def normalise(con: sqlite3.Connection, today: str | None = None, dry_run=False, 
             retire = 'retired question family'
         elif game_id(r['source_url']) in shootouts and re.search(r'\d+-\d+', r['options_json'] + r['explanation']):
             retire = 'score includes a penalty shoot-out'
+        elif r['semantic_key'].startswith('v4bank|efl|discipline|') and YELLOW_MATCH.match(r['question_text']):
+            # Only matches that stood out: more yellow cards than the club's average for that season.
+            avg = yellow_avg.get((r['club_id'], season_of(r['fact_date'])))
+            cards = int(json.loads(r['options_json'])[int(r['correct_index'])])
+            if avg is None or cards <= avg:
+                retire = 'yellow-card count not above the club\'s season average'
+            else:
+                note = f" Their average that season was {avg:.1f} per league match."
         new = dict(r)
         if not retire:
             new['question_text'] = clean_text(r['question_text'], club)
             new['explanation'] = clean_text(r['explanation'], club)
+            if note:
+                m = re.match(r'^How many yellow cards did (.+?) receive against (.+?) on (.+?)\?$', new['question_text'])
+                cards = json.loads(new['options_json'])[int(new['correct_index'])]
+                if m:
+                    new['explanation'] = f"{m.group(1)} received {cards} yellow card{'s' if cards != '1' else ''} against {m.group(2)} on {m.group(3)}.{note}"
             opts = [clean_option(o) for o in json.loads(r['options_json'])]
             if len({o.casefold() for o in opts}) == 4:
                 new['options_json'] = json.dumps(opts, ensure_ascii=False)
