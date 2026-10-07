@@ -12,7 +12,7 @@ PATTERN = re.compile(r'https?://\S+|\b\d{4}-\d{2}-\d{2}\b|\b\d{1,2}(?:st|nd|rd|t
 
 def display_date(value):
     date = dt.date.fromisoformat(value) if isinstance(value,str) else value
-    return f'{date.day:02d}-{MONTHS[date.month-1]}-{date.year:04d}'
+    return f'{date.day} {NAMES[date.month-1]} {date.year:04d}'
 
 
 def format_dates(text):

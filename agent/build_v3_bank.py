@@ -27,6 +27,11 @@ FD_ALIASES = {"Arsenal":"arsenal","Aston Villa":"aston-villa","Bournemouth":"bou
 FD_DIVS=("E0","E1","E2","E3")
 COMP_NAMES={"FAC":"FA Cup","EFL":"EFL Cup","LC":"EFL Cup","CL":"UEFA Champions League","EL":"UEFA Europa League","UCOL":"UEFA Conference League","GBCS":"Community Shield"}
 
+try:
+    from improve_questions import shootout_games
+    SHOOTOUT_GAMES=shootout_games()
+except Exception:
+    SHOOTOUT_GAMES=set()
 def norm(s): return " ".join(re.sub(r"[^a-z0-9]+"," ",(s or "").lower()).split())
 def hsh(s): return hashlib.sha256(s.encode("utf-8")).hexdigest()
 def rng(seed): return random.Random(hashlib.sha256(seed.encode()).digest())
@@ -172,7 +177,8 @@ class Builder:
                 gs.sort(key=lambda g:g["date"]); last=gs[-1]; rounds=[g["round"] for g in self.games if g.get("competition_id")==comp_id and g.get("season")==str(y) and g.get("round")]
                 self.add("cup_progress",f"{y}|{comp_id}|round",f"How far did {self.name} get in the {comp_name} in {season_label(y)}?",last["round"],rounds,f"Their last recorded match in that competition was in the {last['round']}.",last["url"],last["date"])
                 home=last["home_club_id"]==str(self.cid); gf=int(last["home_club_goals"] if home else last["away_club_goals"]); ga=int(last["away_club_goals"] if home else last["home_club_goals"]); opp=last["away_club_name"] if home else last["home_club_name"]
-                if gf<ga:
+                # Transfermarkt folds penalty shoot-outs into the goal totals: never ask for those scores.
+                if gf<ga and last.get("game_id") not in SHOOTOUT_GAMES:
                     opp_pool=[g["away_club_name"] if g["home_club_id"]==str(self.cid) else g["home_club_name"] for g in gs]; self.add("cup_knockout",f"{y}|{comp_id}|opponent",f"Which team knocked {self.name} out of the {comp_name} in {season_label(y)}?",opp,opp_pool,f"{opp} knocked {self.name} out; the match finished {last['home_club_name']} {last['home_club_goals']}-{last['away_club_goals']} {last['away_club_name']}.",last["url"],last["date"])
                     correct=f"{last['home_club_name']} {last['home_club_goals']}-{last['away_club_goals']} {last['away_club_name']}"; h,a=int(last['home_club_goals']),int(last['away_club_goals']); score_pool=[f"{last['home_club_name']} {x}-{z} {last['away_club_name']}" for x,z in ((h+1,a),(h,a+1),(max(0,h-1),a),(h,max(0,a-1)))]; venue="at home" if home else "away"
                     self.add("cup_knockout",f"{y}|{comp_id}|score",f"What was the score when {self.name} were knocked out of the {comp_name} by {opp} in {season_label(y)}, with {self.name} playing {venue}?",correct,score_pool,f"The match finished {correct}.",last["url"],last["date"])

@@ -155,16 +155,16 @@ def main():
             p=profiles.get(pid,{});country=p.get('country_of_birth');player=re.sub(r' \(\d+\)$','',p.get('player_name',''))
             if count<25 or not country or not player:continue
             key=f'generic|{slug}|player-birth|{pid}';src=f'https://www.transfermarkt.com/{p["player_slug"]}/profil/spieler/{pid}'
-            add(con,cid,f'In which country was former {name} player {player} born?',country,['England','Scotland','Wales','France','Spain','Nigeria','Brazil','Australia'],key,src,'Transfermarkt player profile')
+            add(con,cid,f'In which country was {name} player {player} born?',country,['England','Scotland','Wales','France','Spain','Nigeria','Brazil','Australia'],key,src,'Transfermarkt player profile')
             if con.execute("select count(*) from questions where club_id=? and semantic_key like 'generic|%'",(cid,)).fetchone()[0]>=12:break
         candidates=collections.defaultdict(list)
         def queue(typ,text,answer,wrong,suffix,source,date=None):candidates[typ].append((text,answer,wrong,f'v4bank|efl|{typ}|{slug}|{suffix}',source,'Football-Data.co.uk historical records',date))
         grouped=collections.defaultdict(list)
         for game in past[slug]:
-            grouped[(game['year'],game['div'])].append(game);gf=game['gf'];ga=game['ga'];date=game['date'];opponent=game['opponent'];venue='at home to' if game['home'] else 'away to';display=dt.date.fromisoformat(date).strftime('%d-%b-%Y')
+            grouped[(game['year'],game['div'])].append(game);gf=game['gf'];ga=game['ga'];date=game['date'];opponent=game['opponent'];venue='at home to' if game['home'] else 'away to';d=dt.date.fromisoformat(date);display=f'{d.day} {d:%B %Y}'
             opts=[f'{gf+1}-{ga}',f'{gf}-{ga+1}',f'{max(0,gf-1)}-{ga}',f'{gf}-{max(0,ga-1)}',f'{gf+2}-{ga}',f'{gf}-{ga+2}']
             queue('match_score',f'What was the score for {name} in their league match {venue} {opponent} on {display}?',f'{gf}-{ga}',opts,date+'|score',game['source'],date)
-            for colour in ('yellow','red'):
+            for colour in ('yellow',):  # single-match red-card counts are almost always 0: no real question
                 field=('HY' if game['home'] else 'AY') if colour=='yellow' else ('HR' if game['home'] else 'AR');value=game['row'].get(field)
                 if value is None or value=='':continue
                 n=int(value);queue('discipline',f'How many {colour} cards did {name} receive against {opponent} on {display}?',n,[max(0,n-1),n+1,n+2,n+3],date+'|'+colour,game['source'],date)
@@ -198,7 +198,7 @@ def main():
             try:birthyear=dt.date.fromisoformat(p['date_of_birth']).year
             except ValueError:continue
             player=re.sub(r' \(\d+\)$','',p['player_name'])
-            candidates['player_biography'].append((f'In which year was former {name} player {player} born?',birthyear,[birthyear-4,birthyear-2,birthyear+2,birthyear+4],f'v4bank|efl|player_biography|{slug}|birth-{pid}',f'https://www.transfermarkt.com/{p["player_slug"]}/profil/spieler/{pid}','Transfermarkt player profile',None))
+            candidates['player_biography'].append((f'In which year was {name} player {player} born?',birthyear,[birthyear-4,birthyear-2,birthyear+2,birthyear+4],f'v4bank|efl|player_biography|{slug}|birth-{pid}',f'https://www.transfermarkt.com/{p["player_slug"]}/profil/spieler/{pid}','Transfermarkt player profile',None))
         for r,y,n in appearances[slug]:
             p=profiles.get(r['player_id'])
             if not p:continue

@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse,csv,datetime as dt,hashlib,io,json,os,random,sqlite3,sys,urllib.request
+import argparse,csv,datetime as dt,hashlib,io,json,os,random,re,sqlite3,sys,urllib.request
 from zoneinfo import ZoneInfo
 from display_dates import display_date
-from attendance_options import migrate_attendance_options
+from improve_questions import normalise
+from question_quality import clean_text, lint_question, numeric_options, score_options, numeric_rank_report
 from question_variety import select_varied, validate_round, banned_question
 DB=os.getenv('QUIZ_DB','/var/lib/clubdailyfive/clubquiz.sqlite'); BACKUPS='/var/backups/clubdailyfive-question-db'; UK=ZoneInfo('Europe/London')
 DIVS=('E0','E1','E2','E3')
@@ -15,6 +16,7 @@ def catalogue_aliases():
       return {m['alias']:m['slug'] for m in json.load(f)}
   return {}
 ALIASES.update(catalogue_aliases())
+NO_REPEAT_DAYS=30
 def season_start(d): return d.year if d.month>=7 else d.year-1
 def scode(y): return f'{str(y)[-2:]}{str(y+1)[-2:]}'
 def pdate(v):
@@ -57,36 +59,43 @@ def ranked(rows,target):
     used,last=history.get(family,(0,''))
     history[family]=(used+int(row['use_count'] or 0),max(last,row['last_used_date'] or ''))
   return sorted(rows,key=lambda r:(history[semantic_family(r)][0],history[semantic_family(r)][1],hashlib.sha256(f'{target}|{r["id"]}'.encode()).hexdigest()))
-def eligible_history_bank(con,club_id,target):
-  cutoff=(dt.date.fromisoformat(target)-dt.timedelta(days=14)).isoformat()
+def eligible_history_bank(con,club_id,target,days=None):
+  cutoff=(dt.date.fromisoformat(target)-dt.timedelta(days=days or NO_REPEAT_DAYS)).isoformat()
   recent=con.execute("select q.* from daily_questions d join questions q on q.id=d.question_id where d.club_id=? and d.quiz_date>=? and d.quiz_date<?",(club_id,cutoff,target)).fetchall()
-  excluded={semantic_family(q) for q in recent}
+  excluded={semantic_family(q) for q in recent}; seen_text={wording(q) for q in recent}
   rows=con.execute("select * from questions where club_id=? and status='reviewed' and semantic_key like 'v4bank|%'",(club_id,)).fetchall()
   excluded.update(semantic_family(q) for q in rows if (q['last_used_date'] or '')>=cutoff)
-  return ranked((q for q in rows if semantic_family(q) not in excluded),target)
+  return ranked((q for q in rows if semantic_family(q) not in excluded and wording(q) not in seen_text and not lint_question(q)),target)
+
+def wording(q):
+  return re.sub(r'\W+',' ',q['question_text'].lower()).strip()
+
+def published_recently(con,club_id,target,pattern):
+  cutoff=(dt.date.fromisoformat(target)-dt.timedelta(days=NO_REPEAT_DAYS)).isoformat()
+  return con.execute("select 1 from daily_questions d join questions q on q.id=d.question_id where d.club_id=? and d.quiz_date>=? and d.quiz_date<? and q.semantic_key like ? limit 1",(club_id,cutoff,target,pattern)).fetchone() is not None
 
 def generic_bank(con,club_id,target):
   # Track publication as well as play history. Eight facts per club rotate
   # without repeating across the preceding seven calendar days.
-  cutoff=(dt.date.fromisoformat(target)-dt.timedelta(days=7)).isoformat()
+  cutoff=(dt.date.fromisoformat(target)-dt.timedelta(days=NO_REPEAT_DAYS)).isoformat()
   published=dict(con.execute("select question_id,max(quiz_date) from daily_questions where club_id=? and quiz_date<? group by question_id",(club_id,target)))
-  rows=con.execute("select * from questions where club_id=? and status='reviewed' and semantic_key like 'generic|%'",(club_id,)).fetchall()
+  rows=[q for q in con.execute("select * from questions where club_id=? and status='reviewed' and (semantic_key like 'generic|%' or semantic_key like 'heritage|%')",(club_id,)).fetchall() if not lint_question(q)]
   eligible=[q for q in rows if published.get(q['id'],'') < cutoff and (q['last_used_date'] or '') < cutoff]
+  if not eligible:
+    # Small trivia pools cannot cover 30 days yet: show the least recently published instead of failing.
+    week=(dt.date.fromisoformat(target)-dt.timedelta(days=7)).isoformat()
+    eligible=[q for q in rows if published.get(q['id'],'') < week] or rows
   if not eligible:raise RuntimeError('Club trivia pool exhausted for '+str(club_id))
   yesterday=con.execute("select q.semantic_key from daily_questions d join questions q on q.id=d.question_id where d.club_id=? and d.quiz_date=? and q.semantic_key like 'generic|%' limit 1",(club_id,(dt.date.fromisoformat(target)-dt.timedelta(days=1)).isoformat())).fetchone()
   # Fact categories are explicit in the key; alternate origins, identity and grounds.
   previous=yesterday[0].split('|')[2] if yesterday else ''
-  return sorted(eligible,key=lambda q:(q['semantic_key'].split('|')[2]==previous,max(published.get(q['id'],''),q['last_used_date'] or ''),hashlib.sha256(f'{target}|{q["id"]}'.encode()).hexdigest()))
+  return sorted(eligible,key=lambda q:(published.get(q['id'],'')>=cutoff,q['semantic_key'].split('|')[2]==previous,max(published.get(q['id'],''),q['last_used_date'] or ''),hashlib.sha256(f'{target}|{q["id"]}'.encode()).hexdigest()))
 
-def numopts(v,seed):
-  vals=list(dict.fromkeys([str(v),str(max(0,v-1)),str(v+1),str(v+2),str(v+3)])); random.Random(hashlib.sha256(seed.encode()).digest()).shuffle(vals); vals=vals[:4]
-  if str(v) not in vals: vals[-1]=str(v)
-  return vals,vals.index(str(v))
+def numopts(v,seed,lo=0,hi=None):
+  return numeric_options(v,seed,lo,hi)
 def scoreopts(a,b,seed):
-  correct=f'{a}-{b}'; cand=list(dict.fromkeys([correct,f'{a+1}-{b}',f'{a}-{b+1}',f'{max(0,a-1)}-{b}',f'{a}-{max(0,b-1)}',f'{a+2}-{b}',f'{a}-{b+2}']))
-  random.Random(hashlib.sha256(seed.encode()).digest()).shuffle(cand); vals=cand[:4]
-  if correct not in vals: vals[-1]=correct
-  return vals,vals.index(correct)
+  pts,idx=score_options(a,b,seed)
+  return [f'{x}-{y}' for x,y in pts],idx
 class FreshUnavailable(RuntimeError):
   pass
 
@@ -103,21 +112,23 @@ def insert_fresh(con,club,target,rows,selector_override=None):
   latest=rows[0]; age=(dt.date.fromisoformat(target)-latest['_date']).days
   if not 0<=age<=10:raise FreshUnavailable('Latest match is outside the 10-day window')
   gf,ga,opp,yellow,red=persp(latest)
-  selector=int(hashlib.sha256(f'{target}|{club["slug"]}|fresh'.encode()).hexdigest(),16)%3 if selector_override is None else selector_override
-  slot=('yellow','red','score')[selector%3]
+  selector=int(hashlib.sha256(f'{target}|{club["slug"]}|fresh'.encode()).hexdigest(),16)%2 if selector_override is None else selector_override
+  slot=('yellow','score')[selector%2]
   date=latest['_date'].isoformat()
   if used_match_fact(con,club['id'],date,slot):raise FreshUnavailable('Match fact already asked')
+  if published_recently(con,club['id'],target,f'matchfact|{club["slug"]}|{date}|%'):raise FreshUnavailable('This match was asked about recently')
   home=latest['HomeTeam']==latest['_alias']; venue='at home to' if home else 'away to'
   if slot in ('yellow','red'):
     field=('HY' if home else 'AY') if slot=='yellow' else ('HR' if home else 'AR')
     if not (latest.get(field) or '').strip():raise FreshUnavailable('Card statistic unavailable')
-    val=int(latest[field]);opts,idx=numopts(val,f'{date}|{club["slug"]}|{slot}')
+    val=int(latest[field]);opts,idx=numopts(val,f'{date}|{club["slug"]}|{slot}',0,8)
     text=f"How many {slot} cards did {club['name']} receive in their league match against {opp} on {display_date(date)}?"
     exp=f"{club['name']} received {val} {slot} cards against {opp} on {display_date(date)}."
   else:
     opts,idx=scoreopts(gf,ga,f'{date}|{club["slug"]}|score')
     text=f"What was the score for {club['name']} in their league match {venue} {opp} on {display_date(date)}?"
     exp=f"{club['name']} played {venue} {opp} on {display_date(date)}; the score for {club['name']} was {gf}-{ga}."
+  text=clean_text(text,club['name']);exp=clean_text(exp,club['name'])
   key=f'matchfact|{club["slug"]}|{date}|{slot}'
   existing=con.execute('select id from questions where semantic_key=?',(key,)).fetchone()
   if existing:return existing[0]
@@ -133,7 +144,9 @@ def insert_season_fact(con,club,target,rows,slot):
     fields=('HY','AY') if slot=='yellow' else ('HR','AR')
     if any(not (r.get(fields[0] if r['HomeTeam']==r['_alias'] else fields[1]) or '').strip() for r in rows):raise FreshUnavailable('Missing season card statistics')
   y=season_start(dt.date.fromisoformat(target));season=f'{y}-{str(y+1)[-2:]}'
+  if published_recently(con,club['id'],target,f'seasonfact|{club["slug"]}|{season}|{slot}|%'):raise FreshUnavailable('Season total asked recently')
   val=values[slot];date=max(r['_date'] for r in rows).isoformat()
+  if (dt.date.fromisoformat(target)-dt.date.fromisoformat(date)).days>10:raise FreshUnavailable('No league matches in the last 10 days')
   key=f'seasonfact|{club["slug"]}|{season}|{slot}|{val}'
   existing=con.execute('select id,use_count,fact_date,status from questions where semantic_key=?',(key,)).fetchone()
   if existing:
@@ -152,16 +165,17 @@ def insert_season_fact(con,club,target,rows,slot):
   wording={'wins':'league wins','draws':'league draws','losses':'league losses','goals-scored':'goals scored in the league','goals-conceded':'goals conceded in the league','yellow':'yellow cards in the league','red':'red cards in the league'}[slot]
   text=f"How many {wording} had {club['name']} recorded in {season}, through {display_date(date)}?"
   exp=f"Across their {len(rows)} completed league matches through {display_date(date)}, {club['name']} recorded {val} {wording}."
-  opts,answer=numopts(val,key);payload=json.dumps(opts)
+  opts,answer=numopts(val,key,0,len(rows) if slot in ('wins','draws','losses') else None);payload=json.dumps(opts)
   con.execute('insert into questions(club_id,question_text,options_json,correct_index,explanation,source_url,source_label,content_hash,semantic_key,status,question_kind,fact_date,use_count,last_used_date) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)',(club['id'],text,payload,answer,exp,rows[0]['_url'],'Football-Data.co.uk season records',hashlib.sha256(key.encode()).hexdigest(),key,'reviewed','recent',date,0,None))
   return con.execute('select id from questions where semantic_key=?',(key,)).fetchone()[0]
 
 def choose_round(con,club,target,rows,bank,fixed=None):
-  for choice in (None,0,1,2):
+  for choice in (None,0,1):
     con.execute('savepoint fresh_choice')
     try:
       qid=insert_fresh(con,club,target,rows,choice)
       fresh=con.execute('select * from questions where id=?',(qid,)).fetchone()
+      if lint_question(fresh):raise FreshUnavailable('Fresh question failed quality check: '+', '.join(lint_question(fresh)))
       selected=list(fixed) if fixed is not None else select_varied(bank,fresh)
       validate_round([*selected,fresh])
     except (FreshUnavailable,RuntimeError,ValueError):
@@ -173,6 +187,7 @@ def choose_round(con,club,target,rows,bank,fixed=None):
     try:
       qid=insert_season_fact(con,club,target,rows,slot)
       fresh=con.execute('select * from questions where id=?',(qid,)).fetchone()
+      if lint_question(fresh):raise FreshUnavailable('Season question failed quality check')
       selected=list(fixed) if fixed is not None else select_varied(bank,fresh)
       validate_round([*selected,fresh])
     except (FreshUnavailable,RuntimeError,ValueError):
@@ -203,6 +218,14 @@ def choose_round(con,club,target,rows,bank,fixed=None):
         validate_round([*selected,candidate])
       except (RuntimeError,ValueError):continue
       return selected,candidate
+  # No new matches (e.g. an international break): a fifth bank question is better than a stale repeat.
+  for candidate in bank:
+    if candidate['semantic_key'].startswith('generic|') or candidate['semantic_key'].startswith('heritage|'):continue
+    try:
+      selected=list(fixed) if fixed is not None else select_varied([q for q in bank if q['id']!=candidate['id']],candidate)
+      validate_round([*selected,candidate])
+    except (RuntimeError,ValueError):continue
+    return selected,candidate
   raise RuntimeError(f'{club["slug"]}: no unused match or recent-season fact fits this round')
 
 def main():
@@ -210,16 +233,22 @@ def main():
   con=sqlite3.connect(DB,timeout=60); con.row_factory=sqlite3.Row; con.execute('pragma foreign_keys=on'); clubs=con.execute('select id,slug,name from clubs where active=1 order by name').fetchall()
   if a.self_test:
     counts=dict(con.execute("select c.slug,count(q.id) from clubs c left join questions q on q.club_id=c.id and q.semantic_key like 'v4bank|%' group by c.id")); print(json.dumps({'database':con.execute('pragma integrity_check').fetchone()[0],'clubs':len(clubs),'bank_counts':counts,'bank_per_club_required':300,'daily_mix':'1 club trivia + 3 varied bank + 1 unused match fact or recent-season fallback','recent_cutoff_days':10,'openai_api_required':False})); return
-  attendance_updates=migrate_attendance_options(con); con.commit()
+  os.makedirs(BACKUPS,exist_ok=True); backup=f"{BACKUPS}/clubquiz-before-daily-{dt.datetime.now().strftime('%Y%m%d-%H%M%S')}.sqlite"
+  with sqlite3.connect(backup) as dest: con.backup(dest)
+  con.execute('begin immediate')
+  try: tidy=normalise(con,dt.datetime.now(UK).date().isoformat()); con.commit()
+  except Exception: con.rollback(); raise
+  changed={k:v for k,v in tidy.items() if not k.startswith('still failing') and k!='protected (live round)'}
+  print('Bank tidy-up: '+(', '.join(f'{k} {v}' for k,v in changed.items()) or 'nothing to change'))
+  if tidy.get('still failing quality check (excluded from rounds)'):print('Questions held back by the quality check: '+', '.join(f'{k} {v}' for k,v in tidy['still failing quality check (excluded from rounds)'].items()))
   complete={r[0] for r in con.execute('select club_id from daily_questions where quiz_date=? group by club_id having count(*)=5',(target,))}
   clubs=[c for c in clubs if c['id'] not in complete]
   if not clubs:
-    print(f'Round already published for {target}; preserving player questions; updated {attendance_updates} attendance questions'); return
+    print(f'Round already published for {target}; preserving player questions'); return
   from sterling import assert_sterling
   for question in con.execute("select question_text,options_json,explanation from questions where status='reviewed'"):
     assert_sterling(dict(question))
-  current=load_current(target); os.makedirs(BACKUPS,exist_ok=True); backup=f"{BACKUPS}/clubquiz-before-daily-{dt.datetime.now().strftime('%Y%m%d-%H%M%S')}.sqlite"
-  with sqlite3.connect(backup) as dest: con.backup(dest)
+  current=load_current(target)
   try:
     con.execute('begin immediate')
     # Season-to-date aggregate questions are snapshots. Retire older snapshots
@@ -229,15 +258,23 @@ def main():
       if not rows: continue
       latest=max(r['_date'] for r in rows).isoformat()
       con.execute("update questions set status='retired' where club_id=? and status='reviewed' and semantic_key like 'seasonfact|%' and (fact_date is null or fact_date < ?)",(club['id'],latest))
-    rounds=[]
+    rounds=[]; short_window={}
     for club in clubs:
       con.execute('delete from daily_questions where club_id=? and quiz_date=?',(club['id'],target))
-      bank=eligible_history_bank(con,club['id'],target)
-      bank = generic_bank(con,club['id'],target) + [q for q in bank if not banned_question(q)]
-      if len(bank)<4: raise RuntimeError(f"{club['slug']}: insufficient eligible bank questions")
-      selected,fresh=choose_round(con,club,target,current.get(club['slug'],[]),bank)
+      # Aim for no repeats within 30 days; clubs with small banks fall back to shorter windows (reported).
+      for days in (NO_REPEAT_DAYS,21,14,7):
+        bank=eligible_history_bank(con,club['id'],target,days)
+        bank = generic_bank(con,club['id'],target) + [q for q in bank if not banned_question(q)]
+        bank = [q for q in bank if not lint_question(q)]
+        if len(bank)<4: continue
+        try: selected,fresh=choose_round(con,club,target,current.get(club['slug'],[]),bank); break
+        except RuntimeError: continue
+      else: raise RuntimeError(f"{club['slug']}: no round fits even with a 7-day repeat window")
+      if days<NO_REPEAT_DAYS: short_window[club['slug']]=days
       fresh_id=fresh['id']
       validate_round([*selected,fresh])
+      problems=[p for q in [*selected,fresh] for p in lint_question(q)]
+      if problems:raise RuntimeError(f"{club['slug']}: round failed quality check: {problems}")
       ids=[r['id'] for r in selected]+[fresh_id]
       random.Random(hashlib.sha256(f'{target}|{club["slug"]}|shuffle'.encode()).digest()).shuffle(ids); rounds.append((club,ids))
     for club,ids in rounds:
@@ -246,6 +283,14 @@ def main():
     con.execute("insert into generation_runs(run_date,finished_at,status,notes) values(?,CURRENT_TIMESTAMP,'complete',?)",(target,f'V5: 1 sourced club trivia + 3 varied bank + 1 unused match fact/recent-season fallback; 10-day recent cutoff; backup={backup}')); con.commit()
   except Exception: con.rollback(); raise
   print(f'published {len(clubs)*5} questions for {target}')
+  published=[q for q in con.execute('select q.* from daily_questions d join questions q on q.id=d.question_id where d.quiz_date=?',(target,))]
+  rep=numeric_rank_report(published); fresh_ages=[]
+  for q in published:
+    if q['question_kind']=='recent' and q['fact_date']:fresh_ages.append((dt.date.fromisoformat(target)-dt.date.fromisoformat(q['fact_date'])).days)
+  print(f"Quality check: {len(published)} questions passed; number-answer positions lowest..highest {rep['answer_rank_share']} across {rep['questions']}; "
+        f"{len(fresh_ages)} recent-match questions (oldest {max(fresh_ages) if fresh_ages else 0} days)")
+  print(f"Repeat window: {NO_REPEAT_DAYS} days for {len(clubs)-len(short_window)} clubs"+(('; shorter for small banks: '+', '.join(f'{k} {v} days' for k,v in sorted(short_window.items()))) if short_window else ''))
 if __name__=='__main__':
   try: main()
   except Exception as e: print(f'quiz publication failed: {e}',file=sys.stderr); raise SystemExit(1)
+
