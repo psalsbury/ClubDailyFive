@@ -105,6 +105,7 @@ def clean_text(text: str, club: str | None = None) -> str:
         prefix = f"{club}: "
         if text.startswith(prefix) and re.search(r"\bthe club\b", text):
             body = text[len(prefix):]
+            body = re.sub(r"\bthe club (crest|badge|name|motto|emblem)\b", lambda m: f"the {club} {m.group(1)}", body)
             body = re.sub(r"\bthe club's\b", f"{club}'s", body)
             body = re.sub(r"\bthe club\b", club, body)
             text = body[0].upper() + body[1:]

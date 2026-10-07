@@ -36,7 +36,9 @@ JOBS = {
         "db": "/var/lib/clubdailyfive/clubquiz.sqlite",
         "commands": [["/usr/bin/python3", "/opt/clubdailyfive/bin/efl_research_job.py", "questions"], ["/usr/bin/python3", "/opt/clubdailyfive/bin/generate_questions.py"],
                      # Weekly, after publishing: re-verify trophies, finals, managers and legends; never fails the job.
-                     ["/usr/bin/python3", "/opt/clubdailyfive/bin/build_heritage_bank.py", "--install", "--if-stale-days", "7"]],
+                     ["/usr/bin/python3", "/opt/clubdailyfive/bin/build_heritage_bank.py", "--install", "--if-stale-days", "7"],
+                     # Reviewed curated trivia: applies to any rows that were in a live round when last run.
+                     ["/usr/bin/python3", "/opt/clubdailyfive/bin/curated_trivia_fixes.py", "--install", "--nightly"]],
     },
 }
 

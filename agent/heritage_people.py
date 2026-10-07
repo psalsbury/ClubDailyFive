@@ -86,11 +86,26 @@ def parse_date(text):
 
 # ------------------------------------------------------------------ managers
 
+def person_link(cell):
+    """The person's article in a name cell, skipping the flag link that often comes first."""
+    text = hb.norm(cell['text'])
+    for link in cell['links']:
+        name = hb.norm(display(link))
+        if name and name in text:
+            return link
+    return None
+
+
 def club_managers(club):
     """Rows of the club's 'List of ... managers' page joined to each manager's infobox spell at the club."""
     title = f"List of {club['wiki']} managers"
     rows = []
-    for g in wt.tables(hb.wp_html(title)):
+    page = hb.wp_html(title)
+    grids = wt.tables(page, css='')  # some lists use unstyled tables
+    def has_record(g):
+        return any(re.sub(r'\[.*?\]', '', c['text']).strip().lower() in ('m', 'p', 'g', 'gp', 'games', 'matches', 'played', 'pld') for row in g[:3] for c in row)
+    need_record = any(has_record(g) for g in grids)
+    for g in grids:
         span_col = False
         hi, idx = wt.header_index(g, 'manager', 'from', 'to')
         if hi is None:
@@ -102,6 +117,9 @@ def club_managers(club):
             hi, idx = wt.header_index(g, 'name', 'tenure')
             span_col = hi is not None
         if hi is None:
+            hi, idx = wt.header_index(g, 'name', 'years')
+            span_col = hi is not None
+        if hi is None:
             continue
         m_col = None
         for header in g[hi:hi + 3]:  # grouped headers put P/W/D/L on a second row
@@ -109,24 +127,26 @@ def club_managers(club):
             m_col = next((j for j, h in enumerate(heads) if h in ('m', 'p', 'g', 'gp', 'games', 'matches', 'played', 'pld')), None)
             if m_col is not None:
                 break
-        if m_col is None:
+        if m_col is None and need_record:
             continue  # assistant/coach tables carry no match record; only the managers table does
         for r in g[hi + 1:]:
             if len(r) <= max(idx):
                 continue
             if span_col:
                 y = years(r[idx[1]]['text'])
-                links = [l for l in r[idx[0]]['links'] if not re.search(r'national|football team|Association|^Flag', l)]
-                if not y or not links:
+                person = person_link(r[idx[0]])
+                if not y or not person:
                     continue
+                links = [person]
                 text = ' '.join(c['text'] for c in r).lower()
                 rows.append({'title': links[0], 'name': display(links[0]), 'start': dt.date(y[0], 1, 1),
                              'end': dt.date(y[1], 1, 1) if y[1] else None, 'caretaker': bool(re.search(r'caretaker|interim|acting|joint', text)),
-                             'matches': number(r[m_col]['text']) if m_col < len(r) else None})
+                             'matches': number(r[m_col]['text']) if m_col is not None and m_col < len(r) else None})
                 continue
-            links = [l for l in r[idx[0]]['links'] if not re.search(r'national|football team|Association|^Flag', l)]
-            if not links:
+            person = person_link(r[idx[0]])
+            if not person:
                 continue
+            links = [person]
             text = ' '.join(c['text'] for c in r).lower()
             caretaker = bool(re.search(r'caretaker|interim|acting|player-manager|joint|co-manager', text))
             start, end = parse_date(r[idx[1]]['text']), parse_date(r[idx[2]]['text'])
@@ -135,6 +155,9 @@ def club_managers(club):
             matches = number(r[m_col]['text']) if m_col is not None and m_col < len(r) else None
             rows.append({'title': links[0], 'name': display(links[0]), 'start': start[0],
                          'end': end[0] if end else None, 'caretaker': caretaker, 'matches': matches})
+    prose = {}
+    if not rows:
+        rows, prose = prose_managers(page)
     if not rows:
         return [], title
     boxes = hb.wp_wikitext({r['title'] for r in rows})
@@ -150,9 +173,38 @@ def club_managers(club):
             y = years(box.get(('manageryears', n), ''))
             if y:
                 spells.append(y)
+        if r.get('from_prose'):
+            # Prose lists: the infobox spell supplies the years; the list's own section must state them.
+            section = prose.get(r['title'], '')
+            match = next(((s, e) for s, e in spells if str(s) in section and (e is None or str(e) in section)), None)
+            r['verified'] = bool(match) and not re.search(r'caretaker', section[:200], re.I)
+            if match:
+                r['start'] = dt.date(match[0], 1, 1); r['end'] = dt.date(match[1], 1, 1) if match[1] else None
+            continue
         end_year = r['end'].year if r['end'] else None
         r['verified'] = any(s == r['start'].year and e == end_year for s, e in spells)
-    return rows, title
+    return [r for r in rows if r['start']], title
+
+
+def prose_managers(page):
+    """Lists written as one section per manager (e.g. West Ham): heading = manager, section text = their spell."""
+    rows, sections = [], {}
+    parts = re.split(r'<div class="mw-heading mw-heading3">(.*?)</div>', page, flags=re.S)
+    for heading, body in zip(parts[1::2], parts[2::2]):
+        links = re.findall(r'href="/wiki/([^"#]+)"', heading)
+        h3 = re.search(r'<h3[^>]*>(.*?)</h3>', heading, re.S)
+        name = re.sub(r'<[^>]+>', '', h3.group(1) if h3 else heading).strip()
+        text = re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', ' ', body))
+        link = urllib.parse.unquote(links[0]).replace('_', ' ') if links else None
+        if not link:
+            body_links = [urllib.parse.unquote(l).replace('_', ' ') for l in re.findall(r'href="/wiki/([^"#:]+)"', body)]
+            link = next((l for l in body_links if hb.norm(display(l)) == hb.norm(name)), None)
+        if not link or not re.search(r'appoint|manager', text, re.I):
+            continue
+        sections[link] = text
+        rows.append({'title': link, 'name': display(link), 'start': None, 'end': None, 'caretaker': False,
+                     'matches': None, 'from_prose': True})
+    return rows, sections
 
 
 def managers_questions(clubs, sparql, wp_wikitext, wins_by_club=None):
