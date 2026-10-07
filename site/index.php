@@ -119,22 +119,28 @@ $structuredData = [
 .home-intro h1{font-size:clamp(2.25rem,7vw,4.6rem);line-height:.98;letter-spacing:-.055em;margin:.18em auto .48em;max-width:900px}
 .home-intro h1 span{color:#38d879}
 .home-intro>p{color:var(--muted);font-size:clamp(.95rem,2.3vw,1.15rem);line-height:1.5;max-width:720px;margin:12px auto 20px}
-.home-games{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0 auto 24px}
-.home-game{position:relative;overflow:hidden;text-align:left;border:1px solid var(--line);border-radius:20px;padding:20px;background:linear-gradient(145deg,rgba(17,28,49,.98),rgba(8,18,31,.96));min-height:172px}
-.home-game.daily{border-color:rgba(46,204,143,.55)}
-.home-game.wordle{border-color:rgba(47,148,255,.6)}
-.home-game-head{display:flex;align-items:center;gap:11px;margin-bottom:8px}
-.home-game-icon{width:46px;height:46px;display:grid;place-items:center;border-radius:50%;font-size:1.55rem;background:rgba(46,204,143,.15)}
-.wordle .home-game-icon{background:rgba(47,148,255,.16)}
-.home-game h2{font-size:1.55rem;letter-spacing:-.035em;margin:0}
-.home-game strong{display:block;color:#38d879;font-size:.78rem;margin-bottom:7px}
-.home-game.wordle strong{color:#54a8ff}
-.home-game p{color:var(--muted);font-size:.9rem;line-height:1.4;margin:0}
+.home-games{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:24px auto 12px;padding:22px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);text-align:left}
+.home-game{padding:0 28px 0 0;min-width:0;cursor:default}
+.home-game+.home-game{border-left:1px solid var(--line);padding:0 0 0 28px}
+.home-game-head{display:flex;align-items:center;gap:9px;margin-bottom:7px}
+.home-game-icon{font-size:1.35rem;line-height:1}
+.home-game h2{font-size:1.4rem;letter-spacing:-.035em;margin:0}
+.home-game strong{display:block;color:#38d879;font-size:.7rem;letter-spacing:.055em;margin-bottom:8px}
+.home-game.wordle strong{color:#7ebcff}
+.home-game p{color:var(--muted);font-size:.9rem;line-height:1.55;margin:0;max-width:32em}
+.game-sample{display:flex;gap:5px;margin-top:14px;align-items:center;user-select:none}
+.game-sample span{display:grid;place-items:center;width:25px;height:25px;background:#18362d;color:#79e2b0;border-radius:3px;font-size:.72rem;font-weight:750}
+.game-sample.wordle-sample span{background:#2b3444;color:#bdc8da}
+.game-sample.wordle-sample span:nth-child(1),.game-sample.wordle-sample span:nth-child(4){background:#245e43;color:#e2ffee}
+.game-sample.wordle-sample span:nth-child(2){background:#8a7329;color:#fff4ca}
+.game-sample small{color:var(--muted);font-size:.7rem;margin-left:5px}
+.home-intro .games-return{font-size:.8rem;line-height:1.5;color:var(--muted);margin:0 auto 20px}
+.home-intro .games-start{font-size:.9rem;line-height:1.45;font-weight:650;color:var(--ink);margin:0 auto 12px}
 .choose-title{text-align:center;margin:18px 0 4px;font-size:clamp(1.25rem,4vw,1.75rem);letter-spacing:-.03em}
 .choose-sub{text-align:center;color:var(--muted);font-size:.84rem;margin:0 0 10px}
 .home-page .club-grid{padding:8px 0 28px;gap:8px}
 @media(min-width:800px){.home-page .club-grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
-@media(max-width:600px){.home-page .top{height:auto;padding:10px 0}.home-page .brand img{width:min(270px,68vw)}.home-intro{padding:8px 0 5px}.home-intro h1{font-size:2rem}.home-intro>p{font-size:.76rem;line-height:1.3;margin:7px auto 10px}.home-games{gap:7px;margin-bottom:10px}.home-game{min-height:112px;padding:10px;border-radius:13px}.home-game-head{gap:7px;margin-bottom:3px}.home-game-icon{width:32px;height:32px;font-size:1.05rem}.home-game h2{font-size:1.05rem}.home-game strong{font-size:.6rem;margin-bottom:3px}.home-game p{font-size:.63rem;line-height:1.22}.choose-title{font-size:1.05rem;margin:8px 0 1px}.choose-sub{font-size:.64rem;margin-bottom:4px}.home-page .club-grid{padding:3px 0 8px}}
+@media(max-width:600px){.home-page .top{height:auto;padding:10px 0}.home-page .brand img{width:min(270px,68vw)}.home-intro{padding:8px 0 5px}.home-intro h1{font-size:2rem}.home-games{grid-template-columns:1fr;margin:18px auto 10px;padding:0}.home-game,.home-game+.home-game{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:12px;padding:16px 0;border-left:0}.home-game+.home-game{border-top:1px solid var(--line)}.home-game-head{grid-column:1;gap:8px;margin-bottom:5px}.home-game h2{font-size:1.18rem}.home-game strong{grid-column:1;font-size:.64rem;margin-bottom:6px}.home-game p{grid-column:1 / -1;font-size:.82rem;line-height:1.45}.game-sample{grid-column:2;grid-row:1 / 3;margin:0;align-self:center;gap:3px}.game-sample span{width:18px;height:21px;font-size:.6rem}.game-sample small{display:none}.home-intro .games-return{font-size:.73rem;margin-bottom:14px}.home-intro .games-start{font-size:.82rem;margin-bottom:10px}.choose-title{font-size:1.1rem;margin:10px 0 3px}.choose-sub{font-size:.78rem;margin-bottom:8px}.home-page .club-grid{padding:3px 0 8px}}
 /* Shared ClubDailyFive completed-game hierarchy */
 .result{width:min(620px,100%);margin:0 auto;padding:22px 0 30px}
 .result>.eyebrow{margin-bottom:5px}
@@ -205,14 +211,16 @@ setInterval(checkDay,30000);
 <div class="eyebrow">Two daily football games · Premier League &amp; Championship</div>
 <h1>Your club. <span>Two ways to play.</span></h1>
 
-<div class="home-games">
-<article class="home-game daily"><div class="home-game-head"><span class="home-game-icon">🧠</span><h2>Daily Five</h2></div><strong>5 QUESTIONS · EVERY DAY</strong><p>History, matches, players, managers, transfers and more. Five fresh challenges for your chosen club.</p></article>
-<article class="home-game wordle"><div class="home-game-head"><span class="home-game-icon">👕</span><h2>Player Wordle</h2></div><strong>1 MYSTERY PLAYER · 5 GUESSES</strong><p>Use the clues from each guess to work out today's hidden player for your chosen club.</p></article>
+<div class="home-games" role="group" aria-label="Available daily games">
+<article class="home-game daily"><div class="home-game-head"><span class="home-game-icon" aria-hidden="true">🧠</span><h2>Daily Five</h2></div><strong>5 QUESTIONS · EVERY DAY</strong><p>Test your club knowledge with five fresh questions on players, matches and history.</p><div class="game-sample" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><small>Five chances to shine</small></div></article>
+<article class="home-game wordle"><div class="home-game-head"><span class="home-game-icon" aria-hidden="true">👕</span><h2>Player Wordle</h2></div><strong>1 MYSTERY PLAYER · 5 GUESSES</strong><p>Find your club’s mystery player. Each guess reveals colour clues to guide your next.</p><div class="game-sample wordle-sample" aria-hidden="true"><span>✓</span><span>↑</span><span>·</span><span>✓</span><span>·</span><small>Follow the clues</small></div></article>
 </div>
+<p class="games-return">A fresh quiz and mystery player every day. Come back tomorrow to keep your streak going.</p>
+<p class="games-start">To play, choose your league and club below.</p>
 <nav class="league-tabs" aria-label="Choose a league">
 <?php foreach(['premier-league'=>'Premier League','championship'=>'Championship'] as $key=>$label): ?><button type="button" data-league="<?=h($key)?>" aria-pressed="<?=$key==='premier-league'?'true':'false'?>"><?=h($label)?></button><?php endforeach ?>
 </nav><h2 class="choose-title" id="leagueTitle">Premier League</h2>
-<p class="choose-sub">Then choose which game you want to play.</p>
+<p class="choose-sub">Choose your club, then pick your game.</p>
 </section>
 <section class="club-grid" aria-label="Choose your club"><?php foreach($clubs as $c): ?><a class="club" data-slug="<?= h($c['slug']) ?>" data-name="<?= h($c['name']) ?>" data-league="<?= h($c['league']) ?>" data-wordle-ready="<?=isset($wordleReady[wordleSlug($c['slug'])])?'1':'0'?>" data-logo="<?= h($c['logo_path']) ?>" href="/clubs/<?= h($c['slug']) ?>"><img src="<?= h($c['logo_path']) ?>" alt="<?= h($c['name']) ?> crest" width="42" height="42"><span class="club-name"><?= h($c['name']) ?></span></a><?php endforeach ?></section></div>
 <div class="game-picker" id="gamePicker" hidden aria-hidden="true"><section class="game-picker-card" role="dialog" aria-modal="true" aria-labelledby="pickerClub"><button class="picker-close" id="pickerClose" type="button" aria-label="Close">×</button><div class="picker-brand"><span>⚽</span><b>CLUB <em>DAILY</em> FIVE</b></div><div class="picker-head"><img id="pickerLogo" src="" alt=""><div><h2 id="pickerClub"></h2></div></div><div class="games-panel"><a class="game-choice daily-card" id="dailyFiveChoice" href="#"><div class="game-choice-top"><span class="game-icon">🧠</span><strong>DAILY FIVE</strong><span class="game-score" id="dailyScore"></span><span class="game-state" id="dailyFiveState"></span></div><p id="dailyFiveDesc">Five questions about your club.</p><span class="play-bar">PLAY DAILY FIVE <b>→</b></span></a><a class="game-choice wordle-card" id="playerWordleChoice" href="#"><div class="game-choice-top"><span class="game-icon">👕</span><strong>PLAYER WORDLE</strong><span class="game-score" id="wordleScore"></span><span class="game-state" id="playerWordleState"></span></div><p id="playerWordleDesc">Guess today's player.</p><span class="play-bar">PLAY PLAYER WORDLE <b>→</b></span></a><div class="club-combo" id="clubCombo"><span>🏆 <b>CLUB STREAK</b><small>Complete both games to keep your streak</small></span><strong id="comboStreak">🔥 —</strong></div></div><nav class="picker-footer-links foot-links" aria-label="Site information"><a href="/daily-football-quiz">Football quiz</a><a href="/player-wordle-game">Player Wordle</a><a href="/about">About</a><a href="/how-it-works">How it works</a><a href="/privacy">Privacy Policy</a><a href="/contact">Contact</a></nav></section></div>
