@@ -150,7 +150,7 @@ if (!$club && $selectedGame !== '') {
 .club.both-games-played{border-color:var(--good)!important;box-shadow:0 0 0 2px rgba(46,204,143,.18),0 10px 24px rgba(0,0,0,.16)!important}.cross-game{width:min(460px,100%);margin:16px auto;padding:14px;border:1px solid #e7c77a;border-radius:16px;background:rgba(231,199,122,.08);display:flex;align-items:center;justify-content:space-between;gap:14px;text-align:left}.cross-game-copy{display:flex;flex-direction:column;gap:3px;min-width:0}.cross-kicker{color:#e7c77a;font-size:.62rem;font-weight:900;letter-spacing:.08em}.cross-game-copy strong{font-size:1rem}.cross-game-copy small{color:var(--muted);line-height:1.25}.cross-game>a{flex:0 0 auto;padding:11px 13px;border-radius:10px;background:#e7c77a;color:#171105;text-decoration:none;font-size:.72rem;font-weight:950}.cross-game.club-complete{border-color:var(--good);background:color-mix(in srgb,var(--good) 9%,transparent);justify-content:center;text-align:center}.cross-game.club-complete .cross-kicker{color:var(--good)}.cross-game.club-complete>a{display:none}@media(max-width:520px){.cross-game{align-items:stretch;flex-direction:column;text-align:center}.cross-game>a{text-align:center}}
 /* Keep the information links visible beneath the mobile Daily Five card. */
 @media(max-width:600px){
- body.quiz-page .card{height:calc(100dvh - 194px)}
+ body.quiz-page .card{height:calc(100dvh - 219px)}
  body.quiz-page .foot{display:block;position:fixed;z-index:30;left:0;right:0;bottom:0;height:44px;padding:8px 10px max(8px,env(safe-area-inset-bottom));background:rgba(7,16,30,.98);border-top:1px solid var(--line)}
  body.quiz-page .foot-links{height:100%;margin:0;gap:5px 14px;align-items:center;font-size:.7rem}
  body.quiz-page .foot>span{display:none}
@@ -166,11 +166,11 @@ if (!$club && $selectedGame !== '') {
 @media(max-width:600px){.league-tabs{margin:8px 0 10px}.league-tabs button{font-size:.7rem;padding:12px 3px}.home-page .club-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 /* Monochrome club crests need light ink on the dark site background. */
 img[src*="/assets/crests/derby-county.png"],img[src*="/assets/crests/swansea-city.png"]{filter:brightness(0) invert(1)}
-.other-game{display:block;width:min(360px,100%);margin:12px auto 0;padding:11px 14px;border:1px solid #273650;border-radius:12px;color:#f7f8fc;text-decoration:none;font-size:.86rem;text-align:center;background:#111c31}.other-game:hover,.other-game:focus-visible{border-color:#ffcc33}.other-game[hidden]{display:none!important}</style>
+.other-game{display:block;width:min(360px,100%);margin:12px auto 0;padding:11px 14px;border:1px solid #273650;border-radius:12px;color:#f7f8fc;text-decoration:none;font-size:.86rem;text-align:center;background:#111c31}.other-game:hover,.other-game:focus-visible{border-color:#ffcc33}.other-game[hidden]{display:none!important}</style><link rel="stylesheet" href="/assets/site-header.css?v=2">
 </head>
 <body class="<?= $club ? 'quiz-page' : ($selectedGame ? 'home-page club-select-page' : 'home-page game-home-page') ?>">
 <main class="wrap">
-<header class="top"><a class="brand" href="/" aria-label="ClubDailyFive.com home"><img src="/assets/clubdailyfive-logo.svg?v=20261005" alt="ClubDailyFive.com" width="450" height="60"></a><?php if ($club): ?><span class="date"><?= h($dateLabel) ?></span><?php endif ?></header>
+<header class="top site-header"><a class="brand" href="/" aria-label="ClubDailyFive.com home"><img src="/assets/clubdailyfive-logo.svg?v=20261005" alt="ClubDailyFive.com" width="450" height="60"></a><?php if ($club): ?><span class="date"><?= h($dateLabel) ?></span><?php endif ?></header>
 
 <script>
 const playDate=<?= json_encode($quizDate) ?>;
