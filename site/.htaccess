@@ -5,6 +5,22 @@ AddType application/manifest+json .webmanifest
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
+  # Keep one indexable origin before applying the internal route rewrites.
+  RewriteCond %{HTTPS} !=on [OR]
+  RewriteCond %{HTTP_HOST} !^clubdailyfive\.com$ [NC]
+  RewriteRule ^ https://clubdailyfive.com%{REQUEST_URI} [R=301,L,NE]
+
+  # Consolidate old implementation URLs into their public equivalents.
+  RewriteCond %{THE_REQUEST} \s/+player-wordle/game\.php(?:[?\s]) [NC]
+  RewriteCond %{QUERY_STRING} (?:^|&)club=([a-z0-9-]+)(?:&|$) [NC]
+  RewriteRule ^player-wordle/game\.php$ https://clubdailyfive.com/player-wordle/%1 [R=301,L,NE,QSD]
+  RewriteCond %{THE_REQUEST} \s/+player-wordle/index\.php(?:[?\s]) [NC]
+  RewriteRule ^player-wordle/index\.php$ https://clubdailyfive.com/ [R=301,L,NE,QSD]
+
+  # Use the same slashless URL form as canonical tags and the sitemap.
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^(.+)/$ https://clubdailyfive.com/$1 [R=301,L,NE]
+
   # Permanent, descriptive search landing pages and clean game URLs.
   RewriteRule ^clubs/([a-z0-9-]+)/?$ seo.php?type=club&club=$1 [L,QSA]
   RewriteRule ^daily-five/([a-z0-9-]+)/?$ index.php?club=$1 [L,QSA]
@@ -18,11 +34,6 @@ AddType application/manifest+json .webmanifest
   # Friendly public information pages.
   RewriteRule ^(about|privacy|contact|how-it-works)/?$ info.php?page=$1 [L,QSA]
 
-  # Keep one indexable origin. Preserve the path and query string so club
-  # links continue to open the requested quiz after the permanent redirect.
-  RewriteCond %{HTTPS} !=on [OR]
-  RewriteCond %{HTTP_HOST} !^clubdailyfive\.com$ [NC]
-  RewriteRule ^ https://clubdailyfive.com%{REQUEST_URI} [R=301,L,NE]
 </IfModule>
 
 <FilesMatch "\.(sqlite|db|sql|bak)$">
