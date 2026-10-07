@@ -136,3 +136,14 @@
  .tile-copy h2{margin:0}
  .tile-wordle .tile-art img{object-position:center 58%}
 }
+/* Keep the scrolling crests on one-screen phones, compact so the artwork keeps most of the height. */
+@media(max-width:600px) and (min-height:540px){
+ .club-strip{display:block;flex-shrink:0;margin:10px 0 0}
+ .club-strip h2{display:none}
+ .crest-track{--crest-gap:16px}.crest-track img{width:30px;height:30px}
+}
+@media(max-width:600px) and (min-height:700px){
+ .club-strip{margin-top:12px}
+ .club-strip h2{display:block;font-size:.74rem;margin:0 0 8px}
+ .crest-track img{width:34px;height:34px}
+}
