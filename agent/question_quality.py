@@ -55,6 +55,9 @@ TEAM_NAMES = {
     "Club Brugge KV": "Club Brugge", "FC Shakhtar Donetsk": "Shakhtar Donetsk", "SSC Napoli": "Napoli",
     "Qarabağ FK": "Qarabağ", "Legia Warszawa": "Legia Warsaw", "AC Sparta Prague": "Sparta Prague",
     "SL Benfica": "Benfica", "Olympique Lyon": "Lyon", "Olympique Marseille": "Marseille",
+    "S.L. Benfica": "Benfica", "A.S. Roma": "Roma", "Olympique de Marseille": "Marseille", "FC Dnipro": "Dnipro",
+    "CSA Steaua București": "Steaua București", "FC Porto": "Porto", "FC Bayern Munich": "Bayern Munich",
+    "Borussia Mönchengladbach": "Borussia Mönchengladbach", "Hamburger SV": "Hamburg", "Juventus F.C.": "Juventus",
 }
 # Abbreviations that can never be part of a person's name: safe to rewrite anywhere in question text.
 UNAMBIGUOUS = [k for k in TEAM_NAMES if re.search(r"\b(?:FC|AFC|CF|KV|TC|FK)\b|'|Man |Weds|Rvs|Peterboro|QPR|West Brom|Wolves|Nott|Milton Keynes|1909|Syndesmos|Fotballklubben|Balompié|Warszawa|Enschede", k)]
@@ -308,7 +311,7 @@ def lint_question(row) -> list[str]:
     if SHORT_DATE.search(text) or any(SHORT_DATE.search(str(o)) for o in opts): problems.append('unformatted date')
     if SLASH_SEASON.search(text): problems.append('slash season')
     for name in UNAMBIGUOUS:
-        if re.search(r"(?<![\w'])" + re.escape(name) + r"(?![\w'])", text + ' ' + ' '.join(map(str, opts))):
+        if re.search(r"(?<![\w'])" + re.escape(name) + r"(?![\w'])", text + ' | ' + ' | '.join(map(str, opts))):
             problems.append(f'abbreviated team name: {name}')
             break
     if any(p.search(text) for p in RETIRED_FAMILIES): problems.append('retired question family')
@@ -319,6 +322,7 @@ def lint_question(row) -> list[str]:
     if not (row.get('explanation') or '').strip() or not (row.get('source_url') or '').strip():
         problems.append('missing explanation or source')
     scores = [SCORE_OPTION.match(str(o)) for o in opts]
+    scores = [m if m and len(m.group(2)) <= 2 and len(m.group(3)) <= 2 else None for m in scores]  # not seasons like 1987-88
     if all(scores) and all(re.search(r'\d+-\d+', str(o)) for o in opts):
         pts = [(int(m.group(2)), int(m.group(3))) for m in scores]
         totals = [sum(_score_dist(a, b) for b in pts) for a in pts]

@@ -34,7 +34,9 @@ JOBS = {
     "questions": {
         "label": "ClubDailyFive questions agent",
         "db": "/var/lib/clubdailyfive/clubquiz.sqlite",
-        "commands": [["/usr/bin/python3", "/opt/clubdailyfive/bin/efl_research_job.py", "questions"], ["/usr/bin/python3", "/opt/clubdailyfive/bin/generate_questions.py"]],
+        "commands": [["/usr/bin/python3", "/opt/clubdailyfive/bin/efl_research_job.py", "questions"], ["/usr/bin/python3", "/opt/clubdailyfive/bin/generate_questions.py"],
+                     # Weekly, after publishing: re-verify trophies, finals, managers and legends; never fails the job.
+                     ["/usr/bin/python3", "/opt/clubdailyfive/bin/build_heritage_bank.py", "--install", "--if-stale-days", "7"]],
     },
 }
 

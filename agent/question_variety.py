@@ -15,7 +15,7 @@ def match_keys(row):
     """
     row = dict(row)
     text = row['question_text'].lower()
-    if row.get('semantic_key', '').startswith('seasonfact|'):
+    if row.get('semantic_key', '').startswith(('seasonfact|', 'heritage|')):
         return set()
     topics = question_topics(row)
     if row.get('semantic_key','').startswith('v4bank|efl|') and not topics & {'match_score','discipline','cups'}:
@@ -32,7 +32,17 @@ def match_keys(row):
     return {str(date)}
 
 
+def is_trivia(row):
+    """Club trivia slot: curated club facts and verified heritage (trophies, finals, managers, legends)."""
+    return dict(row).get('semantic_key', '').startswith(('generic|', 'heritage|'))
+
+
 def question_topics(row):
+    key = dict(row).get('semantic_key', '')
+    if key.startswith('heritage|'):
+        family = key.split('|')[2]
+        # A trophy-manager question reveals a trophy, so it conflicts with both families.
+        return {'honours', 'managers'} if '|trophy-manager|' in key else {family}
     if dict(row).get("semantic_key", "").startswith("generic|"):
         return {"club_trivia","player_biography"} if "|player-birth|" in row["semantic_key"] else {"club_trivia"}
     key=dict(row).get('semantic_key','')
@@ -66,7 +76,7 @@ def question_topics(row):
 def _select_varied_first(bank, fresh, count=4):
     if banned_question(fresh):
         raise ValueError('First-scoring team questions are prohibited')
-    generic = next((q for q in bank if dict(q).get("semantic_key", "").startswith("generic|") and q["id"] != fresh["id"]), None)
+    generic = next((q for q in bank if is_trivia(q) and q["id"] != fresh["id"]), None)
     if generic is None:
         raise RuntimeError("No eligible club-trivia question available")
     used = question_topics(fresh) | question_topics(generic)
@@ -75,7 +85,7 @@ def _select_varied_first(bank, fresh, count=4):
     candidates = []
     signatures = set()
     for row in bank:
-        if banned_question(row):
+        if banned_question(row) or row['id'] == generic['id']:
             continue
         topics = frozenset(question_topics(row))
         keys = frozenset(match_keys(row))
@@ -84,9 +94,12 @@ def _select_varied_first(bank, fresh, count=4):
             continue
         signatures.add(signature)
         candidates.append((row, topics, keys))
+    heritage_cap = 1  # at most one heritage question besides the trivia slot
     def search(start, chosen, seen, seen_matches):
         if len(chosen) == count:
             return chosen
+        if sum(1 for c in chosen if dict(c).get('semantic_key', '').startswith('heritage|')) > heritage_cap:
+            return None
         # A sparse bank cannot supply three different families from two
         # types, however many date variants it contains. Prune before DFS.
         available={topics for _,topics,keys in candidates[start:] if not topics & seen and not keys & seen_matches}
@@ -122,10 +135,11 @@ def validate_round(rows):
 
 
 def select_varied(bank, fresh, count=4):
-    generics=[q for q in bank if dict(q).get('semantic_key','').startswith('generic|') and q['id']!=fresh['id']]
+    generics=[q for q in bank if is_trivia(q) and q['id']!=fresh['id']]
     error=None
     for generic in generics:
-        candidates=[generic]+[q for q in bank if not dict(q).get('semantic_key','').startswith('generic|')]
+        # One trivia/heritage slot, plus at most one more heritage question among the other three.
+        candidates=[generic]+[q for q in bank if not dict(q).get('semantic_key','').startswith('generic|') and q['id']!=generic['id']]
         try:return _select_varied_first(candidates,fresh,count)
         except (RuntimeError,ValueError) as exc:error=exc
     raise RuntimeError(str(error or 'No eligible club-trivia question available'))
