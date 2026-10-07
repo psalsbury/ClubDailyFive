@@ -170,3 +170,12 @@ img[src*="/assets/crests/derby-county.png"],img[src*="/assets/crests/swansea-cit
 .wordle-about li{margin:6px 0}.wordle-about a{color:#ffcc33;text-underline-offset:3px}
 .wordle-about .wordle-more{font-size:.8rem;margin-bottom:0}
 @media(max-width:600px){.wordle-about{padding:14px 16px;font-size:.8rem}.wordle-about h2{font-size:1rem}}
+/* Shared ClubDailyFive header: same logo size and placement as the rest of the site. */
+.top.site-top{height:auto;min-height:0;justify-content:space-between;gap:12px;padding:22px max(14px,calc((100% - 760px)/2))}
+.site-top .brand{display:inline-flex;min-width:0}
+.site-top .brand img{display:block;width:min(450px,72vw);height:auto}
+.site-top .brand:focus-visible{outline:2px solid var(--cdf-accent,#ffcc33);outline-offset:5px;border-radius:4px}
+.site-top .info-button{position:static;transform:none;flex:0 0 auto}
+.pw-back{width:min(760px,calc(100% - 28px));margin:12px auto 0;font-size:.9rem}
+.pw-back a{color:#a9c3e3;text-decoration:none}.pw-back a:hover{text-decoration:underline}
+@media(max-width:680px){.top.site-top{padding:14px 10px 14px 14px}.pw-back{margin-top:10px;font-size:.85rem}}

@@ -2,7 +2,7 @@
 .home-page{background:radial-gradient(ellipse at 80% 0,rgba(255,204,51,.06),transparent 45%),#07101e}
 .home-page .wrap{width:min(1080px,calc(100% - 40px));min-height:100svh;display:flex;flex-direction:column}
 .home-page .top{height:auto;padding:24px 0;border-bottom:1px solid rgba(39,54,80,.5)}
-.home-page .brand img{width:clamp(220px,32vw,350px);height:auto}
+.home-page .brand img{width:min(450px,72vw);height:auto}
 
 /* Home: two big artwork cards that sell each game. */
 .game-home-page{background:radial-gradient(ellipse 60% 40% at 25% 30%,rgba(255,204,51,.08),transparent),radial-gradient(ellipse 60% 40% at 75% 30%,rgba(46,204,143,.08),transparent),#07101e}
@@ -60,7 +60,7 @@
 .club-directory nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:18px;line-height:1.4}
 .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 @media(max-width:600px){
- .home-page .wrap{width:calc(100% - 28px)}.home-page .top{padding:16px 0}.home-page .brand img{width:min(270px,74vw)}
+ .home-page .wrap{width:calc(100% - 28px)}.home-page .top{padding:16px 0}
  .home-page .foot{padding:20px 0 24px}.home-page .foot-links{gap:10px 16px;font-size:.75rem}
  .hub-back{margin-top:16px}.club-select-intro{margin:12px 0 20px}.club-select-intro h1{font-size:2rem}.club-select-intro p{font-size:1rem}
  .club-select-page .league-tabs{margin-bottom:16px}.club-select-page .league-tabs button{font-size:.8rem;min-height:44px}
@@ -73,7 +73,6 @@
 /* Phones: full-width artwork, compact copy row with the play button beside it. */
 @media(max-width:600px){
  .game-home-page .top{padding:12px 0}
- .game-home-page .brand img{width:min(240px,66vw)}
  .game-home-intro{padding:16px 0}
  .live-pill{margin-bottom:10px;padding:5px 11px;font-size:.72rem}
  .game-home-intro h1{font-size:clamp(1.55rem,7vw,2rem);margin-bottom:6px}
@@ -105,7 +104,6 @@
 @media(max-width:600px) and (min-height:540px){
  .game-home-page .wrap{height:100svh;min-height:0;padding-bottom:env(safe-area-inset-bottom)}
  .game-home-page .top{padding:10px 0;flex-shrink:0}
- .game-home-page .brand img{width:min(210px,58vw)}
  .game-home-intro{padding:10px 0 12px;flex-shrink:0}
  .live-pill{margin-bottom:7px}
  .game-home-intro h1{font-size:clamp(1.25rem,5.6vw,1.6rem);margin:0}
