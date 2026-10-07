@@ -459,8 +459,17 @@ def run(a):
         from heritage_people import legends_questions
         got, report['legends'] = legends_questions(clubs, sparql, wp_wikitext); items += got
     rows = to_rows(items)
-    bad = [(r['question_text'], lint_question(r)) for r in rows if lint_question(r)]
-    rows = [r for r in rows if not lint_question(r)]
+    from sterling import assert_sterling
+
+    def problems(r):
+        found = lint_question(r)
+        try:
+            assert_sterling(r)  # the nightly publisher refuses any non-sterling wording
+        except Exception as e:
+            found.append(str(e))
+        return found
+    bad = [(r['question_text'], problems(r)) for r in rows if problems(r)]
+    rows = [r for r in rows if not problems(r)]
     per_club = collections.Counter(r['semantic_key'].split('|')[1] for r in rows)
     per_family = collections.Counter(r['semantic_key'].split('|')[2] for r in rows)
     result = {'questions': len(rows), 'rejected_by_quality_check': len(bad), 'per_family': per_family,

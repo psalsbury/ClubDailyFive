@@ -21,6 +21,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from question_quality import clean_text, lint_question, numeric_options  # noqa: E402
+from sterling import assert_sterling  # noqa: E402  (the nightly publisher refuses non-sterling wording)
 
 TRIVIA = Path(__file__).resolve().parent / 'generic_trivia.json'
 DB = os.getenv('QUIZ_DB', '/var/lib/clubdailyfive/clubquiz.sqlite')
@@ -94,7 +95,7 @@ WRONG = {
     112: ["St Andrew's, Ancoats", "St Luke's, Cheetham", "St Mary's, Ardwick"],
     113: ['Gorton', 'West Gorton', 'Manchester Athletic'],
     115: ['Hyde Road', 'Belle Vue', 'Gigg Lane'],
-    116: ['Euro 96', 'The 2012 Olympic Games', 'The 1991 World Student Games'],
+    116: ['The 1996 European Championship', 'The 2012 Olympic Games', 'The 1991 World Student Games'],
     120: ['Manchester Central', 'Ardwick', 'Clayton United'],
     124: ['The Cathedral of Football', 'The Cauldron', 'The Fortress'],
     125: ['Duncan Edwards', 'Bryan Robson', 'Eric Cantona'],
@@ -372,6 +373,7 @@ def run(a):
         new = dict(row); new.update(question_text=text, options_json=json.dumps(opts, ensure_ascii=False), correct_index=opts.index(str(x['answer'])))
         problems = lint_question(new)
         assert not problems, (text, problems)
+        assert_sterling(new)
         updates.append(new); show.append((text, opts, str(x['answer'])))
     changed = [r for r in updates if (r['question_text'], r['options_json'], r['correct_index']) !=
                tuple(con.execute('select question_text,options_json,correct_index from questions where id=?', (r['id'],)).fetchone())]
