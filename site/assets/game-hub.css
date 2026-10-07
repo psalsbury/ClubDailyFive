@@ -1,0 +1,58 @@
+/* Game-first home and club selection. */
+.home-page{background:radial-gradient(ellipse at 80% 0,rgba(255,204,51,.06),transparent 45%),#07101e}
+.home-page .wrap{width:min(1080px,calc(100% - 40px));min-height:100svh;display:flex;flex-direction:column}
+.home-page .top{height:auto;padding:24px 0;border-bottom:1px solid rgba(39,54,80,.5)}
+.home-page .brand img{width:clamp(220px,32vw,350px);height:auto}
+.game-home-intro{text-align:center;padding:46px 0 28px}
+.game-home-intro h1{font-size:clamp(1.8rem,4.5vw,3.1rem);line-height:1.12;letter-spacing:-.045em;margin:0 0 12px}
+.game-home-intro p{margin:0;color:#a9c3e3;font-size:clamp(1rem,2vw,1.25rem)}
+.game-tiles{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.game-tile{overflow:hidden;display:flex;flex-direction:column;background:linear-gradient(180deg,#0a1a2b,#091728);border:1px solid #345979;border-radius:20px;color:#f7f8fc;text-decoration:none;box-shadow:0 12px 36px rgba(0,0,0,.16);transition:border-color .18s,transform .18s}
+.game-tile:hover{border-color:#ffcc33;transform:translateY(-3px)}
+.game-tile:focus-visible{outline:3px solid #ffcc33;outline-offset:5px}
+.tile-art{aspect-ratio:1.6; background-image:url('/assets/game-tiles.webp');background-size:200% auto;background-repeat:no-repeat}
+.tile-art-daily{background-position:left 25%}
+.tile-art-wordle{background-position:right 25%}
+.tile-copy{text-align:center;padding:12px 24px 24px;display:flex;flex-direction:column;flex:1}
+.tile-copy h2{font-size:clamp(1.6rem,3vw,2.25rem);letter-spacing:-.035em;margin:0 0 8px;line-height:1.1}
+.tile-copy p{color:#bad0ec;font-size:1rem;line-height:1.45;margin:0 0 20px}
+.tile-action{display:flex;align-items:center;justify-content:center;gap:15px;background:#ffcc33;color:#07101e;font-size:1.05rem;font-weight:850;border-radius:12px;padding:15px 10px;margin-top:auto;min-height:52px}
+.tile-action span{font-size:1.2em}
+.daily-return{display:flex;align-items:center;justify-content:center;gap:14px;color:#a9c3e3;text-align:center;font-size:.85rem;margin:30px 0 24px}
+.daily-return::before,.daily-return::after{content:'';height:1px;background:#273650;width:60px}
+.daily-return span{color:#a9b2c4}
+.home-page .foot{margin-top:auto;padding:22px 0 26px}
+.home-page .foot>span,.home-page .foot .sistersite{display:none}
+.club-select-page .wrap{width:min(850px,calc(100% - 32px))}
+.hub-back{margin:20px 0 0;font-size:.9rem}.hub-back a{color:#a9c3e3;text-decoration:none}.hub-back a:hover{text-decoration:underline}
+.club-select-intro{text-align:center;margin:16px 0 20px}.club-select-intro h1{font-size:clamp(2rem,5vw,3rem);letter-spacing:-.04em;margin:0 0 7px}.club-select-intro p{color:#a9c3e3;font-size:1.1rem;margin:0}
+.club-select-page .league-tabs{width:100%;max-width:650px;margin:0 auto 20px}
+.club-select-page .club-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:0 0 14px}
+.club-select-page .club,.club-select-page .club.played{padding:14px 5px;grid-template-rows:52px minmax(2.2em,auto) auto;gap:6px;font-size:.86rem;min-height:110px;border-radius:13px}
+.club-select-page .club img{width:52px;height:52px}
+.club-select-page .club-info{font-size:.67rem;line-height:1.35;white-space:normal;color:#a9b2c4}
+.club-select-page .club.played .club-info{color:#2ecc8f}
+.club-select-page .club.in-progress{border-color:#e7c77a}
+.club-select-page .preparing-club{opacity:.6;cursor:default}
+.selection-note{text-align:center;color:#a9b2c4;font-size:.76rem;line-height:1.5;margin:4px 0 22px}
+.game-explainer,.club-directory{border-top:1px solid #273650;padding:15px 0;font-size:.85rem;color:#a9b2c4}
+.game-explainer summary,.club-directory summary{cursor:pointer;color:#c5d0e0}
+.game-explainer p{line-height:1.6}.game-explainer a,.club-directory a{color:#a9c3e3}
+.club-directory nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:18px;line-height:1.4}
+.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@media(max-width:600px){
+ .home-page .wrap{width:calc(100% - 28px)}.home-page .top{padding:16px 0}.home-page .brand img{width:min(270px,74vw)}
+ .game-home-intro{padding:25px 0 21px}.game-home-intro h1{font-size:1.8rem;max-width:340px;margin:0 auto 10px}.game-home-intro p{font-size:.95rem}
+ .game-tiles{grid-template-columns:1fr;gap:16px}
+ .game-tile{border-radius:16px}.tile-art{aspect-ratio:1.6;background-size:200% auto;background-position-y:25%}
+ .tile-copy{padding:5px 18px 18px}.tile-copy h2{font-size:1.6rem;margin-bottom:6px}.tile-copy p{font-size:.87rem;margin-bottom:13px}.tile-action{font-size:.95rem;min-height:46px;padding:12px}
+ .daily-return{font-size:.75rem;margin:23px 0 10px;gap:8px}.daily-return span{display:none}.daily-return::before,.daily-return::after{width:30px}
+ .home-page .foot{padding:20px 0 24px}.home-page .foot-links{gap:10px 16px;font-size:.75rem}
+ .hub-back{margin-top:16px}.club-select-intro{margin:12px 0 20px}.club-select-intro h1{font-size:2rem}.club-select-intro p{font-size:1rem}
+ .club-select-page .league-tabs{margin-bottom:16px}.club-select-page .league-tabs button{font-size:.8rem;min-height:44px}
+ .club-select-page .club-grid{gap:7px}
+ .club-select-page .club,.club-select-page .club.played{padding:9px 3px;grid-template-rows:42px minmax(2.3em,auto) auto;font-size:.65rem;min-height:92px;gap:5px;border-radius:10px}
+ .club-select-page .club img{width:42px;height:42px}.club-select-page .club-info{font-size:.56rem}
+ .club-directory nav{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(prefers-reduced-motion:reduce){.game-tile{transition:none}.game-tile:hover{transform:none}}

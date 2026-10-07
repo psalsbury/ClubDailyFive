@@ -18,6 +18,7 @@ $wordleDb = new PDO('sqlite:/var/lib/clubdailyfive/player-wordle/game.sqlite3', 
 $wordleReady=$wordleDb->query("SELECT c.slug FROM clubs c JOIN daily_game d ON d.club_id=c.id WHERE d.game_date='".date('Y-m-d')."'")->fetchAll(PDO::FETCH_COLUMN);
 $wordleReady=array_fill_keys($wordleReady,true);
 function wordleSlug(string $slug): string { return ['coventry-city'=>'coventry','hull-city'=>'hull','ipswich-town'=>'ipswich','leeds-united'=>'leeds','manchester-city'=>'man-city','manchester-united'=>'man-utd','newcastle-united'=>'newcastle','tottenham-hotspur'=>'tottenham'][$slug]??$slug; }
+$selectedGame = in_array((string)($_GET['game'] ?? ''), ['daily','wordle'], true) ? (string)$_GET['game'] : '';
 $slug = preg_replace('/[^a-z0-9-]/', '', strtolower((string)($_GET['club'] ?? '')));
 $club = null;
 if ($slug !== '') {
@@ -26,6 +27,7 @@ if ($slug !== '') {
     $club = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
 }
 
+if ($slug !== '' && !$club) { http_response_code(404); }
 $questions = [];
 $quizDate = (new DateTimeImmutable('now', new DateTimeZone('Europe/London')))->format('Y-m-d');
 $sourceQuizDate = $quizDate;
@@ -58,15 +60,31 @@ $pageTitle = $club
 $pageDescription = $club
     ? 'Play today’s free ' . $club['name'] . ' football quiz: five fresh questions covering players, matches, managers, trophies and club history.'
     : 'Play two free daily football games for your club: Daily Five football trivia and Player Wordle. Premier League and Championship challenges every day.';
+if (!$club && $selectedGame !== '') {
+    $canonicalUrl = 'https://clubdailyfive.com/' . ($selectedGame === 'daily' ? 'daily-football-quiz' : 'player-wordle-game');
+    $pageTitle = $selectedGame === 'daily' ? 'Daily Football Quiz – Choose Your Club | ClubDailyFive' : 'Player Wordle – Choose Your Football Club | ClubDailyFive';
+    $pageDescription = $selectedGame === 'daily'
+        ? 'Choose your Premier League or Championship club and play five fresh football trivia questions every day. Free quizzes, scores and streaks.'
+        : 'Choose your Premier League or Championship club and play Player Wordle. Guess today’s mystery footballer in five attempts using coloured clues.';
+}
 $structuredData = [
     '@context' => 'https://schema.org',
-    '@type' => $club ? 'Game' : 'WebSite',
-    'name' => $club ? $club['name'] . ' Daily Five' : 'ClubDailyFive',
+    '@type' => $club ? 'Game' : ($selectedGame !== '' ? 'CollectionPage' : 'WebSite'),
+    'name' => $club ? $club['name'] . ' Daily Five' : ($selectedGame !== '' ? $pageTitle : 'ClubDailyFive'),
     'url' => $canonicalUrl,
     'description' => $pageDescription,
     'inLanguage' => 'en-GB',
     'isAccessibleForFree' => true,
 ];
+if (!$club && $selectedGame !== '') {
+    $gameItems = [];
+    foreach ($clubs as $c) {
+        if ($selectedGame === 'wordle' && !isset($wordleReady[wordleSlug($c['slug'])])) continue;
+        $gameItems[] = ['@type'=>'ListItem','position'=>count($gameItems)+1,'name'=>$c['name'],
+            'url'=>'https://clubdailyfive.com/'.($selectedGame==='daily' ? 'daily-five/'.$c['slug'] : 'player-wordle/'.wordleSlug($c['slug']))];
+    }
+    $structuredData['mainEntity'] = ['@type'=>'ItemList','itemListElement'=>$gameItems];
+}
 ?>
 <!doctype html>
 <html lang="en">
@@ -77,6 +95,7 @@ $structuredData = [
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/assets/icon-192.png">
+<?php if (!$club): ?><link rel="stylesheet" href="/assets/game-hub.css?v=20261007-2"><?php endif ?>
 <script src="/pwa.js" defer></script><script src="/engagement.js?v=2"></script>
 <link rel="canonical" href="<?= h($canonicalUrl) ?>">
 <title><?= h($pageTitle) ?></title>
@@ -111,36 +130,6 @@ $structuredData = [
 .club.played .club-status{color:var(--good)}
 @media(max-width:600px){.club,.club.played{padding:6px 2px;gap:3px}.club .club-info{font-size:clamp(.5rem,2.1vw,.65rem);letter-spacing:-.02em}}
 .info-modal{position:fixed;inset:0;z-index:1400;background:rgba(3,8,16,.82);display:grid;place-items:center;padding:20px}.info-modal[hidden]{display:none!important}.info-dialog{position:relative;width:min(760px,100%);max-height:calc(100dvh - 40px);overflow:auto;border:1px solid var(--line);border-radius:22px;background:#0b1628;padding:clamp(22px,5vw,42px);box-shadow:0 24px 80px rgba(0,0,0,.45)}.info-close{position:absolute;top:12px;right:14px;width:42px;height:42px;border:0;background:transparent;color:var(--ink);font-size:2rem;line-height:1;cursor:pointer;border-radius:50%}.info-close:hover,.info-close:focus-visible{background:var(--panel);outline:2px solid var(--accent)}.info-dialog h1{font-size:clamp(2.2rem,8vw,4rem);letter-spacing:-.055em;margin:.1em 48px .5em 0}.info-dialog h2{font-size:1.2rem;margin-top:1.6em}.info-dialog p,.info-dialog li{color:var(--muted);line-height:1.7}.info-dialog strong{color:var(--ink)}.info-dialog a{color:var(--accent)}.wordle-colour-guide{display:grid;gap:10px;margin:14px 0}.colour-example{display:grid;grid-template-columns:72px 1fr;gap:12px;align-items:start;padding:11px 12px;border:1px solid #273650;border-radius:12px;background:#111c31}.colour-example p{margin:0!important;line-height:1.45!important}.amber-rules{margin:6px 0 7px;padding-left:18px;color:#a9b2c4}.amber-rules li{margin:2px 0;line-height:1.35}.colour-example-note{font-size:.88em}.colour-chip{display:inline-flex;align-items:center;justify-content:center;min-height:32px;border-radius:7px;color:#fff;font-size:.68rem;font-weight:900;letter-spacing:.06em}.colour-green{background:#218d52}.colour-amber{background:#b59f3b;color:#101319}.colour-grey{background:#3a4355}@media(max-width:480px){.colour-example{grid-template-columns:64px 1fr;gap:9px;padding:9px}.colour-example p{font-size:.86rem!important}}body.info-open{overflow:hidden}@media(max-width:600px){.info-modal{padding:0}.info-dialog{width:100%;height:100dvh;max-height:none;border:0;border-radius:0;padding:24px 20px}}
-.game-picker{position:fixed;inset:0;z-index:1200;background:#07111a;display:grid;place-items:center}.game-picker[hidden]{display:none!important}.game-picker-card{position:relative;width:min(540px,100%);height:100dvh;overflow:hidden;background:radial-gradient(circle at 50% 31%,rgba(120,20,20,.34),transparent 27%),linear-gradient(180deg,#07131e 0%,#0b1721 43%,#07130e 100%);padding:20px 18px max(18px,env(safe-area-inset-bottom));display:flex;flex-direction:column}.game-picker-card:before{content:'';position:absolute;inset:18% 0 34%;background:linear-gradient(180deg,transparent,rgba(255,255,255,.035),transparent);pointer-events:none}.picker-brand{position:relative;z-index:1;display:flex;justify-content:center;align-items:center;gap:10px;color:#fff;font-size:clamp(1.1rem,5vw,1.45rem);font-weight:950;letter-spacing:-.03em;margin:4px 0 12px}.picker-brand span{font-size:1.5rem}.picker-brand em{color:#38d879;font-style:normal}.picker-close{position:absolute;z-index:4;right:16px;top:16px;border:0;background:rgba(0,0,0,.28);color:#fff;width:38px;height:38px;border-radius:50%;font-size:1.8rem;line-height:1;cursor:pointer}.picker-head{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;text-align:center;gap:7px;padding:0 42px 16px}.picker-head img{width:clamp(88px,15vh,130px);height:clamp(88px,15vh,130px);object-fit:contain;filter:drop-shadow(0 5px 10px rgba(0,0,0,.3))}.picker-head h2{margin:0;color:#fff;font-size:clamp(1.35rem,5.8vw,1.9rem);line-height:1.05;text-transform:uppercase;letter-spacing:.015em;font-weight:950}.games-panel{position:relative;z-index:2;margin-top:clamp(8px,2vh,18px);background:linear-gradient(180deg,rgba(25,42,61,.98),rgba(13,27,40,.99));border:1px solid #38516a;border-radius:28px 28px 0 0;padding:18px 14px 14px;box-shadow:0 -8px 35px rgba(0,0,0,.4)}.games-panel:before{content:'';display:block;width:52px;height:6px;border-radius:5px;background:#6d8093;margin:-7px auto 13px}.game-choice{display:block;position:relative;text-decoration:none;color:#12243a;background:#f6f7f9;border:1px solid #cdd7e0;border-radius:17px;padding:15px 14px 12px;margin-top:12px;box-shadow:0 4px 10px rgba(0,0,0,.2)}.game-choice-top{display:grid;grid-template-columns:52px minmax(0,1fr) auto;grid-template-rows:auto auto;column-gap:10px;align-items:center}.game-icon{grid-column:1;grid-row:1 / span 2;font-size:2.25rem;text-align:center}.game-choice strong{grid-column:2;grid-row:1;font-size:1.12rem;line-height:1.1;font-weight:950;letter-spacing:-.02em}.game-score{grid-column:3;grid-row:1;color:#172b42;font-weight:950;font-size:.92rem}.game-state{grid-column:2 / 4;grid-row:2;color:#e25722;font-size:.78rem;font-weight:900;margin-top:5px}.game-state:empty{display:none}.game-choice p{margin:3px 0 9px 62px;color:#46566a;font-size:.84rem;line-height:1.25}.play-bar{display:flex;align-items:center;justify-content:center;gap:14px;width:100%;border-radius:12px;padding:11px 12px;color:#fff;font-size:.9rem;font-weight:950;letter-spacing:.015em}.daily-card .play-bar{background:#f02431}.wordle-card .play-bar{background:#1469ee}.play-bar b{font-size:1.25rem}.club-combo{display:flex;align-items:center;justify-content:space-between;margin-top:13px;padding:10px 12px;border:1px solid #2d8d49;background:rgba(2,31,16,.74);border-radius:13px;color:#fff}.club-combo span{display:grid;grid-template-columns:auto 1fr;column-gap:7px;align-items:center;font-size:.77rem}.club-combo span>b{font-size:.75rem}.club-combo small{grid-column:2;color:#a8b6ad;font-size:.63rem}.club-combo>strong{color:#ffb124;font-size:.9rem;white-space:nowrap}body.picker-open{overflow:hidden}@media(min-width:650px){.game-picker{background:rgba(3,8,16,.88)}.game-picker-card{height:min(860px,94dvh);border:1px solid #38516a;border-radius:28px;box-shadow:0 30px 90px rgba(0,0,0,.65)}.games-panel{border-radius:28px}}@media(max-height:720px){.game-picker-card{padding-top:10px}.picker-brand{margin-bottom:5px}.picker-head{padding-bottom:7px}.picker-head img{width:70px;height:70px}.games-panel{padding-top:12px}.game-choice{padding:10px;margin-top:8px}.game-choice p{margin-bottom:6px}.play-bar{padding:8px}.club-combo{margin-top:8px;padding:7px 10px}}/* Balanced two-game homepage */
-.home-page .wrap{width:min(1080px,calc(100% - 28px))}
-.home-page .top{padding-bottom:12px}
-.home-intro{text-align:center;padding:26px 0 12px}
-.home-intro .eyebrow{color:#38d879}
-.home-intro h1{font-size:clamp(2.25rem,7vw,4.6rem);line-height:.98;letter-spacing:-.055em;margin:.18em auto .48em;max-width:900px}
-.home-intro h1 span{color:#38d879}
-.home-intro>p{color:var(--muted);font-size:clamp(.95rem,2.3vw,1.15rem);line-height:1.5;max-width:720px;margin:12px auto 20px}
-.home-games{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:24px auto 12px;padding:22px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);text-align:left}
-.home-game{padding:0 28px 0 0;min-width:0;cursor:default}
-.home-game+.home-game{border-left:1px solid var(--line);padding:0 0 0 28px}
-.home-game-head{display:flex;align-items:center;gap:9px;margin-bottom:7px}
-.home-game-icon{font-size:1.35rem;line-height:1}
-.home-game h2{font-size:1.4rem;letter-spacing:-.035em;margin:0}
-.home-game strong{display:block;color:#38d879;font-size:.7rem;letter-spacing:.055em;margin-bottom:8px}
-.home-game.wordle strong{color:#7ebcff}
-.home-game p{color:var(--muted);font-size:.9rem;line-height:1.55;margin:0;max-width:32em}
-.game-sample{display:flex;gap:5px;margin-top:14px;align-items:center;user-select:none}
-.game-sample span{display:grid;place-items:center;width:25px;height:25px;background:#18362d;color:#79e2b0;border-radius:3px;font-size:.72rem;font-weight:750}
-.game-sample.wordle-sample span{background:#2b3444;color:#bdc8da}
-.game-sample.wordle-sample span:nth-child(1),.game-sample.wordle-sample span:nth-child(4){background:#245e43;color:#e2ffee}
-.game-sample.wordle-sample span:nth-child(2){background:#8a7329;color:#fff4ca}
-.game-sample small{color:var(--muted);font-size:.7rem;margin-left:5px}
-.home-intro .games-return{font-size:.8rem;line-height:1.5;color:var(--muted);margin:0 auto 20px}
-.home-intro .games-start{font-size:clamp(1.2rem,2.5vw,1.55rem);line-height:1.3;font-weight:850;letter-spacing:-.025em;color:#ffcc33;margin:22px auto 16px}.games-start span{display:inline-block;margin-left:8px;font-size:1.15em}
-.choose-title{text-align:center;margin:18px 0 4px;font-size:clamp(1.25rem,4vw,1.75rem);letter-spacing:-.03em}
-.choose-sub{text-align:center;color:var(--muted);font-size:.84rem;margin:0 0 10px}
-.home-page .club-grid{padding:8px 0 28px;gap:8px}
-@media(min-width:800px){.home-page .club-grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
-@media(max-width:600px){.home-page .top{height:auto;padding:10px 0}.home-page .brand img{width:min(270px,68vw)}.home-intro{padding:8px 0 5px}.home-intro h1{font-size:2rem}.home-games{grid-template-columns:1fr;margin:18px auto 10px;padding:0}.home-game,.home-game+.home-game{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:12px;padding:16px 0;border-left:0}.home-game+.home-game{border-top:1px solid var(--line)}.home-game-head{grid-column:1;gap:8px;margin-bottom:5px}.home-game h2{font-size:1.18rem}.home-game strong{grid-column:1;font-size:.64rem;margin-bottom:6px}.home-game p{grid-column:1 / -1;font-size:.82rem;line-height:1.45}.game-sample{grid-column:2;grid-row:1 / 3;margin:0;align-self:center;gap:3px}.game-sample span{width:18px;height:21px;font-size:.6rem}.game-sample small{display:none}.home-intro .games-return{font-size:.73rem;margin-bottom:14px}.home-intro .games-start{font-size:1.16rem;margin:18px auto 14px}.choose-title{font-size:1.1rem;margin:10px 0 3px}.choose-sub{font-size:.78rem;margin-bottom:8px}.home-page .club-grid{padding:3px 0 8px}}
 /* Shared ClubDailyFive completed-game hierarchy */
 .result{width:min(620px,100%);margin:0 auto;padding:22px 0 30px}
 .result>.eyebrow{margin-bottom:5px}
@@ -163,25 +152,21 @@ $structuredData = [
  body.quiz-page .foot>span{display:none}
 }
 
-/* Site information links within the club game picker. */
-.picker-footer-links{position:relative;z-index:3;margin:auto 0 0;padding:14px 4px 2px;display:flex;justify-content:center;flex-wrap:wrap;gap:8px 16px;font-size:.72rem}
-.picker-footer-links a{color:#a9b2c4;text-decoration:none}.picker-footer-links a:hover,.picker-footer-links a:focus-visible{color:#ff5c63;text-decoration:underline;outline:none}
-@media(max-height:720px){.picker-footer-links{padding-top:7px;font-size:.65rem}}
 .question-report{margin-top:8px;font-size:.72rem;color:var(--muted)}.question-report summary{cursor:pointer}.report-reasons{display:flex;flex-wrap:wrap;gap:5px;margin:7px 0}.report-reasons button{background:#0b1628;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:9px;cursor:pointer}.report-reasons button:disabled{opacity:.6}
-/* League selection uses the same compact club grid and two-game picker. */
+/* League filters for game-specific club selection. */
 .league-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;padding:5px;margin:12px 0 20px;border:1px solid var(--line);border-radius:13px;background:#111c31}
 .league-tabs button{padding:14px 4px;background:transparent;border:0;border-radius:9px;color:var(--muted);font:inherit;font-size:.85rem;font-weight:800;cursor:pointer}
 .league-tabs button[aria-pressed="true"]{background:#ffcc33;color:#07101e}
 .league-tabs button:focus-visible{outline:2px solid #fff;outline-offset:2px}
-.club[hidden]{display:none!important}.game-choice.building{opacity:.75;cursor:default}.game-choice.building .play-bar{background:#283a52;color:#c3cddd;font-size:.72rem}
+.club[hidden]{display:none!important}
 @media(max-width:600px){.league-tabs{margin:8px 0 10px}.league-tabs button{font-size:.7rem;padding:12px 3px}.home-page .club-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 /* Monochrome club crests need light ink on the dark site background. */
 img[src*="/assets/crests/derby-county.png"],img[src*="/assets/crests/swansea-city.png"]{filter:brightness(0) invert(1)}
 .other-game{display:block;width:min(360px,100%);margin:12px auto 0;padding:11px 14px;border:1px solid #273650;border-radius:12px;color:#f7f8fc;text-decoration:none;font-size:.86rem;text-align:center;background:#111c31}.other-game:hover,.other-game:focus-visible{border-color:#ffcc33}.other-game[hidden]{display:none!important}</style>
 </head>
-<body class="<?= $club ? 'quiz-page' : 'home-page' ?>">
+<body class="<?= $club ? 'quiz-page' : ($selectedGame ? 'home-page club-select-page' : 'home-page game-home-page') ?>">
 <main class="wrap">
-<header class="top"><a class="brand" href="/" aria-label="ClubDailyFive.com home"><img src="/assets/clubdailyfive-logo.svg?v=20261005" alt="ClubDailyFive.com" width="450" height="60"></a><span class="date"><?= h($dateLabel) ?></span></header>
+<header class="top"><a class="brand" href="/" aria-label="ClubDailyFive.com home"><img src="/assets/clubdailyfive-logo.svg?v=20261005" alt="ClubDailyFive.com" width="450" height="60"></a><?php if ($club): ?><span class="date"><?= h($dateLabel) ?></span><?php endif ?></header>
 
 <script>
 const playDate=<?= json_encode($quizDate) ?>;
@@ -205,65 +190,70 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkDay()
 setInterval(checkDay,30000);
 </script>
 
-<?php if (!$club): ?>
-<div id="homeChooser">
-<section class="home-intro">
-<div class="eyebrow">Two daily football games · Premier League &amp; Championship</div>
-<h1>Your club. <span>Two ways to play.</span></h1>
-
-<div class="home-games" role="group" aria-label="Available daily games">
-<article class="home-game daily"><div class="home-game-head"><span class="home-game-icon" aria-hidden="true">🧠</span><h2>Daily Five</h2></div><strong>5 QUESTIONS · EVERY DAY</strong><p>Test your club knowledge with five fresh questions on players, matches and history.</p><div class="game-sample" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><small>Five chances to shine</small></div></article>
-<article class="home-game wordle"><div class="home-game-head"><span class="home-game-icon" aria-hidden="true">👕</span><h2>Player Wordle</h2></div><strong>1 MYSTERY PLAYER · 5 GUESSES</strong><p>Find your club’s mystery player. Each guess reveals colour clues to guide your next.</p><div class="game-sample wordle-sample" aria-hidden="true"><span>✓</span><span>↑</span><span>·</span><span>✓</span><span>·</span><small>Follow the clues</small></div></article>
-</div>
-<p class="games-return">A fresh quiz and mystery player every day. Come back tomorrow to keep your streak going.</p>
-<p class="games-start">Choose your club below to play <span aria-hidden="true">↓</span></p>
+<?php if (!$club && $slug !== ''): ?>
+<section class="empty"><h1>Club not found</h1><p>Choose one of the available clubs.</p><a class="again" href="/daily-football-quiz">Choose a club</a></section>
+<?php elseif (!$club && $selectedGame === ''): ?>
+<section class="game-home-intro" aria-labelledby="homeTitle"><h1 id="homeTitle">Your club. Your daily challenge.</h1><p>Choose a game to get started.</p></section>
+<section class="game-tiles" aria-label="Choose your daily football game">
+<a class="game-tile" href="/daily-football-quiz" aria-labelledby="dailyTileTitle"><div class="tile-art tile-art-daily" aria-hidden="true"></div><div class="tile-copy"><h2 id="dailyTileTitle">Daily Five</h2><p>5 questions. How well do you know your club?</p><span class="tile-action">Play Daily Five <span aria-hidden="true">→</span></span></div></a>
+<a class="game-tile" href="/player-wordle-game" aria-labelledby="wordleTileTitle"><div class="tile-art tile-art-wordle" aria-hidden="true"></div><div class="tile-copy"><h2 id="wordleTileTitle">Player Wordle</h2><p>1 mystery player. 5 guesses.</p><span class="tile-action">Play Player Wordle <span aria-hidden="true">→</span></span></div></a>
+</section>
+<p class="daily-return">New challenges every day <span>· Premier League &amp; Championship</span></p>
+<?php elseif (!$club): ?>
+<nav class="hub-back" aria-label="Back to games"><a href="/">← Games</a></nav>
+<section class="club-select-intro"><h1><?= $selectedGame === 'daily' ? 'Daily Five' : 'Player Wordle' ?></h1><p>Choose your club.</p></section>
 <nav class="league-tabs" aria-label="Choose a league">
 <?php foreach(['premier-league'=>'Premier League','championship'=>'Championship'] as $key=>$label): ?><button type="button" data-league="<?=h($key)?>" aria-pressed="<?=$key==='premier-league'?'true':'false'?>"><?=h($label)?></button><?php endforeach ?>
-</nav><h2 class="choose-title" id="leagueTitle">Premier League</h2>
-<p class="choose-sub">Choose your club, then pick your game.</p>
-</section>
-<section class="club-grid" aria-label="Choose your club"><?php foreach($clubs as $c): ?><a class="club" data-slug="<?= h($c['slug']) ?>" data-name="<?= h($c['name']) ?>" data-league="<?= h($c['league']) ?>" data-wordle-ready="<?=isset($wordleReady[wordleSlug($c['slug'])])?'1':'0'?>" data-logo="<?= h($c['logo_path']) ?>" href="/clubs/<?= h($c['slug']) ?>"><img src="<?= h($c['logo_path']) ?>" alt="<?= h($c['name']) ?> crest" width="42" height="42"><span class="club-name"><?= h($c['name']) ?></span></a><?php endforeach ?></section></div>
-<div class="game-picker" id="gamePicker" hidden aria-hidden="true"><section class="game-picker-card" role="dialog" aria-modal="true" aria-labelledby="pickerClub"><button class="picker-close" id="pickerClose" type="button" aria-label="Close">×</button><div class="picker-brand"><span>⚽</span><b>CLUB <em>DAILY</em> FIVE</b></div><div class="picker-head"><img id="pickerLogo" src="" alt=""><div><h2 id="pickerClub"></h2></div></div><div class="games-panel"><a class="game-choice daily-card" id="dailyFiveChoice" href="#"><div class="game-choice-top"><span class="game-icon">🧠</span><strong>DAILY FIVE</strong><span class="game-score" id="dailyScore"></span><span class="game-state" id="dailyFiveState"></span></div><p id="dailyFiveDesc">Five questions about your club.</p><span class="play-bar">PLAY DAILY FIVE <b>→</b></span></a><a class="game-choice wordle-card" id="playerWordleChoice" href="#"><div class="game-choice-top"><span class="game-icon">👕</span><strong>PLAYER WORDLE</strong><span class="game-score" id="wordleScore"></span><span class="game-state" id="playerWordleState"></span></div><p id="playerWordleDesc">Guess today's player.</p><span class="play-bar">PLAY PLAYER WORDLE <b>→</b></span></a><div class="club-combo" id="clubCombo"><span>🏆 <b>CLUB STREAK</b><small>Complete both games to keep your streak</small></span><strong id="comboStreak">🔥 —</strong></div></div><nav class="picker-footer-links foot-links" aria-label="Site information"><a href="/daily-football-quiz">Football quiz</a><a href="/player-wordle-game">Player Wordle</a><a href="/about">About</a><a href="/how-it-works">How it works</a><a href="/privacy">Privacy Policy</a><a href="/contact">Contact</a></nav></section></div>
+</nav>
+<h2 class="visually-hidden" id="leagueTitle">All clubs</h2>
+<section class="club-grid" aria-label="Choose your club"><?php foreach($clubs as $c):
+$ready = $selectedGame === 'daily' || isset($wordleReady[wordleSlug($c['slug'])]);
+$gameUrl = $selectedGame === 'daily' ? '/daily-five/'.$c['slug'] : '/player-wordle/'.wordleSlug($c['slug']);
+?>
+<?php if ($ready): ?><a class="club" data-slug="<?=h($c['slug'])?>" data-name="<?=h($c['name'])?>" data-league="<?=h($c['league'])?>" href="<?=h($gameUrl)?>">
+<?php else: ?><div class="club preparing-club" data-league="<?=h($c['league'])?>" aria-label="<?=h($c['name'])?>: player bank in preparation"><?php endif ?>
+<img src="<?=h($c['logo_path'])?>" alt="" width="52" height="52"><span class="club-name"><?=h($c['name'])?></span>
+<?php if (!$ready): ?><span class="club-info">Coming soon</span></div><?php else: ?></a><?php endif ?>
+<?php endforeach ?></section>
+<p class="selection-note">New challenges at midnight UK time. Your progress and streaks are saved on this device.</p>
+<details class="game-explainer"><summary>How <?= $selectedGame === 'daily' ? 'Daily Five' : 'Player Wordle' ?> works</summary>
+<?php if ($selectedGame === 'daily'): ?><p>Answer five multiple-choice football questions about your club’s players, matches, managers and history. See the correct answer and explanation after each choice, then share your score. Come back tomorrow for a fresh quiz.</p>
+<?php else: ?><p>Guess your club’s mystery footballer in five attempts. Each guess reveals coloured clues for debut age, position, nationality, debut year and previous clubs. Green means a match; amber helps you narrow down the answer. <a href="/how-it-works">Read the colour guide</a>.</p><?php endif ?>
+<p>Explore <a href="/<?= $selectedGame === 'daily' ? 'player-wordle-game' : 'daily-football-quiz' ?>"><?= $selectedGame === 'daily' ? 'Player Wordle' : 'Daily Five' ?></a> or <a href="/">return to the games</a>.</p>
+</details>
+<details class="club-directory"><summary>Club history and quiz guides</summary><nav aria-label="Club guides"><?php foreach($clubs as $c): ?><a href="/clubs/<?=h($c['slug'])?>"><?=h($c['name'])?></a><?php endforeach ?></nav></details>
 <script>
-function markClubs(){document.querySelectorAll('.club[data-slug]').forEach(el=>{
- const r=clubResult(el.dataset.slug,el.dataset.name);
- const s=stored(`dailyfive:streaks:${el.dataset.name}`)||{};
- const d=new Date(`${playDate}T12:00:00Z`);d.setUTCDate(d.getUTCDate()-1);
- const prev=d.toISOString().slice(0,10);
- const active=date=>date===playDate||date===prev;
- const count=value=>Math.max(0,Math.floor(Number(value)||0));
- const completion=count(r?(r.completion??s.completion):(active(s.lastCompleted)?s.completion:0));
- const perfect=count(r?(r.perfect??s.perfect):(active(s.lastCompleted)&&active(s.lastPerfect)?s.perfect:0));
- const progress=stored(`dailyfive:progress:${el.dataset.slug}:${playDate}`);
- const started=progress&&Array.isArray(progress.marks)&&progress.marks.length>0;
- const status=r?'':started?'In progress today':'';
- const pwMap={'coventry-city':'coventry','hull-city':'hull','ipswich-town':'ipswich','leeds-united':'leeds','manchester-city':'man-city','manchester-united':'man-utd','newcastle-united':'newcastle','tottenham-hotspur':'tottenham'};
- let pw={};try{pw=JSON.parse(localStorage.getItem('pw:'+(pwMap[el.dataset.slug]||el.dataset.slug))||'{}')}catch(e){}
- const dailyDone=!!r,wordleDone=pw.date===playDate&&pw.done===true;
- el.classList.toggle('played',dailyDone&&wordleDone);
- el.classList.toggle('one-game-played',dailyDone!==wordleDone);
- el.classList.toggle('both-games-played',dailyDone&&wordleDone);
- let tick=el.querySelector('.club-played-tick');
- if(dailyDone&&wordleDone&&!tick){tick=document.createElement('span');tick.className='club-played-tick';tick.textContent='✓';tick.setAttribute('aria-hidden','true');tick.title='Both games completed today';el.appendChild(tick)}
- if(!(dailyDone&&wordleDone)&&tick)tick.remove();
- let info=el.querySelector('.club-info');
- if(!info){info=document.createElement('span');info.className='club-info';
- for(const cls of ['club-status','club-streaks-line']){const line=document.createElement('span');line.className=cls;info.appendChild(line)}
- el.appendChild(info)}
- info.querySelector('.club-status').textContent=status;
- info.querySelector('.club-status').hidden=!status;
- const streaks=info.querySelector('.club-streaks-line');
- streaks.textContent=`🔥 ${completion} · ⭐ ${perfect}`;
- streaks.hidden=!(completion>0||perfect>0);
- streaks.title=`Completion streak: ${completion} days; perfect 5/5 streak: ${perfect} days`;
- info.hidden=!status&&streaks.hidden;
- el.setAttribute('aria-label',`${el.dataset.name}: ${r?`Played today, ${r.score} out of 5`:status||'Not played today'}. Completion streak: ${completion} days. Perfect streak: ${perfect} days.`);
-})}
+const selectedGame=<?=json_encode($selectedGame)?>;
+const pwSlugMap={'coventry-city':'coventry','hull-city':'hull','ipswich-town':'ipswich','leeds-united':'leeds','manchester-city':'man-city','manchester-united':'man-utd','newcastle-united':'newcastle','tottenham-hotspur':'tottenham'};
+function markClubs(){
+ const yesterday=new Date(playDate+'T12:00:00Z');yesterday.setUTCDate(yesterday.getUTCDate()-1);
+ const prev=yesterday.toISOString().slice(0,10),active=d=>d===playDate||d===prev;
+ document.querySelectorAll('.club[data-slug]').forEach(el=>{
+  const slug=el.dataset.slug,name=el.dataset.name,pw=pwSlugMap[slug]||slug;
+  const r=clubResult(slug,name),s=stored('dailyfive:streaks:'+name)||{};
+  const ps=stored('pw:'+pw)||{},pg=stored('pwgame:'+playDate+':'+pw)||{};
+  const progress=stored('dailyfive:progress:'+slug+':'+playDate);
+  const done=selectedGame==='daily'?!!r:((ps.date===playDate&&ps.done===true)||pg.done===true);
+  const started=selectedGame==='daily'?!!(progress&&Array.isArray(progress.marks)&&progress.marks.length):Number(pg.attempts)>0;
+  const streak=selectedGame==='daily'?(r?(r.completion??s.completion):active(s.lastCompleted)?s.completion:0):(active(ps.date)?ps.streak:0);
+  const perfect=selectedGame==='daily'?(r?(r.perfect??s.perfect):active(s.lastCompleted)&&active(s.lastPerfect)?s.perfect:0):0;
+  el.classList.toggle('played',done);el.classList.toggle('in-progress',!done&&started);
+  let tick=el.querySelector('.club-played-tick');
+  if(done&&!tick){tick=document.createElement('span');tick.className='club-played-tick';tick.textContent='✓';tick.setAttribute('aria-hidden','true');el.appendChild(tick)}
+  if(!done&&tick)tick.remove();
+  let info=el.querySelector('.club-info');if(!info){info=document.createElement('span');info.className='club-info';el.appendChild(info)}
+  const status=done?'Completed today':started?'In progress today':'';
+  const streakText=Number(streak)>0?'🔥 '+Math.max(0,Math.floor(streak))+(Number(perfect)>0?' · ⭐ '+Math.floor(perfect):''):'';
+  info.textContent=[status,streakText].filter(Boolean).join(' · ');info.hidden=!info.textContent;
+  el.setAttribute('aria-label',name+': '+(status||'Play '+(selectedGame==='daily'?'Daily Five':'Player Wordle'))+(Number(streak)>0?'. Completion streak: '+streak+' days':''));
+ });
+}
 function chooseLeague(key){
- if(!document.querySelector(`[data-league="${key}"]`))key='premier-league';
+ const tab=document.querySelector('.league-tabs button[data-league="'+key+'"]');
+ if(!tab){key='premier-league'}
  document.querySelectorAll('.league-tabs button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.league===key)));
- document.querySelectorAll('.club[data-slug]').forEach(c=>c.hidden=c.dataset.league!==key);
- document.getElementById('leagueTitle').textContent=document.querySelector(`.league-tabs [data-league="${key}"]`).textContent;
+ document.querySelectorAll('.club[data-league]').forEach(c=>c.hidden=c.dataset.league!==key);
+ document.getElementById('leagueTitle').textContent=document.querySelector('.league-tabs button[data-league="'+key+'"]').textContent;
  try{localStorage.setItem('cdf:league',key)}catch(e){}
 }
 let rememberedLeague='premier-league';try{rememberedLeague=localStorage.getItem('cdf:league')||rememberedLeague}catch(e){}
@@ -271,20 +261,14 @@ chooseLeague(rememberedLeague);
 document.querySelectorAll('.league-tabs button').forEach(b=>b.addEventListener('click',()=>chooseLeague(b.dataset.league)));
 markClubs();window.addEventListener('pageshow',markClubs);window.addEventListener('storage',markClubs);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)markClubs()});
-const pwSlugMap={'coventry-city':'coventry','hull-city':'hull','ipswich-town':'ipswich','leeds-united':'leeds','manchester-city':'man-city','manchester-united':'man-utd','newcastle-united':'newcastle','tottenham-hotspur':'tottenham'};
-function pwSlug(slug){return pwSlugMap[slug]||slug}
-function pwStatus(slug){let s={},g={};const p=pwSlug(slug);try{s=JSON.parse(localStorage.getItem('pw:'+p)||'{}');g=JSON.parse(localStorage.getItem('pwgame:'+playDate+':'+p)||'{}')}catch(e){}if(s.date===playDate&&s.done)return '✓ COMPLETED';if(g.attempts>0&&!g.done)return 'IN PROGRESS';return s.streak>0?'🔥 '+s.streak+' STREAK':''}
-function closePicker(){const p=document.getElementById('gamePicker');p.hidden=true;p.setAttribute('aria-hidden','true');document.body.classList.remove('picker-open')}
-function openPicker(el){const slug=el.dataset.slug,name=el.dataset.name,shortName=name.replace(/^Nottingham /,'').replace(/^Manchester /,'').replace(/ United$/,'').replace(/ City$/,'');document.getElementById('pickerClub').textContent=name;document.getElementById('dailyFiveDesc').textContent=`5 questions about ${shortName}`;document.getElementById('playerWordleDesc').textContent=`Guess today's ${shortName} player`;const pwReady=el.dataset.wordleReady==='1',pwLink=document.getElementById('playerWordleChoice');pwLink.classList.toggle('building',!pwReady);pwLink.setAttribute('aria-disabled',String(!pwReady));pwLink.querySelector('.play-bar').innerHTML=pwReady?'PLAY PLAYER WORDLE <b>→</b>':'PLAYER BANK IN PREPARATION';if(!pwReady)document.getElementById('playerWordleDesc').textContent='Player clues are being researched and checked.';document.getElementById('pickerLogo').src=el.dataset.logo;document.getElementById('pickerLogo').alt=name+' crest';document.getElementById('dailyFiveChoice').href='/daily-five/'+encodeURIComponent(slug);document.getElementById('playerWordleChoice').href='/player-wordle/'+encodeURIComponent(pwSlug(slug));const r=clubResult(slug,name),ds=stored(`dailyfive:streaks:${name}`)||{},ps=pwStatus(slug),dailyStreak=Number(ds.completion)||0;document.getElementById('dailyScore').textContent=r?`✓ ${r.score}/5`:'';document.getElementById('dailyFiveState').textContent=dailyStreak?`🔥 ${dailyStreak} day streak`:(r?'✓ Completed today':'');document.getElementById('wordleScore').textContent=ps.includes('COMPLETED')?'✓ 5/5':'';document.getElementById('playerWordleState').textContent=ps.replace('✓ COMPLETED','Completed today');const pwRaw=(()=>{try{return JSON.parse(localStorage.getItem('pw:'+pwSlug(slug))||'{}')}catch(e){return {}}})();const combo=(r&&ps.includes('COMPLETED'))?Math.min(dailyStreak||1,Number(pwRaw.streak)||1):0;document.getElementById('comboStreak').textContent=combo?`🔥 ${combo} days`:'🔥 —';const p=document.getElementById('gamePicker');p.hidden=false;p.setAttribute('aria-hidden','false');document.body.classList.add('picker-open');document.getElementById('pickerClose').focus();for(const [id,game] of [['dailyFiveChoice','daily'],['playerWordleChoice','wordle']])document.getElementById(id).onclick=e=>{if(game==='wordle'&&!pwReady){e.preventDefault();return;}cdfEvent(slug,game,'selected')}}
-document.querySelectorAll('.club[data-slug]').forEach(el=>el.addEventListener('click',e=>{e.preventDefault();openPicker(el)}));
-document.getElementById('pickerClose').addEventListener('click',closePicker);document.getElementById('gamePicker').addEventListener('click',e=>{if(e.target.id==='gamePicker')closePicker()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closePicker()});
+document.querySelectorAll('.club[data-slug]').forEach(el=>el.addEventListener('click',()=>cdfEvent(el.dataset.slug,selectedGame,'selected')));
 </script>
 <?php elseif (count($questions) !== 5): ?>
-<section class="quiz-head"><div class="eyebrow">DAILY FIVE · <?= h($club['name']) ?></div><h1>Today’s five</h1></section><div class="empty"><h2>The next round is being prepared.</h2><p>Come back shortly for five fresh questions.</p><a class="again" href="/">Back to club selection</a></div>
+<section class="quiz-head"><div class="eyebrow">DAILY FIVE · <?= h($club['name']) ?></div><h1>Today’s five</h1></section><div class="empty"><h2>The next round is being prepared.</h2><p>Come back shortly for five fresh questions.</p><a class="again" href="/daily-football-quiz">Back to club selection</a></div>
 <?php else: ?>
 <section class="quiz-head" id="quizHead"><div class="eyebrow">DAILY FIVE · <?= h($club['name']) ?></div><h1>Today’s five</h1><div class="streak-mini" id="streakMini" hidden></div><div class="progress" id="progress" aria-label="Quiz progress"></div></section>
 <section class="card" id="quiz" aria-live="polite"><div class="count" id="count"></div><h2 class="question" id="question"></h2><div class="answers" id="answers"></div><div class="feedback" id="feedback"></div><details id="reportQuestion" class="question-report"><summary>Report this question</summary><div class="report-reasons"><button type="button" data-reason="incorrect">Incorrect answer</button><button type="button" data-reason="outdated">Outdated statistic</button><button type="button" data-reason="repeated">Repeated question</button></div><small id="reportStatus" role="status"></small></details><button class="next" id="next">Next question</button></section>
-<section class="result" id="result" hidden><div class="eyebrow">Full time</div><div class="score" id="score"></div><h2 id="resultClub"><?= h($club['name']) ?> Daily Five</h2><div class="tiles" id="tiles"></div><div class="streaks"><div class="streak-box"><span class="streak-number" id="completionStreak">0</span><span class="streak-label">🔥 completion streak</span></div><div class="streak-box"><span class="streak-number" id="perfectStreak">0</span><span class="streak-label">⭐ perfect 5/5 streak</span></div></div><p>You’ve played this club today. Try another club, or return after midnight UK time.</p><div class="share-actions" aria-label="Share your result"><button class="share-action primary" id="shareNative">Share result</button><button class="share-action" id="shareCopy">Copy result</button></div><p id="shareStatus" role="status"></p><textarea id="shareFallback" class="share-fallback" aria-label="Result to copy" readonly hidden></textarea><?php if(isset($wordleReady[wordleSlug($club['slug'])])):?><a class="other-game" id="otherGame" href="/player-wordle/<?=h(wordleSlug($club['slug']))?>">Try today’s Player Wordle →</a><?php endif?><a class="again" href="/">Back to club selection</a></section>
+<section class="result" id="result" hidden><div class="eyebrow">Full time</div><div class="score" id="score"></div><h2 id="resultClub"><?= h($club['name']) ?> Daily Five</h2><div class="tiles" id="tiles"></div><div class="streaks"><div class="streak-box"><span class="streak-number" id="completionStreak">0</span><span class="streak-label">🔥 completion streak</span></div><div class="streak-box"><span class="streak-number" id="perfectStreak">0</span><span class="streak-label">⭐ perfect 5/5 streak</span></div></div><p>You’ve played this club today. Try another club, or return after midnight UK time.</p><div class="share-actions" aria-label="Share your result"><button class="share-action primary" id="shareNative">Share result</button><button class="share-action" id="shareCopy">Copy result</button></div><p id="shareStatus" role="status"></p><textarea id="shareFallback" class="share-fallback" aria-label="Result to copy" readonly hidden></textarea><?php if(isset($wordleReady[wordleSlug($club['slug'])])):?><a class="other-game" id="otherGame" href="/player-wordle/<?=h(wordleSlug($club['slug']))?>">Try today’s Player Wordle →</a><?php endif?><a class="again" href="/daily-football-quiz">Back to club selection</a></section>
 <script>
 const questions=<?= json_encode(array_map(fn($q)=>['id'=>(int)$q['id'],'q'=>$q['question_text'],'o'=>json_decode($q['options_json'],true),'a'=>(int)$q['correct_index'],'e'=>$q['explanation'],'u'=>$q['source_url'],'s'=>$q['source_label']],$questions), JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE) ?>;
 const club=<?= json_encode($club['name']) ?>, clubSlug=<?= json_encode($club['slug']) ?>, quizDate=<?= json_encode($quizDate) ?>, roundId=questions.map(x=>x.id).join('-');
@@ -359,7 +343,7 @@ window.addEventListener('pageshow',()=>{const r=readDailyResult();if(r)showResul
 <script>
 (()=>{const modal=document.getElementById('infoModal'),content=document.getElementById('infoContent'),close=document.getElementById('infoClose');let scrollY=0,lastFocus=null;
 async function openInfo(a){lastFocus=a;scrollY=window.scrollY;document.body.classList.add('info-open');modal.hidden=false;modal.setAttribute('aria-hidden','false');content.innerHTML='<p>Loading…</p>';try{const r=await fetch(a.href,{cache:'no-store',headers:{'X-ClubDailyFive-Overlay':'1'}});if(!r.ok)throw new Error();content.innerHTML=await r.text();history.pushState({info:true},'',a.getAttribute('href'));close.focus()}catch(e){location.href=a.href}}
-function closeInfo(fromPop=false){modal.hidden=true;modal.setAttribute('aria-hidden','true');document.body.classList.remove('info-open');window.scrollTo(0,scrollY);if(!fromPop&&location.pathname!=='/')history.back();if(lastFocus)lastFocus.focus()}
+function closeInfo(fromPop=false){modal.hidden=true;modal.setAttribute('aria-hidden','true');document.body.classList.remove('info-open');window.scrollTo(0,scrollY);if(!fromPop)history.back();if(lastFocus)lastFocus.focus()}
 document.querySelectorAll('.foot-links a').forEach(a=>{if(['/about','/how-it-works','/privacy','/contact'].includes(a.getAttribute('href')))a.addEventListener('click',e=>{e.preventDefault();openInfo(a)})});close.addEventListener('click',()=>closeInfo());modal.addEventListener('click',e=>{if(e.target===modal)closeInfo()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.hidden)closeInfo()});window.addEventListener('popstate',()=>{if(!modal.hidden)closeInfo(true)});
 })();
 </script>

@@ -15,7 +15,16 @@ AddType application/manifest+json .webmanifest
   RewriteCond %{QUERY_STRING} (?:^|&)club=([a-z0-9-]+)(?:&|$) [NC]
   RewriteRule ^player-wordle/game\.php$ https://clubdailyfive.com/player-wordle/%1 [R=301,L,NE,QSD]
   RewriteCond %{THE_REQUEST} \s/+player-wordle/index\.php(?:[?\s]) [NC]
-  RewriteRule ^player-wordle/index\.php$ https://clubdailyfive.com/ [R=301,L,NE,QSD]
+  RewriteRule ^player-wordle/index\.php$ https://clubdailyfive.com/player-wordle-game [R=301,L,NE,QSD]
+
+  # Retired club chooser entry points go to the game-specific selector.
+  RewriteRule ^player-wordle/?$ https://clubdailyfive.com/player-wordle-game [R=301,L,NE,QSD]
+  RewriteCond %{THE_REQUEST} \s/+seo\.php(?:[?\s]) [NC]
+  RewriteCond %{QUERY_STRING} (?:^|&)type=daily(?:&|$) [NC]
+  RewriteRule ^seo\.php$ https://clubdailyfive.com/daily-football-quiz [R=301,L,NE,QSD]
+  RewriteCond %{THE_REQUEST} \s/+seo\.php(?:[?\s]) [NC]
+  RewriteCond %{QUERY_STRING} (?:^|&)type=wordle(?:&|$) [NC]
+  RewriteRule ^seo\.php$ https://clubdailyfive.com/player-wordle-game [R=301,L,NE,QSD]
 
   # Use the same slashless URL form as canonical tags and the sitemap.
   RewriteCond %{REQUEST_FILENAME} !-d
@@ -27,16 +36,16 @@ AddType application/manifest+json .webmanifest
   RewriteRule ^player-wordle/([a-z0-9-]+)/?$ player-wordle/game.php?club=$1 [L,QSA]
   RewriteRule ^sitemap\.xml$ sitemap.php [L]
 
-  # Informational game guides; the homepage remains the main game picker.
-  RewriteRule ^daily-football-quiz/?$ seo.php?type=daily [L,QSA]
-  RewriteRule ^player-wordle-game/?$ seo.php?type=wordle [L,QSA]
+  # Existing search URLs now serve the game-specific club selectors.
+  RewriteRule ^daily-football-quiz/?$ index.php?game=daily [L,QSA]
+  RewriteRule ^player-wordle-game/?$ index.php?game=wordle [L,QSA]
 
   # Friendly public information pages.
   RewriteRule ^(about|privacy|contact|how-it-works)/?$ info.php?page=$1 [L,QSA]
 
 </IfModule>
 
-<FilesMatch "\.(sqlite|db|sql|bak)$">
+<FilesMatch "(?:\.(sqlite|db|sql)(?:[-.].*)?$|\.bak(?:[.-].*)?$)">
   Require all denied
 </FilesMatch>
 <IfModule mod_headers.c>

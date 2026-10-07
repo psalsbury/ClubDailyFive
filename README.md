@@ -47,3 +47,6 @@ Only daily totals needed for the current month or overlapping current week are r
 High-scoring opponent questions must include the full recorded match date (for example, 1 February 2025). Both bank builders enforce this. `agent/migrate_question_dates.py --apply` adds dates in place to existing entries without changing answers, question IDs, round selections or usage history.
 
 All full dates displayed in questions, answer options and explanations use DD-MMM-YYYY (for example, 01-Feb-2025). The date formatter preserves season labels, URLs and internal ISO dates. Both historical builders and the fresh-question generator apply this format. Existing records can be updated with `agent/migrate_display_dates.py --apply`.
+
+## Game-first navigation (October 2026)
+The homepage has two linked game tiles. `/daily-football-quiz` and `/player-wordle-game` are server-rendered club selectors; clubs open the selected game directly. Club-history pages remain at `/clubs/SLUG` and are linked from the selectors. Each selector has its own title, description, canonical URL and ItemList structured data. Legacy Player Wordle chooser URLs redirect permanently to the Wordle selector; the unused chooser PHP file and popup UI are removed. Completion and streak markers are specific to the selected game, using existing browser storage.
