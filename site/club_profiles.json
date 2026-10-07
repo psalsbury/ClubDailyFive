@@ -297,5 +297,245 @@
       "ground": "Racecourse Ground (Y Cae Ras)",
       "nickname": "The Red Dragons"
     }
+  },
+  "arsenal": {
+    "intro": "From Woolwich beginnings to Highbury and the Emirates, Arsenal’s history spans pioneering teams and the unbeaten Invincibles.",
+    "history": "Arsenal began as Dial Square in 1886, formed by workers in Woolwich. The club later moved to north London, and left Highbury for the Emirates Stadium in 2006. The unbeaten 2003–04 league campaign remains a distinctive part of the Gunners’ story, alongside generations of cup-winning sides.",
+    "source_url": "https://en.wikipedia.org/wiki/Arsenal_F.C.",
+    "source_label": "Arsenal history and club profile",
+    "checked_at": "2026-10-07",
+    "facts": {
+      "founded": "1886",
+      "ground": "Emirates Stadium",
+      "nickname": "The Gunners"
+    }
+  },
+  "aston-villa": {
+    "intro": "Villa Park, the founding of the Football League and European success give Aston Villa supporters a rich history to explore.",
+    "history": "Aston Villa were formed in 1874 and have played at Villa Park since 1897. Club director William McGregor helped establish the Football League in 1888. Villa’s history includes the European Cup and domestic league and cup honours, connecting their early influence on football with memorable nights on the European stage.",
+    "source_url": "https://en.wikipedia.org/wiki/Aston_Villa_F.C.",
+    "source_label": "Aston Villa history and club profile",
+    "checked_at": "2026-10-07",
+    "facts": {
+      "founded": "1874",
+      "ground": "Villa Park",
+      "nickname": "The Villans"
+    }
+  },
+  "bournemouth": {
+    "intro": "Bournemouth’s journey from Boscombe to top-flight football makes the Cherries a club of remarkable changes in fortune.",
+    "history": "Founded as Boscombe in 1899, the club adopted the AFC Bournemouth name in 1971. Dean Court has been their home since 1910. After decades in the Football League’s lower divisions, the Cherries won the Championship in 2014–15 to reach the top flight for the first time.",
+    "source_url": "https://en.wikipedia.org/wiki/AFC_Bournemouth",
+    "source_label": "Bournemouth history and club profile",
+    "checked_at": "2026-10-07",
+    "facts": {
+      "founded": "1899",
+      "ground": "Dean Court",
+      "nickname": "The Cherries"
+    }
+  },
+  "brentford": {
+    "intro": "Griffin Park and the move to a new stadium connect Brentford’s long west London heritage with a fresh chapter.",
+    "history": "Brentford were established in 1889 following discussions among local rowing and cricket club members. The Bees played at Griffin Park from 1904 until moving to Brentford Community Stadium in 2020. Those two grounds provide a backdrop to questions about the club’s players, changing fortunes and west London identity.",
+    "source_url": "https://en.wikipedia.org/wiki/Brentford_F.C.",
+    "source_label": "Brentford history and club profile",
+    "checked_at": "2026-10-07",
+    "facts": {
+      "founded": "1889",
+      "ground": "Brentford Community Stadium",
+      "nickname": "The Bees"
+    }
+  },
+  "brighton": {
+    "intro": "Brighton’s story links the Goldstone Ground, an FA Cup final and the move to Falmer with generations of Seagulls supporters.",
+    "history": "Brighton & Hove Albion were founded in 1901 and entered the Football League in 1920. Their first top-flight spell began in 1979, and they reached the 1983 FA Cup final before losing a replay to Manchester United. After the Goldstone era, Falmer Stadium became their home in 2011.",
+    "source_url": "https://en.wikipedia.org/wiki/Brighton_%26_Hove_Albion_F.C.",
+    "source_label": "Brighton history and club profile",
+    "checked_at": "2026-10-07",
+    "facts": {
+      "founded": "1901",
+      "ground": "Falmer Stadium",
+      "nickname": "The Seagulls"
+    }
+  },
+  "chelsea": {
+    "intro": "Stamford Bridge, a first league championship in 1955 and European honours provide Chelsea fans with plenty of quiz history.",
+    "history": "Chelsea were founded in 1905 to play at Stamford Bridge. Their first league championship arrived in 1955, followed by a European Cup Winners’ Cup victory in 1971. The Blues won that European competition again in 1998 and claimed their first Premier League title in 2004–05.",
+    "source_url": "https://en.wikipedia.org/wiki/Chelsea_F.C.",
+    "source_label": "Chelsea history and club profile",
+    "checked_at": "2026-10-07",
+    "facts": {
+      "founded": "1905",
+      "ground": "Stamford Bridge",
+      "nickname": "The Blues"
+    }
+  },
+  "coventry-city": {
+    "intro": "Coventry’s Singer roots and Jimmy Hill’s rise through the divisions form the foundations of the Sky Blues’ story.",
+    "history": "Coventry began as Singers F.C. in 1883 and took the Coventry City name in 1898. They joined the Football League in 1919. Under Jimmy Hill, Third Division and Second Division championships in the 1960s brought the club into the top flight. Their sky-blue colours are central to their identity.",
+    "source_url": "https://en.wikipedia.org/wiki/Coventry_City_F.C.",
+    "source_label": "Coventry City history and club profile",
+    "checked_at": "2026-10-07",
+    "facts": {
+      "founded": "1883",
+      "ground": "Coventry Building Society Arena",
+      "nickname": "The Sky Blues"
+    }
+  },
+  "crystal-palace": {
+    "intro": "Selhurst Park, memorable cup finals and the Eagles’ rise through the leagues give Palace fans a distinctive challenge.",
+    "history": "Crystal Palace’s professional club dates from 1905. The Eagles reached the FA Cup final in 1990 and finished third in the top flight the following season. After returning to the Premier League in 2013, they reached further cup finals, with their 2025 FA Cup victory marking a major landmark.",
+    "source_url": "https://en.wikipedia.org/wiki/Crystal_Palace_F.C.",
+    "source_label": "Crystal Palace history and club profile",
+    "checked_at": "2026-10-07",
+    "facts": {
+      "founded": "1905",
+      "ground": "Selhurst Park",
+      "nickname": "The Eagles"
+    }
+  },
+  "everton": {
+    "intro": "Everton’s St Domingo origins, Football League heritage and championship-winning teams offer a deep well of Toffees trivia.",
+    "history": "Everton began as St Domingo’s in 1878 and adopted the Everton name the following year. They helped found the Football League in 1888 and became champions in 1890–91. League and FA Cup successes, together with the European Cup Winners’ Cup, are important chapters in the club’s long Merseyside history.",
+    "source_url": "https://en.wikipedia.org/wiki/Everton_F.C.",
+    "source_label": "Everton history and club profile",
+    "checked_at": "2026-10-07",
+    "facts": {
+      "founded": "1878",
+      "ground": "Hill Dickinson Stadium",
+      "nickname": "The Toffees"
+    }
+  },
+  "fulham": {
+    "intro": "Craven Cottage, Johnny Haynes and a European final give Fulham’s west London story its own character.",
+    "history": "Fulham were founded in 1879 and began playing at Craven Cottage in 1896. Johnny Haynes became a defining figure during their twentieth-century top-flight years. The Cottagers reached the FA Cup final in 1975 and the Europa League final in 2010, adding memorable cup journeys to their league history.",
+    "source_url": "https://en.wikipedia.org/wiki/Fulham_F.C.",
+    "source_label": "Fulham history and club profile",
+    "checked_at": "2026-10-07",
+    "facts": {
+      "founded": "1879",
+      "ground": "Craven Cottage",
+      "nickname": "The Cottagers"
+    }
+  },
+  "hull-city": {
+    "intro": "Black and amber, Boothferry Park and a new stadium connect Hull City’s football heritage with the Tigers’ identity.",
+    "history": "Hull City were established in 1904 and joined the Football League in 1905. Raich Carter led them to the Third Division North title in 1948–49. They left Boothferry Park in 2002 for the ground now known as MKM Stadium. Their traditional black-and-amber colours explain the Tigers nickname.",
+    "source_url": "https://en.wikipedia.org/wiki/Hull_City_A.F.C.",
+    "source_label": "Hull City history and club profile",
+    "checked_at": "2026-10-07",
+    "facts": {
+      "founded": "1904",
+      "ground": "MKM Stadium",
+      "nickname": "The Tigers"
+    }
+  },
+  "ipswich-town": {
+    "intro": "Portman Road’s league championship, FA Cup and UEFA Cup memories give Ipswich supporters a varied history to test.",
+    "history": "Ipswich Town began in 1878, turned professional in 1936 and joined the Football League two years later. They won the league in 1961–62, their first top-flight season. The FA Cup in 1978 and UEFA Cup in 1981 added further honours to the Portman Road story.",
+    "source_url": "https://en.wikipedia.org/wiki/Ipswich_Town_F.C.",
+    "source_label": "Ipswich Town history and club profile",
+    "checked_at": "2026-10-07",
+    "facts": {
+      "founded": "1878",
+      "ground": "Portman Road",
+      "nickname": "The Tractor Boys"
+    }
+  },
+  "leeds-united": {
+    "intro": "Elland Road, the white kit and Don Revie’s trophy-winning teams sit at the heart of Leeds United’s story.",
+    "history": "Leeds United were formed in 1919 following the disbanding of Leeds City. Elland Road became the new club’s home. Their strongest period under Don Revie in the 1960s and 1970s brought league championships and domestic and European cup successes. The white kit and White Rose of York remain familiar symbols.",
+    "source_url": "https://en.wikipedia.org/wiki/Leeds_United_F.C.",
+    "source_label": "Leeds United history and club profile",
+    "checked_at": "2026-10-07",
+    "facts": {
+      "founded": "1919",
+      "ground": "Elland Road",
+      "nickname": "The Whites"
+    }
+  },
+  "liverpool": {
+    "intro": "Anfield, the Boot Room managers and European nights give Liverpool supporters generations of football history to explore.",
+    "history": "Liverpool were founded in 1892 and joined the Football League in 1893. Bill Shankly helped rebuild the club into a major force, with Bob Paisley, Joe Fagan and Kenny Dalglish continuing its success. European Cup victories in 2005 and 2019 added modern chapters to the Reds’ Anfield story.",
+    "source_url": "https://en.wikipedia.org/wiki/Liverpool_F.C.",
+    "source_label": "Liverpool history and club profile",
+    "checked_at": "2026-10-07",
+    "facts": {
+      "founded": "1892",
+      "ground": "Anfield",
+      "nickname": "The Reds"
+    }
+  },
+  "manchester-city": {
+    "intro": "Manchester City’s story stretches from St Mark’s and Maine Road to sky-blue success at the Etihad.",
+    "history": "The club began as St Mark’s in 1880, became Ardwick in 1887 and adopted the Manchester City name in 1894. City won the FA Cup in 1904 and later enjoyed a successful spell under Joe Mercer and Malcolm Allison. They moved from Maine Road to their present stadium in 2003.",
+    "source_url": "https://en.wikipedia.org/wiki/Manchester_City_F.C.",
+    "source_label": "Manchester City history and club profile",
+    "checked_at": "2026-10-07",
+    "facts": {
+      "founded": "1880",
+      "ground": "Etihad Stadium",
+      "nickname": "The Citizens"
+    }
+  },
+  "manchester-united": {
+    "intro": "Newton Heath roots, the Busby era and the 1999 treble give Manchester United supporters a wide-ranging football challenge.",
+    "history": "Founded as Newton Heath LYR in 1878, the club became Manchester United in 1902 and moved to Old Trafford in 1910. Matt Busby’s rebuilt side won the European Cup in 1968. Under Alex Ferguson, United achieved the Premier League, FA Cup and Champions League treble in 1998–99.",
+    "source_url": "https://en.wikipedia.org/wiki/Manchester_United_F.C.",
+    "source_label": "Manchester United history and club profile",
+    "checked_at": "2026-10-07",
+    "facts": {
+      "founded": "1878",
+      "ground": "Old Trafford",
+      "nickname": "The Red Devils"
+    }
+  },
+  "newcastle-united": {
+    "intro": "St James’ Park and the black-and-white stripes anchor Newcastle United’s place in the football identity of Tyneside.",
+    "history": "Newcastle United took their present name in 1892 after Newcastle East End absorbed the assets of Newcastle West End, including St James’ Park. The club’s earlier roots reach back to Stanley F.C. in 1881. The Magpies’ ground and their rivalry with Sunderland are central to their Tyneside identity.",
+    "source_url": "https://en.wikipedia.org/wiki/Newcastle_United_F.C.",
+    "source_label": "Newcastle United history and club profile",
+    "checked_at": "2026-10-07",
+    "facts": {
+      "founded": "1892 (United name)",
+      "ground": "St James’ Park",
+      "nickname": "The Magpies"
+    }
+  },
+  "nottingham-forest": {
+    "intro": "The City Ground and consecutive European Cup triumphs make Nottingham Forest’s history a distinctive daily quiz subject.",
+    "history": "Nottingham Forest were founded in 1865. Their City Ground identity is closely associated with the remarkable European successes of the late 1970s. Forest won the European Cup in 1979 and retained it in 1980 by beating Hamburg. Matches against Derby County form the East Midlands derby.",
+    "source_url": "https://en.wikipedia.org/wiki/Nottingham_Forest_F.C.",
+    "source_label": "Nottingham Forest history and club profile",
+    "checked_at": "2026-10-07",
+    "facts": {
+      "founded": "1865",
+      "ground": "City Ground",
+      "nickname": "The Reds"
+    }
+  },
+  "sunderland": {
+    "intro": "Roker Park, the Stadium of Light and a famous 1973 cup triumph connect Sunderland’s generations of supporters.",
+    "history": "Sunderland’s roots are in a teachers’ team formed in 1879. The Black Cats won six First Division championships and the FA Cup in 1937 and 1973. They moved from Roker Park to the Stadium of Light in 1997. Newcastle United provide the opposition in the Tyne–Wear derby.",
+    "source_url": "https://en.wikipedia.org/wiki/Sunderland_A.F.C.",
+    "source_label": "Sunderland history and club profile",
+    "checked_at": "2026-10-07",
+    "facts": {
+      "founded": "1879",
+      "ground": "Stadium of Light",
+      "nickname": "The Black Cats"
+    }
+  },
+  "tottenham-hotspur": {
+    "intro": "The 1961 Double, European firsts and the north London derby give Spurs fans a varied football history to explore.",
+    "history": "Tottenham were formed as Hotspur in 1882. They won the FA Cup as a non-League club in 1901 and completed the league and FA Cup Double in 1960–61. Their 1963 Cup Winners’ Cup success made them the first British club to win a UEFA competition.",
+    "source_url": "https://en.wikipedia.org/wiki/Tottenham_Hotspur_F.C.",
+    "source_label": "Tottenham Hotspur history and club profile",
+    "checked_at": "2026-10-07",
+    "facts": {
+      "founded": "1882",
+      "ground": "Tottenham Hotspur Stadium",
+      "nickname": "Spurs"
+    }
   }
 }

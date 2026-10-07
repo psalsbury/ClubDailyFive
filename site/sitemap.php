@@ -6,7 +6,7 @@ $clubs = $pdo->query("SELECT slug FROM clubs WHERE active=1 ORDER BY slug")->fet
 $wordle = new PDO('sqlite:/var/lib/clubdailyfive/player-wordle/game.sqlite3');
 $wordleClubs = array_fill_keys($wordle->query('SELECT c.slug FROM clubs c JOIN players p ON p.club_id=c.id GROUP BY c.id HAVING count(p.id)>=10')->fetchAll(PDO::FETCH_COLUMN), true);
 $base = 'https://clubdailyfive.com';
-$urls = ['/', '/about', '/how-it-works', '/privacy', '/contact'];
+$urls = ['/', '/daily-football-quiz', '/player-wordle-game', '/about', '/how-it-works', '/privacy', '/contact'];
 foreach ($clubs as $slug) {
     $urls[] = '/clubs/' . rawurlencode((string)$slug);
     $urls[] = '/daily-five/' . rawurlencode((string)$slug);

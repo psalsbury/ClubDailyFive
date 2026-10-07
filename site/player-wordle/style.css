@@ -162,3 +162,11 @@ body{display:flex;flex-direction:column;min-height:100dvh}
 img[src*="/assets/crests/derby-county.png"],img[src*="/assets/crests/swansea-city.png"]{filter:brightness(0) invert(1)}
 
 .other-game{display:block;width:min(360px,100%);margin:12px auto 0;padding:11px 14px;border:1px solid #273650;border-radius:12px;color:#f7f8fc;text-decoration:none;font-size:.86rem;text-align:center;background:#111c31}.other-game:hover,.other-game:focus-visible{border-color:#ffcc33}.other-game[hidden]{display:none!important}
+
+.wordle-about{width:min(760px,calc(100% - 28px));margin:28px auto 16px;padding:18px 20px;border:1px solid #273650;border-radius:14px;background:#111c31;color:#a9b2c4;font-size:.88rem;line-height:1.55}
+.wordle-about h2{margin:0 0 9px;color:#f7f8fc;font-size:1.1rem}
+.wordle-about h3{color:#f7f8fc;font-size:1rem;margin:18px 0 8px}
+.wordle-about summary{cursor:pointer;color:#f7f8fc;padding:10px 0;min-height:44px}
+.wordle-about li{margin:6px 0}.wordle-about a{color:#ffcc33;text-underline-offset:3px}
+.wordle-about .wordle-more{font-size:.8rem;margin-bottom:0}
+@media(max-width:600px){.wordle-about{padding:14px 16px;font-size:.8rem}.wordle-about h2{font-size:1rem}}

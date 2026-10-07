@@ -11,8 +11,9 @@ AddType application/manifest+json .webmanifest
   RewriteRule ^player-wordle/([a-z0-9-]+)/?$ player-wordle/game.php?club=$1 [L,QSA]
   RewriteRule ^sitemap\.xml$ sitemap.php [L]
 
-  # Game selection now lives exclusively on the homepage.
-  RewriteRule ^(daily-football-quiz|player-wordle-game)/?$ / [R=301,L]
+  # Informational game guides; the homepage remains the main game picker.
+  RewriteRule ^daily-football-quiz/?$ seo.php?type=daily [L,QSA]
+  RewriteRule ^player-wordle-game/?$ seo.php?type=wordle [L,QSA]
 
   # Friendly public information pages.
   RewriteRule ^(about|privacy|contact|how-it-works)/?$ info.php?page=$1 [L,QSA]
