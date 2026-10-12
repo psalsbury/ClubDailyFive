@@ -17,6 +17,10 @@ AddType application/manifest+json .webmanifest
   RewriteCond %{THE_REQUEST} \s/+player-wordle/index\.php(?:[?\s]) [NC]
   RewriteRule ^player-wordle/index\.php$ https://clubdailyfive.com/player-wordle-game [R=301,L,NE,QSD]
 
+  # Old club links (/?club=x, /index.php?club=x) go to the club's quiz page.
+  RewriteCond %{THE_REQUEST} \s/+(?:index\.php)?\?(?:[^\s]*&)?club=([a-z0-9-]+)(?:[&\s]) [NC]
+  RewriteRule ^(?:index\.php)?$ https://clubdailyfive.com/clubs/%1 [R=301,L,NE,QSD]
+
   # Retired club chooser entry points go to the game-specific selector.
   RewriteRule ^player-wordle/?$ https://clubdailyfive.com/player-wordle-game [R=301,L,NE,QSD]
   RewriteCond %{THE_REQUEST} \s/+seo\.php(?:[?\s]) [NC]

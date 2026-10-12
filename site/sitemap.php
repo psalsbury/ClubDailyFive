@@ -6,6 +6,8 @@ $clubs = $pdo->query("SELECT slug FROM clubs WHERE active=1 ORDER BY slug")->fet
 $wordle = new PDO('sqlite:/var/lib/clubdailyfive/player-wordle/game.sqlite3');
 $wordleClubs = array_fill_keys($wordle->query('SELECT c.slug FROM clubs c JOIN players p ON p.club_id=c.id GROUP BY c.id HAVING count(p.id)>=10')->fetchAll(PDO::FETCH_COLUMN), true);
 $base = 'https://clubdailyfive.com';
+// Club and game pages get new questions every day at midnight UK time.
+$today = (new DateTimeImmutable('now', new DateTimeZone('Europe/London')))->format('Y-m-d');
 $urls = ['/', '/daily-football-quiz', '/player-wordle-game', '/about', '/how-it-works', '/privacy', '/contact'];
 foreach ($clubs as $slug) {
     $urls[] = '/clubs/' . rawurlencode((string)$slug);
@@ -16,5 +18,5 @@ foreach ($clubs as $slug) {
 echo '<?xml version="1.0" encoding="UTF-8"?>', "\n";
 ?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-<?php foreach ($urls as $url): ?>  <url><loc><?= htmlspecialchars($base . $url, ENT_XML1|ENT_QUOTES, 'UTF-8') ?></loc></url>
+<?php foreach ($urls as $url): ?>  <url><loc><?= htmlspecialchars($base . $url, ENT_XML1|ENT_QUOTES, 'UTF-8') ?></loc><?php if (preg_match('#^/(clubs|daily-five|player-wordle)/#', $url)): ?><lastmod><?= $today ?></lastmod><?php endif ?></url>
 <?php endforeach ?></urlset>

@@ -55,10 +55,10 @@ if ($club) {
     $canonicalUrl .= 'daily-five/' . rawurlencode((string)$club['slug']);
 }
 $pageTitle = $club
-    ? $club['name'] . ' Football Quiz – Daily Five | ClubDailyFive'
+    ? 'Today’s ' . $club['name'] . ' Daily Five – 5 Questions | ClubDailyFive'
     : 'Daily Football Quiz & Player Wordle | ClubDailyFive';
 $pageDescription = $club
-    ? 'Play today’s free ' . $club['name'] . ' football quiz: five fresh questions covering players, matches, managers, trophies and club history.'
+    ? 'Play today’s five ' . $club['name'] . ' questions on players, matches, managers, trophies and club history. A new round every day at midnight UK time.'
     : 'Play two free daily football games for your club: Daily Five football trivia and Player Wordle. Premier League and Championship challenges every day.';
 if (!$club && $selectedGame !== '') {
     $canonicalUrl = 'https://clubdailyfive.com/' . ($selectedGame === 'daily' ? 'daily-football-quiz' : 'player-wordle-game');
@@ -95,7 +95,7 @@ if (!$club && $selectedGame !== '') {
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/assets/icon-192.png">
-<?php if (!$club): ?><link rel="stylesheet" href="/assets/game-hub.css?v=20261007-11"><?php endif ?>
+<?php if (!$club): ?><link rel="stylesheet" href="/assets/game-hub.css?v=20261012-1"><?php endif ?>
 <script src="/pwa.js" defer></script><script src="/engagement.js?v=2"></script>
 <link rel="canonical" href="<?= h($canonicalUrl) ?>">
 <title><?= h($pageTitle) ?></title>
@@ -136,7 +136,7 @@ if (!$club && $selectedGame !== '') {
 .info-modal{position:fixed;inset:0;z-index:1400;background:rgba(3,8,16,.82);display:grid;place-items:center;padding:20px}.info-modal[hidden]{display:none!important}.info-dialog{position:relative;width:min(760px,100%);max-height:calc(100dvh - 40px);overflow:auto;border:1px solid var(--line);border-radius:22px;background:#0b1628;padding:clamp(22px,5vw,42px);box-shadow:0 24px 80px rgba(0,0,0,.45)}.info-close{position:absolute;top:12px;right:14px;width:42px;height:42px;border:0;background:transparent;color:var(--ink);font-size:2rem;line-height:1;cursor:pointer;border-radius:50%}.info-close:hover,.info-close:focus-visible{background:var(--panel);outline:2px solid var(--accent)}.info-dialog h1{font-size:clamp(2.2rem,8vw,4rem);letter-spacing:-.055em;margin:.1em 48px .5em 0}.info-dialog h2{font-size:1.2rem;margin-top:1.6em}.info-dialog p,.info-dialog li{color:var(--muted);line-height:1.7}.info-dialog strong{color:var(--ink)}.info-dialog a{color:var(--accent)}.wordle-colour-guide{display:grid;gap:10px;margin:14px 0}.colour-example{display:grid;grid-template-columns:72px 1fr;gap:12px;align-items:start;padding:11px 12px;border:1px solid #273650;border-radius:12px;background:#111c31}.colour-example p{margin:0!important;line-height:1.45!important}.amber-rules{margin:6px 0 7px;padding-left:18px;color:#a9b2c4}.amber-rules li{margin:2px 0;line-height:1.35}.colour-example-note{font-size:.88em}.colour-chip{display:inline-flex;align-items:center;justify-content:center;min-height:32px;border-radius:7px;color:#fff;font-size:.68rem;font-weight:900;letter-spacing:.06em}.colour-green{background:#218d52}.colour-amber{background:#b59f3b;color:#101319}.colour-grey{background:#3a4355}@media(max-width:480px){.colour-example{grid-template-columns:64px 1fr;gap:9px;padding:9px}.colour-example p{font-size:.86rem!important}}body.info-open{overflow:hidden}@media(max-width:600px){.info-modal{padding:0}.info-dialog{width:100%;height:100dvh;max-height:none;border:0;border-radius:0;padding:24px 20px}}
 /* Shared ClubDailyFive completed-game hierarchy */
 .result{width:min(620px,100%);margin:0 auto;padding:22px 0 30px}
-.result>.eyebrow{margin-bottom:5px}
+.result>.eyebrow{margin-bottom:5px}.quiz-head .eyebrow a{color:inherit;text-decoration:none}
 .result .score{line-height:.95;margin:4px 0 8px}
 .result h2{margin:4px 0 10px;font-size:clamp(1.45rem,5vw,2rem);letter-spacing:-.03em}
 .result .tiles{margin:8px 0 16px}
@@ -232,7 +232,7 @@ $gameUrl = $selectedGame === 'daily' ? '/daily-five/'.$c['slug'] : '/player-word
 <?php else: ?><p>Guess your club’s mystery footballer in five attempts. Each guess reveals coloured clues for debut age, position, nationality, debut year and previous clubs. Green means a match; amber helps you narrow down the answer. <a href="/how-it-works">Read the colour guide</a>.</p><?php endif ?>
 <p>Explore <a href="/<?= $selectedGame === 'daily' ? 'player-wordle-game' : 'daily-football-quiz' ?>"><?= $selectedGame === 'daily' ? 'Player Wordle' : 'Daily Five' ?></a> or <a href="/">return to the games</a>.</p>
 </details>
-<details class="club-directory"><summary>Club history and quiz guides</summary><nav aria-label="Club guides"><?php foreach($clubs as $c): ?><a href="/clubs/<?=h($c['slug'])?>"><?=h($c['name'])?></a><?php endforeach ?></nav></details>
+<details class="club-directory"><summary>Club quizzes: past questions, answers and history</summary><nav aria-label="Club guides"><?php foreach($clubs as $c): ?><a href="/clubs/<?=h($c['slug'])?>"><?=h($c['name'])?></a><?php endforeach ?></nav></details>
 <script>
 const selectedGame=<?=json_encode($selectedGame)?>;
 const pwSlugMap={'coventry-city':'coventry','hull-city':'hull','ipswich-town':'ipswich','leeds-united':'leeds','manchester-city':'man-city','manchester-united':'man-utd','newcastle-united':'newcastle','tottenham-hotspur':'tottenham'};
@@ -275,11 +275,11 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)markClubs(
 document.querySelectorAll('.club[data-slug]').forEach(el=>el.addEventListener('click',()=>cdfEvent(el.dataset.slug,selectedGame,'selected')));
 </script>
 <?php elseif (count($questions) !== 5): ?>
-<section class="quiz-head"><div class="eyebrow">DAILY FIVE · <?= h($club['name']) ?></div><h1>Today’s five</h1></section><div class="empty"><h2>The next round is being prepared.</h2><p>Come back shortly for five fresh questions.</p><a class="again" href="/daily-football-quiz">Back to club selection</a></div>
+<section class="quiz-head"><div class="eyebrow">DAILY FIVE · <a href="/clubs/<?= h($club['slug']) ?>"><?= h($club['name']) ?></a></div><h1>Today’s five</h1></section><div class="empty"><h2>The next round is being prepared.</h2><p>Come back shortly for five fresh questions.</p><a class="again" href="/daily-football-quiz">Back to club selection</a></div>
 <?php else: ?>
-<section class="quiz-head" id="quizHead"><div class="eyebrow">DAILY FIVE · <?= h($club['name']) ?></div><h1>Today’s five</h1><div class="streak-mini" id="streakMini" hidden></div><div class="progress" id="progress" aria-label="Quiz progress"></div></section>
+<section class="quiz-head" id="quizHead"><div class="eyebrow">DAILY FIVE · <a href="/clubs/<?= h($club['slug']) ?>"><?= h($club['name']) ?></a></div><h1>Today’s five</h1><div class="streak-mini" id="streakMini" hidden></div><div class="progress" id="progress" aria-label="Quiz progress"></div></section>
 <section class="card" id="quiz" aria-live="polite"><div class="count" id="count"></div><h2 class="question" id="question"></h2><div class="answers" id="answers"></div><div class="feedback" id="feedback"></div><details id="reportQuestion" class="question-report"><summary>Report this question</summary><div class="report-reasons"><button type="button" data-reason="incorrect">Incorrect answer</button><button type="button" data-reason="outdated">Outdated statistic</button><button type="button" data-reason="repeated">Repeated question</button></div><small id="reportStatus" role="status"></small></details><button class="next" id="next">Next question</button></section>
-<section class="result" id="result" hidden><div class="eyebrow">Full time</div><div class="score" id="score"></div><h2 id="resultClub"><?= h($club['name']) ?> Daily Five</h2><div class="tiles" id="tiles"></div><div class="streaks"><div class="streak-box"><span class="streak-number" id="completionStreak">0</span><span class="streak-label">🔥 completion streak</span></div><div class="streak-box"><span class="streak-number" id="perfectStreak">0</span><span class="streak-label">⭐ perfect 5/5 streak</span></div></div><p>You’ve played this club today. Try another club, or return after midnight UK time.</p><div class="share-actions" aria-label="Share your result"><button class="share-action primary" id="shareNative">Share result</button><button class="share-action" id="shareCopy">Copy result</button></div><p id="shareStatus" role="status"></p><textarea id="shareFallback" class="share-fallback" aria-label="Result to copy" readonly hidden></textarea><?php if(isset($wordleReady[wordleSlug($club['slug'])])):?><a class="other-game" id="otherGame" href="/player-wordle/<?=h(wordleSlug($club['slug']))?>">Try today’s Player Wordle →</a><?php endif?><a class="again" href="/daily-football-quiz">Back to club selection</a></section>
+<section class="result" id="result" hidden><div class="eyebrow">Full time</div><div class="score" id="score"></div><h2 id="resultClub"><?= h($club['name']) ?> Daily Five</h2><div class="tiles" id="tiles"></div><div class="streaks"><div class="streak-box"><span class="streak-number" id="completionStreak">0</span><span class="streak-label">🔥 completion streak</span></div><div class="streak-box"><span class="streak-number" id="perfectStreak">0</span><span class="streak-label">⭐ perfect 5/5 streak</span></div></div><p>You’ve played this club today. Try another club, or return after midnight UK time.</p><div class="share-actions" aria-label="Share your result"><button class="share-action primary" id="shareNative">Share result</button><button class="share-action" id="shareCopy">Copy result</button></div><p id="shareStatus" role="status"></p><textarea id="shareFallback" class="share-fallback" aria-label="Result to copy" readonly hidden></textarea><?php if(isset($wordleReady[wordleSlug($club['slug'])])):?><a class="other-game" id="otherGame" href="/player-wordle/<?=h(wordleSlug($club['slug']))?>">Try today’s Player Wordle →</a><?php endif?><a class="other-game" href="/clubs/<?=h($club['slug'])?>">Recent <?=h($club['name'])?> questions &amp; answers →</a><a class="again" href="/daily-football-quiz">Back to club selection</a></section>
 <script>
 const questions=<?= json_encode(array_map(fn($q)=>['id'=>(int)$q['id'],'q'=>$q['question_text'],'o'=>json_decode($q['options_json'],true),'a'=>(int)$q['correct_index'],'e'=>$q['explanation'],'u'=>$q['source_url'],'s'=>$q['source_label']],$questions), JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE) ?>;
 const club=<?= json_encode($club['name']) ?>, clubSlug=<?= json_encode($club['slug']) ?>, quizDate=<?= json_encode($quizDate) ?>, roundId=questions.map(x=>x.id).join('-');
@@ -315,7 +315,7 @@ $('next').onclick=()=>{if(!checkDay()||marks.length!==at+1)return;if(++at<questi
 function finish(){const saved=readDailyResult();if(saved){showResult(saved);return}track('completed');localStorage.setItem(`dailyfive:${club}:${quizDate}`,JSON.stringify({score,marks}));const s=updateStreaks();const r={club,clubSlug,roundId,score,marks,completion:s.completion||0,perfect:s.perfect||0};localStorage.setItem(dailyKey,JSON.stringify(r));localStorage.removeItem(progressKey);showResult(r)}
 function currentShare(){
  const r=resultData||{club,clubSlug,score,marks,completion:0,perfect:0};
- const url=`https://clubdailyfive.com/?club=${encodeURIComponent(r.clubSlug||clubSlug)}`;
+ const url=`https://clubdailyfive.com/daily-five/${encodeURIComponent(r.clubSlug||clubSlug)}`;
  const message=`ClubDailyFive.com — ${r.club||club}
 ${quizDate}  ${r.score}/5
 ${r.marks.map(x=>x?'🟩':'⬛').join('')}
@@ -359,4 +359,7 @@ document.querySelectorAll('.foot-links a').forEach(a=>{if(['/about','/how-it-wor
 })();
 </script>
 </main>
+<?php if (!$club && $selectedGame === '' && $slug === ''): ?>
+<section class="club-quiz-index" aria-labelledby="clubQuizTitle"><h2 id="clubQuizTitle">Football quizzes by club</h2><p>Each club page has today’s Daily Five plus the answers to the last week’s questions.</p><?php foreach (['premier-league'=>'Premier League','championship'=>'Championship'] as $key=>$label): ?><h3><?= h($label) ?> club quizzes</h3><nav aria-label="<?= h($label) ?> club quizzes"><?php foreach ($clubs as $c): if ($c['league'] !== $key) continue; ?><a href="/clubs/<?= h($c['slug']) ?>"><?= h($c['name']) ?> quiz</a><?php endforeach ?></nav><?php endforeach ?></section>
+<?php endif ?>
 </body></html>

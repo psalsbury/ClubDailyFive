@@ -145,3 +145,12 @@
  .club-strip h2{display:block;font-size:.74rem;margin:0 0 8px}
  .crest-track img{width:34px;height:34px}
 }
+/* Crawlable club quiz directory, below the one-screen game picker. */
+.club-quiz-index{width:min(1080px,calc(100% - 40px));margin:0 auto;padding:28px 0 40px;border-top:1px solid #273650;color:#a9b2c4}
+.club-quiz-index h2{color:#f7f8fc;font-size:1.3rem;margin:0 0 6px}
+.club-quiz-index>p{margin:0 0 14px;font-size:.9rem;line-height:1.55}
+.club-quiz-index h3{font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:#ffcc33;margin:18px 0 8px}
+.club-quiz-index nav{display:flex;flex-wrap:wrap;gap:6px 8px}
+.club-quiz-index nav a{color:#a9b2c4;font-size:.85rem;text-decoration:none;padding:6px 10px;border:1px solid #273650;border-radius:9px}
+.club-quiz-index nav a:hover,.club-quiz-index nav a:focus-visible{color:#f7f8fc;border-color:#ffcc33}
+@media(max-width:600px){.club-quiz-index{width:calc(100% - 28px)}}
