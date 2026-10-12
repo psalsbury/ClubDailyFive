@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);date_default_timezone_set('Europe/London');
 header('Content-Type: application/json');header('Cache-Control: no-store');
+// Crawlers may execute the game scripts; exclude their diagnostic events.
+if(preg_match('/(?:Googlebot|GoogleOther|Google-InspectionTool|Google-Read-Aloud|Google-Site-Verification|AdsBot-Google|Mediapartners-Google|FeedFetcher-Google|Storebot-Google|APIs-Google)/i',$_SERVER['HTTP_USER_AGENT']??''))exit('{"ok":true}');
 if($_SERVER['REQUEST_METHOD']!=='POST'){http_response_code(405);exit('{}');}
 if((int)($_SERVER['CONTENT_LENGTH']??0)>2048){http_response_code(413);exit('{}');}
 $data=json_decode(file_get_contents('php://input'),true);$event=$data['event']??'';

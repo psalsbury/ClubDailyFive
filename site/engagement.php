@@ -3,6 +3,8 @@ declare(strict_types=1);
 date_default_timezone_set('Europe/London');
 header('Content-Type: application/json'); header('Cache-Control: no-store');
 function respond(int $status,bool $ok): never {http_response_code($status);echo json_encode(['ok'=>$ok]);exit;}
+// Ignore Google rendering activity before recording any engagement.
+if(preg_match('/(?:Googlebot|GoogleOther|Google-InspectionTool|Google-Read-Aloud|Google-Site-Verification|AdsBot-Google|Mediapartners-Google|FeedFetcher-Google|Storebot-Google|APIs-Google)/i',$_SERVER['HTTP_USER_AGENT']??''))respond(200,true);
 if($_SERVER['REQUEST_METHOD']!=='POST')respond(405,false);
 if(!preg_match('#^https://(www\.)?clubdailyfive\.com$#i',$_SERVER['HTTP_ORIGIN']??''))respond(403,false);
 if((int)($_SERVER['CONTENT_LENGTH']??0)>2048)respond(413,false);

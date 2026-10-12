@@ -5,7 +5,7 @@ $db->exec('PRAGMA busy_timeout=5000');
 /* Close every SELECT before writing: an open cursor keeps a read snapshot, and SQLite then refuses the
  * write instantly ("database is locked") if another request committed in between (e.g. diagnostics.php
  * on page load). Stats are best-effort counts, so a failed count never blocks the game or the answer. */
-function pwCount(PDO $db,string $sql,array $args):void{try{$db->prepare($sql)->execute($args);}catch(Throwable $e){error_log('player-wordle stats write failed: '.$e->getMessage());}}
+function pwCount(PDO $db,string $sql,array $args):void{if(preg_match('/(?:Googlebot|GoogleOther|Google-InspectionTool|Google-Read-Aloud|Google-Site-Verification|AdsBot-Google|Mediapartners-Google|FeedFetcher-Google|Storebot-Google|APIs-Google)/i',$_SERVER['HTTP_USER_AGENT']??''))return;try{$db->prepare($sql)->execute($args);}catch(Throwable $e){error_log('player-wordle stats write failed: '.$e->getMessage());}}
 $action=$_GET['action']??'';$slug=preg_replace('/[^a-z0-9-]/','',$_GET['club']??'');$cq=$db->prepare("SELECT id FROM clubs WHERE slug=?");$cq->execute([$slug]);$cid=(int)$cq->fetchColumn();$cq->closeCursor();if(!$cid){http_response_code(404);echo'{}';exit;}
 if($action==='suggest'){$term=trim($_GET['q']??'');$q=$db->prepare("SELECT id,name FROM players WHERE club_id=? AND name LIKE ? ORDER BY name LIMIT 8");$q->execute([$cid,'%'.$term.'%']);echo json_encode($q->fetchAll(PDO::FETCH_ASSOC));exit;}
 if($action==='start'){$d=date('Y-m-d');pwCount($db,"INSERT INTO aggregate_stats(stat_date,club_id,started) VALUES(?,?,1) ON CONFLICT(stat_date,club_id) DO UPDATE SET started=started+1",[$d,$cid]);echo'{"ok":true}';exit;}
