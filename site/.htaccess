@@ -30,6 +30,11 @@ AddType application/manifest+json .webmanifest
   RewriteCond %{QUERY_STRING} (?:^|&)type=wordle(?:&|$) [NC]
   RewriteRule ^seo\.php$ https://clubdailyfive.com/player-wordle-game [R=301,L,NE,QSD]
 
+  # Consolidate direct club landing-page implementation URLs.
+  RewriteCond %{THE_REQUEST} \s/+seo\.php(?:[?\s]) [NC]
+  RewriteCond %{QUERY_STRING} (?:^|&)club=([a-z0-9-]+)(?:&|$) [NC]
+  RewriteRule ^seo\.php$ https://clubdailyfive.com/clubs/%1 [R=301,L,NE,QSD]
+
   # Use the same slashless URL form as canonical tags and the sitemap.
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule ^(.+)/$ https://clubdailyfive.com/$1 [R=301,L,NE]
