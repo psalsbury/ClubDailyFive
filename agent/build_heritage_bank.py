@@ -397,13 +397,24 @@ def to_rows(items):
 
 
 def install(con, rows):
-    added = updated = 0
+    added = updated = revived = 0
+    protected = {r[0] for r in con.execute('select question_id from question_rule_exclusions')}
+    try:
+        a = sqlite3.connect('file:/var/lib/clubdailyfive/analytics.sqlite?mode=ro', uri=True)
+        protected |= {r[0] for r in a.execute('select question_id from question_reports')}
+        a.close()
+    except sqlite3.Error:
+        pass
     for r in rows:
         old = con.execute('select id,status from questions where semantic_key=?', (r['semantic_key'],)).fetchone()
         if old:
             con.execute('update questions set question_text=?,options_json=?,correct_index=?,explanation=?,source_url=?,content_hash=? where id=?',
                         (r['question_text'], r['options_json'], r['correct_index'], r['explanation'], r['source_url'], r['content_hash'], old[0]))
             updated += 1
+            # A fact this refresh withdrew earlier (e.g. a source outage or format change) and has now verified again
+            # goes back into rotation, unless a rule excluded it or a player reported it.
+            if old[1] == 'retired' and old[0] not in protected:
+                con.execute("update questions set status='reviewed' where id=?", (old[0],)); revived += 1
         else:
             con.execute('''insert into questions(club_id,question_text,options_json,correct_index,explanation,source_url,source_label,content_hash,
                            semantic_key,status,question_kind,fact_date,use_count,last_used_date) values(?,?,?,?,?,?,?,?,?,'reviewed','history',?,0,NULL)''',
@@ -417,7 +428,7 @@ def install(con, rows):
     for qid, sem in con.execute("select id,semantic_key from questions where semantic_key like 'heritage|%' and status='reviewed'").fetchall():
         if sem.split('|')[2] in families and sem not in current:
             con.execute("update questions set status='retired' where id=?", (qid,)); retired += 1
-    return added, updated, retired
+    return added, updated, retired, revived
 
 
 def main():
@@ -481,7 +492,7 @@ def run(a):
     if a.install:
         con.execute('begin immediate')
         try:
-            result['added'], result['updated'], result['retired'] = install(con, rows)
+            result['added'], result['updated'], result['retired'], result['revived'] = install(con, rows)
             con.commit()
         except Exception:
             con.rollback(); raise

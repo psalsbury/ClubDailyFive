@@ -10,7 +10,8 @@ import urllib.parse
 import build_heritage_bank as hb
 import wiki_tables as wt
 
-FIELD = re.compile(r'\|\s*(years|clubs|caps|goals|manageryears|managerclubs)(\d+)\s*=')
+# Wikipedia is renaming managerclubs1/manageryears1 to manager_clubs1/manager_years1 (Oct 2026): accept both.
+FIELD = re.compile(r'\|\s*(years|clubs|caps|goals|manager_?years|manager_?clubs)(\d+)\s*=')
 MONTHS = {m: i for i, m in enumerate(('january', 'february', 'march', 'april', 'may', 'june', 'july', 'august',
                                        'september', 'october', 'november', 'december'), 1)}
 
@@ -35,7 +36,7 @@ def infobox_rows(wikitext):
         end = hits[i + 1].start() if i + 1 < len(hits) else len(box)
         raw = box[m.end():end]
         raw = re.split(r'\n\s*\||\n\}\}', raw)[0]
-        rows[(m.group(1), int(m.group(2)))] = _strip(raw)
+        rows[(m.group(1).replace('_', ''), int(m.group(2)))] = _strip(raw)
     return rows
 
 
