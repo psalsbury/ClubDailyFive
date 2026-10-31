@@ -28,6 +28,7 @@ $maxBar = max(1, max($dist['dist']));
   <?php else: ?>
     <p class="lg-lede">Nobody has played today’s <?= lg_h($name) ?> Daily Five yet. Be first on the table.</p>
   <?php endif ?>
+  <?php $ct = lg_club_table('week')['by_slug'][$slug] ?? null; if ($ct && $ct['rank']): ?><p class="lg-small">This week <?= lg_h($name) ?> are <?= $ct['joint'] ? 'joint ' : '' ?><?= lg_h(lg_ordinal((int)$ct['rank'])) ?> of <?= count(lg_club_table('week')['ranked']) ?> on the <a href="/club-table">club table</a> (average <?= lg_h(number_format((float)$ct['average'], 2)) ?>).</p><?php else: ?><p class="lg-small">See how <?= lg_h($name) ?> fans compare with other clubs on the <a href="/club-table">club table</a>.</p><?php endif ?>
   <a class="lg-button primary" href="/daily-five/<?= lg_h($slug) ?>">Play today’s <?= lg_h($name) ?> Daily Five</a>
 </section>
 

@@ -49,6 +49,7 @@ AddType application/manifest+json .webmanifest
   RewriteRule ^fans/([a-z0-9-]+)/?$ fans.php?club=$1 [L,QSA]
   RewriteRule ^league/([A-Za-z0-9]+)/?$ league.php?code=$1 [L,QSA]
   RewriteRule ^leagues/?$ league.php [L,QSA]
+  RewriteRule ^club-table/?$ club-table.php [L,QSA]
 
   # Existing search URLs now serve the game-specific club selectors.
   RewriteRule ^daily-football-quiz/?$ index.php?game=daily [L,QSA]

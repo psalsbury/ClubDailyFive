@@ -158,6 +158,23 @@ async function leaguePage(box){
  leave.querySelector('[data-leave]').onclick=async()=>{if(!confirm('Leave '+name+'?'))return;try{await api('leave_league',{code});location.href='/leagues'}catch(err){alert(err.message)}};
 }
 
+/** Club table page: league filter, with positions renumbered within the filter. */
+function clubTablePage(){
+ const buttons=document.querySelectorAll('[data-league-filter]');
+ const apply=league=>{
+  buttons.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.leagueFilter===league)));
+  document.querySelectorAll('.lg-clubs').forEach(list=>{
+   let i=0,shown=0,prevAvg=null,pos=0;const rows=[...list.children];
+   rows.forEach(li=>{li.hidden=!!league&&li.dataset.league!==league});
+   const visible=rows.filter(li=>!li.hidden);
+   const avgs=visible.map(li=>li.querySelector('.lg-pts').textContent);
+   visible.forEach((li,n)=>{i++;if(avgs[n]!==prevAvg){pos=i;prevAvg=avgs[n]}const joint=avgs.filter(a=>a===avgs[n]).length>1;li.querySelector('.lg-pos').textContent=(joint?'=':'')+pos;shown++});
+  });
+  document.querySelectorAll('.lg-waiting').forEach(p=>{const items=[...p.querySelectorAll('span[data-league]')];items.forEach(x=>x.hidden=!!league&&x.dataset.league!==league);p.hidden=!items.some(x=>!x.hidden)});
+ };
+ buttons.forEach(b=>b.onclick=()=>apply(b.dataset.leagueFilter));
+}
+
 /** Fan table page. */
 async function fanPage(el){
  const m=await setup(el,{club:el.dataset.club});
@@ -194,13 +211,17 @@ async function result(opts){
  }else if(m&&m.home_club!==opts.clubSlug){
   html+=`<p class="lg-small">Your tables count ${esc(m.home_club_name)} rounds only, so this one is just for fun.</p>`;
  }
+ const ct=stats.club_table,rv=stats.rival;
+ if(rv)html+=`<p class="lg-vs">Today: ${esc(fan)} fans <b>${rv.my_average.toFixed(1)}</b> v <b>${rv.average.toFixed(1)}</b> ${esc(rv.name)} fans</p>`;
+ if(ct&&ct.of>1)html+=`<p class="lg-small" style="text-align:center">${esc(fan)} are <b>${esc(ct.label)}</b> of ${ct.of} clubs on today’s <a href="/club-table">club table</a></p>`;
+ else html+=`<p class="lg-small" style="text-align:center">See which fans know their club best on the <a href="/club-table">club table</a></p>`;
  html+=`<div class="lg-actions"><a class="lg-button" href="/fans/${esc(opts.clubSlug)}">${esc(fan)} fan table</a>`;
  html+=m&&m.leagues.length?`<a class="lg-button" href="/league/${esc(m.leagues[0].code)}">${esc(m.leagues[0].name)}</a>`:`<a class="lg-button" href="/leagues">Start a league with mates</a>`;
  html+=`</div>`;
  if(!m)html+=`<div data-result-setup></div>`;
  panel.innerHTML=html;panel.hidden=false;
  if(!m)setup(panel.querySelector('[data-result-setup]'),{club:opts.clubSlug,title:`Put your name on the ${fan} fan table`,blurb:'Pick a name and your club. Your score today goes straight on the table.',button:'Add me to the table',onDone:()=>result({...opts})});
- const extra={played:stats.played,beat:stats.beat,rank:stats.my_rank||null};
+ const extra={played:stats.played,beat:stats.beat,rank:stats.my_rank||null,clubTable:stats.club_table||null};
  opts.onStats&&opts.onStats(extra);
  return extra;
 }
@@ -211,6 +232,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  const league=document.querySelector('[data-league-code]');
  if(league){leaguePage(league);return}
  if(document.querySelector('[data-create-form]')){hubPage();return}
+ if(document.querySelector('[data-league-filter]')){clubTablePage();return}
  const fans=document.querySelector('[data-setup][data-club]');
  if(fans&&!document.getElementById('result'))fanPage(fans);
 });

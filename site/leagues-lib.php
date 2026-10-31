@@ -197,17 +197,82 @@ function lg_streak(int $playerId): int {
     return $n;
 }
 
+/* ------------------------------------------------------------------ club v club */
+
+const LG_CLUB_TABLE_MIN = 3; // rounds a club needs in a period before it gets a position
+
+/** Each club's main rival among the clubs on the site (one-way where the rivalry is lopsided). */
+const LG_RIVALS = [
+    'arsenal' => 'tottenham-hotspur', 'tottenham-hotspur' => 'arsenal', 'chelsea' => 'tottenham-hotspur',
+    'liverpool' => 'everton', 'everton' => 'liverpool',
+    'manchester-united' => 'manchester-city', 'manchester-city' => 'manchester-united', 'leeds-united' => 'manchester-united',
+    'newcastle-united' => 'sunderland', 'sunderland' => 'newcastle-united', 'middlesbrough' => 'sunderland',
+    'nottingham-forest' => 'derby-county', 'derby-county' => 'nottingham-forest',
+    'aston-villa' => 'birmingham-city', 'birmingham-city' => 'aston-villa',
+    'west-bromwich-albion' => 'wolverhampton-wanderers', 'wolverhampton-wanderers' => 'west-bromwich-albion',
+    'cardiff-city' => 'swansea-city', 'swansea-city' => 'cardiff-city', 'bristol-city' => 'cardiff-city',
+    'portsmouth' => 'southampton', 'southampton' => 'portsmouth', 'bournemouth' => 'southampton',
+    'blackburn-rovers' => 'burnley', 'burnley' => 'blackburn-rovers', 'preston-north-end' => 'blackburn-rovers',
+    'norwich-city' => 'ipswich-town', 'ipswich-town' => 'norwich-city',
+    'millwall' => 'west-ham-united', 'west-ham-united' => 'millwall', 'charlton-athletic' => 'millwall',
+    'crystal-palace' => 'brighton', 'brighton' => 'crystal-palace',
+    'fulham' => 'chelsea', 'brentford' => 'queens-park-rangers', 'queens-park-rangers' => 'brentford',
+];
+
+/**
+ * Clubs ranked by their players' average Daily Five score for a period (today|week|all),
+ * from the anonymous score counts. Clubs with fewer than LG_CLUB_TABLE_MIN rounds are unranked.
+ * @return array{ranked:list<array>, unranked:list<array>, by_slug:array<string,array>}
+ */
+function lg_club_table(string $period): array {
+    static $cache = [];
+    if (isset($cache[$period])) return $cache[$period];
+    $today = lg_today();
+    $from = $period === 'today' ? $today : ($period === 'week' ? lg_week_start() : '0000-00-00');
+    $s = lg_db()->prepare('SELECT club_slug, SUM(total) AS played, SUM(score*total) AS points FROM score_counts WHERE play_date>=? AND play_date<=? GROUP BY club_slug');
+    $s->execute([$from, $today]);
+    $stats = [];
+    foreach ($s as $r) $stats[$r['club_slug']] = ['played' => (int)$r['played'], 'points' => (int)$r['points']];
+    $ranked = $unranked = [];
+    foreach (lg_clubs() as $slug => $c) {
+        $st = $stats[$slug] ?? ['played' => 0, 'points' => 0];
+        $row = ['slug' => $slug, 'name' => $c['name'], 'league' => $c['league'], 'logo' => $c['logo_path'], 'played' => $st['played'],
+                'average' => $st['played'] ? round($st['points'] / $st['played'], 2) : null];
+        if ($st['played'] >= LG_CLUB_TABLE_MIN) $ranked[] = $row; else $unranked[] = $row;
+    }
+    usort($ranked, fn($a, $b) => [$b['average'], $b['played'], $a['name']] <=> [$a['average'], $a['played'], $b['name']]);
+    $ranked = lg_rank($ranked, fn($r) => number_format((float)$r['average'], 2));
+    usort($unranked, fn($a, $b) => [$b['played'], $a['name']] <=> [$a['played'], $b['name']]);
+    $by = [];
+    foreach ($ranked as $r) $by[$r['slug']] = $r;
+    foreach ($unranked as $r) $by[$r['slug']] = $r + ['rank' => null, 'joint' => false];
+    return $cache[$period] = ['ranked' => $ranked, 'unranked' => $unranked, 'by_slug' => $by];
+}
+
+/** Today's club-table position and rival comparison for one club (for the result panel). */
+function lg_club_vs(string $slug): array {
+    $t = lg_club_table('today');
+    $me = $t['by_slug'][$slug] ?? null;
+    $out = ['club_table' => null, 'rival' => null];
+    if ($me && $me['rank']) $out['club_table'] = ['rank' => $me['rank'], 'joint' => $me['joint'], 'of' => count($t['ranked']), 'label' => ($me['joint'] ? 'joint ' : '') . lg_ordinal((int)$me['rank']), 'average' => $me['average']];
+    $rival = LG_RIVALS[$slug] ?? null;
+    if ($rival && $me && ($r = $t['by_slug'][$rival] ?? null) && $me['played'] >= 2 && $r['played'] >= 2) {
+        $out['rival'] = ['slug' => $rival, 'name' => $r['name'], 'average' => $r['average'], 'played' => $r['played'], 'my_average' => $me['average'], 'my_played' => $me['played']];
+    }
+    return $out;
+}
+
 /** Shared page chrome for the league pages. */
 function lg_page_head(string $title, string $description, string $accent = '#ffcc33'): void { ?>
 <!doctype html><html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title><?= lg_h($title) ?></title><meta name="description" content="<?= lg_h($description) ?>"><meta name="robots" content="noindex,follow"><meta name="theme-color" content="#07101e"><link rel="icon" href="/assets/favicon.svg" type="image/svg+xml"><link rel="manifest" href="/manifest.webmanifest">
 <meta property="og:title" content="<?= lg_h($title) ?>"><meta property="og:description" content="<?= lg_h($description) ?>"><meta property="og:image" content="https://clubdailyfive.com/assets/games/og-games.jpg"><meta property="og:type" content="website">
-<style>:root{--ink:#f7f8fc;--muted:#a9b2c4;--line:#273650;--bg:#07101e}*{box-sizing:border-box}html{background:var(--bg)}body{margin:0;color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at 80% -10%,color-mix(in srgb,var(--accent) 22%,transparent),transparent 36rem),var(--bg);min-height:100vh}.wrap{width:min(760px,calc(100% - 28px));margin:auto}.top{padding:22px 0}.brand img{display:block;width:min(450px,72vw);height:auto}.eyebrow{color:var(--accent);text-transform:uppercase;letter-spacing:.14em;font-weight:800;font-size:.75rem}a{color:var(--accent)}.foot{color:#778399;font-size:.76rem;padding:30px 0 36px;text-align:center}.foot-links{display:flex;justify-content:center;flex-wrap:wrap;gap:8px 16px;margin-bottom:10px}.foot-links a{color:#a9b2c4;text-decoration:none}@media(max-width:600px){.top{padding:14px 0}}</style><link rel="stylesheet" href="/assets/leagues.css?v=1"><link rel="stylesheet" href="/assets/site-header.css?v=2"><style>:root{--accent:<?= lg_h(preg_match('/^#[0-9a-f]{6}$/i', $accent) ? $accent : '#ffcc33') ?>}</style></head>
+<style>:root{--ink:#f7f8fc;--muted:#a9b2c4;--line:#273650;--bg:#07101e}*{box-sizing:border-box}html{background:var(--bg)}body{margin:0;color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at 80% -10%,color-mix(in srgb,var(--accent) 22%,transparent),transparent 36rem),var(--bg);min-height:100vh}.wrap{width:min(760px,calc(100% - 28px));margin:auto}.top{padding:22px 0}.brand img{display:block;width:min(450px,72vw);height:auto}.eyebrow{color:var(--accent);text-transform:uppercase;letter-spacing:.14em;font-weight:800;font-size:.75rem}a{color:var(--accent)}.foot{color:#778399;font-size:.76rem;padding:30px 0 36px;text-align:center}.foot-links{display:flex;justify-content:center;flex-wrap:wrap;gap:8px 16px;margin-bottom:10px}.foot-links a{color:#a9b2c4;text-decoration:none}@media(max-width:600px){.top{padding:14px 0}}</style><link rel="stylesheet" href="/assets/leagues.css?v=2"><link rel="stylesheet" href="/assets/site-header.css?v=2"><style>:root{--accent:<?= lg_h(preg_match('/^#[0-9a-f]{6}$/i', $accent) ? $accent : '#ffcc33') ?>}</style></head>
 <body><main class="wrap"><header class="top site-header"><a class="brand" href="/" aria-label="ClubDailyFive.com home"><img src="/assets/clubdailyfive-logo.svg?v=20261005" alt="ClubDailyFive.com" width="450" height="60"></a></header>
 <?php }
 
 function lg_page_foot(): void { ?>
-<footer class="foot"><nav class="foot-links" aria-label="Site information"><a href="/daily-football-quiz">Football quiz</a><a href="/player-wordle-game">Player Wordle</a><a href="/leagues">Leagues</a><a href="/about">About</a><a href="/privacy">Privacy Policy</a><a href="/contact">Contact</a></nav><span>Independent supporter quiz. Not affiliated with or endorsed by the Premier League or any club.</span></footer></main>
-<script src="/assets/leagues.js?v=2"></script></body></html>
+<footer class="foot"><nav class="foot-links" aria-label="Site information"><a href="/daily-football-quiz">Football quiz</a><a href="/player-wordle-game">Player Wordle</a><a href="/leagues">Leagues</a><a href="/club-table">Club table</a><a href="/about">About</a><a href="/privacy">Privacy Policy</a><a href="/contact">Contact</a></nav><span>Independent supporter quiz. Not affiliated with or endorsed by the Premier League or any club.</span></footer></main>
+<script src="/assets/leagues.js?v=3"></script></body></html>
 <?php }
 
 /** Render a table body for a period. */

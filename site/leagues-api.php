@@ -153,7 +153,7 @@ function lg_me_payload(array $p): array {
 function lg_stats_payload(string $club, ?array $player, ?int $score): array {
     $dist = lg_distribution($club);
     $table = lg_table('today', 'p.home_club=?', [$club], 500);
-    $out = ['played' => $dist['played'], 'average' => $dist['average'], 'dist' => $dist['dist'], 'beat' => $score === null ? null : lg_beat_pct($dist['dist'], $score), 'named' => count($table), 'top' => array_map(fn($r) => ['name' => $r['name'], 'score' => $r['points'], 'rank' => $r['rank'], 'joint' => $r['joint'], 'id' => $r['public_id']], array_slice($table, 0, 5))];
+    $out = lg_club_vs($club) + ['played' => $dist['played'], 'average' => $dist['average'], 'dist' => $dist['dist'], 'beat' => $score === null ? null : lg_beat_pct($dist['dist'], $score), 'named' => count($table), 'top' => array_map(fn($r) => ['name' => $r['name'], 'score' => $r['points'], 'rank' => $r['rank'], 'joint' => $r['joint'], 'id' => $r['public_id']], array_slice($table, 0, 5))];
     if ($player) {
         foreach ($table as $r) if ($r['public_id'] === $player['public_id']) { $out['my_rank'] = ['rank' => $r['rank'], 'joint' => $r['joint'], 'of' => count($table), 'label' => ($r['joint'] ? 'joint ' : '') . lg_ordinal((int)$r['rank'])]; break; }
         $out += lg_me_payload($player);
