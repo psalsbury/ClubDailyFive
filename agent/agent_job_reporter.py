@@ -186,6 +186,8 @@ def main():
         except Exception as exc:
             changes = [f"Database comparison failed: {type(exc).__name__}: {exc}"]
 
+    if status == "SUCCESS" and any("ATTENTION:" in chunk for chunk in output):
+        status = "WARNING"
     subject = f"{status}: {job['label']} — {now.strftime('%d-%b-%Y %H:%M')}"
     body = [
         job["label"],
@@ -213,7 +215,7 @@ def main():
     except Exception as exc:
         print(f"Email delivery failed: {type(exc).__name__}: {exc}; report saved at {report_path}", flush=True)
         raise SystemExit(1)
-    if status != "SUCCESS":
+    if status == "FAILED":
         raise SystemExit(1)
 
 

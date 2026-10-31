@@ -207,7 +207,7 @@ function lg_page_head(string $title, string $description, string $accent = '#ffc
 
 function lg_page_foot(): void { ?>
 <footer class="foot"><nav class="foot-links" aria-label="Site information"><a href="/daily-football-quiz">Football quiz</a><a href="/player-wordle-game">Player Wordle</a><a href="/leagues">Leagues</a><a href="/about">About</a><a href="/privacy">Privacy Policy</a><a href="/contact">Contact</a></nav><span>Independent supporter quiz. Not affiliated with or endorsed by the Premier League or any club.</span></footer></main>
-<script src="/assets/leagues.js?v=1"></script></body></html>
+<script src="/assets/leagues.js?v=2"></script></body></html>
 <?php }
 
 /** Render a table body for a period. */

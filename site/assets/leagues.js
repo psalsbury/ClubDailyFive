@@ -46,7 +46,7 @@ async function setup(el,opts={}){
  el.innerHTML=`<form class="lg-card lg-form" data-register>
   <h2>${esc(opts.title||'Get your name on the tables')}</h2>
   <p>${esc(opts.blurb||'Pick a name and your club. Your scores then count on your club’s fan table and in any private leagues you join.')}</p>
-  <label>Your name<input name="name" maxlength="20" required autocomplete="nickname" placeholder="e.g. Pete from Sheffield"></label>
+  <label>Your name<input name="name" maxlength="20" required autocomplete="nickname" placeholder="e.g. Pete"></label>
   <label>Your club<select name="home_club" required>${club?'':'<option value="">Choose…</option>'}${clubOptions(club)}</select></label>
   <button class="lg-button primary">${esc(opts.button||'Save')}</button>
   <p class="lg-small">No email or password. Your name is saved in this browser. Names are public on the tables.</p>

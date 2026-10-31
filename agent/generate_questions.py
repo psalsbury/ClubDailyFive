@@ -6,6 +6,7 @@ from display_dates import display_date
 from improve_questions import normalise
 from question_quality import clean_text, lint_question, numeric_options, score_options, numeric_rank_report
 from question_variety import select_varied, validate_round, banned_question
+from question_era import recent_enough, one_old_at_most
 DB=os.getenv('QUIZ_DB','/var/lib/clubdailyfive/clubquiz.sqlite'); BACKUPS='/var/backups/clubdailyfive-question-db'; UK=ZoneInfo('Europe/London')
 DIVS=('E0','E1','E2','E3')
 ALIASES={'Arsenal':'arsenal','Aston Villa':'aston-villa','Bournemouth':'bournemouth','Brentford':'brentford','Brighton':'brighton','Chelsea':'chelsea','Coventry':'coventry-city','Crystal Palace':'crystal-palace','Everton':'everton','Fulham':'fulham','Hull':'hull-city','Ipswich':'ipswich-town','Leeds':'leeds-united','Liverpool':'liverpool','Man City':'manchester-city','Man United':'manchester-united','Newcastle':'newcastle-united',"Nott'm Forest":'nottingham-forest','Sunderland':'sunderland','Tottenham':'tottenham-hotspur'}
@@ -17,6 +18,16 @@ def catalogue_aliases():
   return {}
 ALIASES.update(catalogue_aliases())
 NO_REPEAT_DAYS=30
+# Usage was reset on 2026-10-31 (very few players so far): rounds published
+# before this date do not count towards the no-repeat rules.
+HISTORY_START='2026-10-31'
+_CLUB_NAMES={}
+def club_name(con,club_id):
+  if club_id not in _CLUB_NAMES:
+    row=con.execute('select name from clubs where id=?',(club_id,)).fetchone(); _CLUB_NAMES[club_id]=row[0] if row else ''
+  return _CLUB_NAMES[club_id]
+def repeat_cutoff(target,days):
+  return max((dt.date.fromisoformat(target)-dt.timedelta(days=days)).isoformat(),HISTORY_START)
 def season_start(d): return d.year if d.month>=7 else d.year-1
 def scode(y): return f'{str(y)[-2:]}{str(y+1)[-2:]}'
 def pdate(v):
@@ -60,30 +71,32 @@ def ranked(rows,target):
     history[family]=(used+int(row['use_count'] or 0),max(last,row['last_used_date'] or ''))
   return sorted(rows,key=lambda r:(history[semantic_family(r)][0],history[semantic_family(r)][1],hashlib.sha256(f'{target}|{r["id"]}'.encode()).hexdigest()))
 def eligible_history_bank(con,club_id,target,days=None):
-  cutoff=(dt.date.fromisoformat(target)-dt.timedelta(days=days or NO_REPEAT_DAYS)).isoformat()
+  cutoff=repeat_cutoff(target,NO_REPEAT_DAYS if days is None else days)
   recent=con.execute("select q.* from daily_questions d join questions q on q.id=d.question_id where d.club_id=? and d.quiz_date>=? and d.quiz_date<?",(club_id,cutoff,target)).fetchall()
   excluded={semantic_family(q) for q in recent}; seen_text={wording(q) for q in recent}
   rows=con.execute("select * from questions where club_id=? and status='reviewed' and semantic_key like 'v4bank|%'",(club_id,)).fetchall()
   excluded.update(semantic_family(q) for q in rows if (q['last_used_date'] or '')>=cutoff)
-  return ranked((q for q in rows if semantic_family(q) not in excluded and wording(q) not in seen_text and not lint_question(q)),target)
+  name=club_name(con,club_id)
+  return ranked((q for q in rows if semantic_family(q) not in excluded and wording(q) not in seen_text and not lint_question(q) and recent_enough(q,target,name)),target)
 
 def wording(q):
   return re.sub(r'\W+',' ',q['question_text'].lower()).strip()
 
 def published_recently(con,club_id,target,pattern):
-  cutoff=(dt.date.fromisoformat(target)-dt.timedelta(days=NO_REPEAT_DAYS)).isoformat()
+  cutoff=repeat_cutoff(target,NO_REPEAT_DAYS)
   return con.execute("select 1 from daily_questions d join questions q on q.id=d.question_id where d.club_id=? and d.quiz_date>=? and d.quiz_date<? and q.semantic_key like ? limit 1",(club_id,cutoff,target,pattern)).fetchone() is not None
 
 def generic_bank(con,club_id,target):
   # Track publication as well as play history. Eight facts per club rotate
   # without repeating across the preceding seven calendar days.
-  cutoff=(dt.date.fromisoformat(target)-dt.timedelta(days=NO_REPEAT_DAYS)).isoformat()
-  published=dict(con.execute("select question_id,max(quiz_date) from daily_questions where club_id=? and quiz_date<? group by question_id",(club_id,target)))
-  rows=[q for q in con.execute("select * from questions where club_id=? and status='reviewed' and (semantic_key like 'generic|%' or semantic_key like 'heritage|%')",(club_id,)).fetchall() if not lint_question(q)]
+  cutoff=repeat_cutoff(target,NO_REPEAT_DAYS)
+  published=dict(con.execute("select question_id,max(quiz_date) from daily_questions where club_id=? and quiz_date<? and quiz_date>=? group by question_id",(club_id,target,HISTORY_START)))
+  name=club_name(con,club_id)
+  rows=[q for q in con.execute("select * from questions where club_id=? and status='reviewed' and (semantic_key like 'generic|%' or semantic_key like 'heritage|%')",(club_id,)).fetchall() if not lint_question(q) and recent_enough(q,target,name)]
   eligible=[q for q in rows if published.get(q['id'],'') < cutoff and (q['last_used_date'] or '') < cutoff]
   if not eligible:
     # Small trivia pools cannot cover 30 days yet: show the least recently published instead of failing.
-    week=(dt.date.fromisoformat(target)-dt.timedelta(days=7)).isoformat()
+    week=repeat_cutoff(target,7)
     eligible=[q for q in rows if published.get(q['id'],'') < week] or rows
   if not eligible:raise RuntimeError('Club trivia pool exhausted for '+str(club_id))
   yesterday=con.execute("select q.semantic_key from daily_questions d join questions q on q.id=d.question_id where d.club_id=? and d.quiz_date=? and q.semantic_key like 'generic|%' limit 1",(club_id,(dt.date.fromisoformat(target)-dt.timedelta(days=1)).isoformat())).fetchone()
@@ -263,38 +276,56 @@ def main():
       if not rows: continue
       latest=max(r['_date'] for r in rows).isoformat()
       con.execute("update questions set status='retired' where club_id=? and status='reviewed' and semantic_key like 'seasonfact|%' and (fact_date is null or fact_date < ?)",(club['id'],latest))
-    rounds=[]; short_window={}
+    rounds=[]; short_window={}; repeated=[]; skipped=[]
     for club in clubs:
-      con.execute('delete from daily_questions where club_id=? and quiz_date=?',(club['id'],target))
-      # Aim for no repeats within 30 days; clubs with small banks fall back to shorter windows (reported).
-      for days in (NO_REPEAT_DAYS,21,14,7):
-        bank=eligible_history_bank(con,club['id'],target,days)
-        bank = generic_bank(con,club['id'],target) + [q for q in bank if not banned_question(q)]
-        bank = [q for q in bank if not lint_question(q)]
-        if len(bank)<4: continue
-        try: selected,fresh=choose_round(con,club,target,current.get(club['slug'],[]),bank); break
-        except RuntimeError: continue
-      else: raise RuntimeError(f"{club['slug']}: no round fits even with a 7-day repeat window")
-      if days<NO_REPEAT_DAYS: short_window[club['slug']]=days
-      fresh_id=fresh['id']
-      validate_round([*selected,fresh])
-      problems=[p for q in [*selected,fresh] for p in lint_question(q)]
-      if problems:raise RuntimeError(f"{club['slug']}: round failed quality check: {problems}")
-      ids=[r['id'] for r in selected]+[fresh_id]
-      random.Random(hashlib.sha256(f'{target}|{club["slug"]}|shuffle'.encode()).digest()).shuffle(ids); rounds.append((club,ids))
+      # Each club is built on its own: one club running short must never stop the others publishing.
+      con.execute('savepoint club_round')
+      try:
+        con.execute('delete from daily_questions where club_id=? and quiz_date=?',(club['id'],target))
+        # Aim for no repeats within 30 days; small banks fall back to shorter windows, then to no window (all reported).
+        for days in (NO_REPEAT_DAYS,21,14,7,0):
+          try:
+            bank=eligible_history_bank(con,club['id'],target,days)
+            bank = generic_bank(con,club['id'],target) + [q for q in bank if not banned_question(q)]
+            bank = [q for q in bank if not lint_question(q)]
+            # Keep rounds about recent football: at most one older (trophy/record/identity) question.
+            bank = one_old_at_most(bank,target,club['name'])
+            if len(bank)<4: continue
+            selected,fresh=choose_round(con,club,target,current.get(club['slug'],[]),bank)
+            validate_round([*selected,fresh])
+            problems=[p for q in [*selected,fresh] for p in lint_question(q)]
+            if problems:raise RuntimeError(f"round failed quality check: {problems}")
+            break
+          except RuntimeError: continue
+        else: raise RuntimeError('no round fits even with no repeat window')
+        if days<NO_REPEAT_DAYS: short_window[club['slug']]=days
+        ids=[r['id'] for r in selected]+[fresh['id']]
+        random.Random(hashlib.sha256(f'{target}|{club["slug"]}|shuffle'.encode()).digest()).shuffle(ids)
+        con.execute('release club_round'); rounds.append((club,ids))
+      except Exception as e:
+        con.execute('rollback to club_round'); con.execute('release club_round')
+        # Last resort: replay the club's most recent complete round rather than leave it empty.
+        last=con.execute('select quiz_date from daily_questions where club_id=? and quiz_date<? group by quiz_date having count(*)=5 order by quiz_date desc limit 1',(club['id'],target)).fetchone()
+        if last:
+          ids=[r[0] for r in con.execute('select question_id from daily_questions where club_id=? and quiz_date=? order by position',(club['id'],last[0]))]
+          rounds.append((club,ids)); repeated.append(f"{club['slug']} (repeats {last[0]}: {e})")
+        else:
+          skipped.append(f"{club['slug']} ({e})")
     for club,ids in rounds:
       for pos,qid in enumerate(ids,1):
         con.execute('insert into daily_questions(club_id,quiz_date,position,question_id) values(?,?,?,?)',(club['id'],target,pos,qid))
     con.execute("insert into generation_runs(run_date,finished_at,status,notes) values(?,CURRENT_TIMESTAMP,'complete',?)",(target,f'V5: 1 sourced club trivia + 3 varied bank + 1 unused match fact/recent-season fallback; 10-day recent cutoff; backup={backup}')); con.commit()
   except Exception: con.rollback(); raise
-  print(f'published {len(clubs)*5} questions for {target}')
+  print(f'published {len(rounds)*5} questions for {target}')
+  for line in repeated:print(f'ATTENTION: no new round could be built, so the last round is repeated for {line}')
+  for line in skipped:print(f'ATTENTION: no round published for {line}')
   published=[q for q in con.execute('select q.* from daily_questions d join questions q on q.id=d.question_id where d.quiz_date=?',(target,))]
   rep=numeric_rank_report(published); fresh_ages=[]
   for q in published:
     if q['question_kind']=='recent' and q['fact_date']:fresh_ages.append((dt.date.fromisoformat(target)-dt.date.fromisoformat(q['fact_date'])).days)
   print(f"Quality check: {len(published)} questions passed; number-answer positions lowest..highest {rep['answer_rank_share']} across {rep['questions']}; "
         f"{len(fresh_ages)} recent-match questions (oldest {max(fresh_ages) if fresh_ages else 0} days)")
-  print(f"Repeat window: {NO_REPEAT_DAYS} days for {len(clubs)-len(short_window)} clubs"+(('; shorter for small banks: '+', '.join(f'{k} {v} days' for k,v in sorted(short_window.items()))) if short_window else ''))
+  print(f"Repeat window: {NO_REPEAT_DAYS} days for {len(rounds)-len(short_window)-len(repeated)} clubs"+(('; shorter for small banks: '+', '.join(f'{k} {v} days' if v else f'{k} no window' for k,v in sorted(short_window.items()))) if short_window else ''))
 if __name__=='__main__':
   try: main()
   except Exception as e: print(f'quiz publication failed: {e}',file=sys.stderr); raise SystemExit(1)
