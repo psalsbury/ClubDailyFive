@@ -63,6 +63,9 @@ AddType application/manifest+json .webmanifest
 <Files "leagues-lib.php">
   Require all denied
 </Files>
+<Files "push-lib.php">
+  Require all denied
+</Files>
 <FilesMatch "(?:\.(sqlite|db|sql)(?:[-.].*)?$|\.bak(?:[.-].*)?$)">
   Require all denied
 </FilesMatch>

@@ -1,0 +1,10 @@
+[Unit]
+Description=Check for due ClubDailyFive reminders every 15 minutes
+
+[Timer]
+OnCalendar=*:0/15
+AccuracySec=30s
+Persistent=false
+
+[Install]
+WantedBy=timers.target

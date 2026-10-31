@@ -1,0 +1,13 @@
+[Unit]
+Description=Send ClubDailyFive Daily Five reminders (Web Push)
+
+[Service]
+Type=oneshot
+User=www-data
+Group=www-data
+ExecStart=/usr/bin/php /opt/clubdailyfive/bin/send_reminders.php
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/clubdailyfive
+PrivateTmp=true
+NoNewPrivileges=true

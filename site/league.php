@@ -12,6 +12,7 @@ if ($code === '') {
     ?>
 <section class="lg-hero"><div><div class="eyebrow">Daily Five</div><h1>Private leagues</h1><p class="lg-lede">Play the Daily Five for your club, then compare scores with your mates. Each friend plays their own club’s quiz. The table shows today, this week (Monday to Sunday) and all time.</p></div></section>
 <div class="lg-setup" data-setup></div>
+<div data-reminder-settings hidden></div>
 <section class="lg-card" data-my-leagues hidden><h2>Your leagues</h2><ul class="lg-league-list" data-league-list></ul></section>
 <section class="lg-card" data-create hidden>
   <h2>Start a league</h2>

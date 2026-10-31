@@ -68,3 +68,7 @@
 .lg-waiting span:not([hidden])~span:not([hidden])::before{content:', '}
 .lg-waiting span[hidden],.lg-waiting[hidden]{display:none}
 .lg-result-panel a:not(.lg-button){color:var(--accent,#ffcc33)}
+.lg-rem h3{margin:0 0 .3em;font-size:1.05rem}.lg-rem .lg-actions{align-items:center}
+.lg-time{display:inline-flex;align-items:center;gap:8px;font-size:.85rem;font-weight:800;color:#a9b2c4}
+.lg-time select{min-height:42px;padding:6px 10px;border:1px solid #273650;border-radius:10px;background:#07101e;color:#f7f8fc;font:inherit}
+.lg-rem .lg-actions .lg-link{flex:none}

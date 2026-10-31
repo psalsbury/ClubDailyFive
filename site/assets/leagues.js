@@ -226,11 +226,78 @@ async function result(opts){
  return extra;
 }
 
-window.CDFLeagues={token,api,me,setup,result};
+
+/* ---------------------------------------------------------------- reminders */
+const REM_KEY='cdf:reminder';
+const SLOTS=[['morning','8am'],['lunch','12:30pm'],['evening','6pm']];
+function remSaved(){try{return JSON.parse(localStorage.getItem(REM_KEY))}catch(e){return null}}
+function remSave(v){try{v?localStorage.setItem(REM_KEY,JSON.stringify(v)):localStorage.removeItem(REM_KEY)}catch(e){}}
+function pushSupported(){return 'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window&&!!window.CDF_VAPID}
+function isIOS(){return /iphone|ipad|ipod/i.test(navigator.userAgent)}
+function standalone(){return matchMedia('(display-mode: standalone)').matches||navigator.standalone===true}
+function keyBytes(b64){const s=atob(b64.replace(/-/g,'+').replace(/_/g,'/')+'='.repeat((4-b64.length%4)%4));return Uint8Array.from(s,c=>c.charCodeAt(0))}
+async function currentSub(){try{const reg=await navigator.serviceWorker.getRegistration('/');return reg?await reg.pushManager.getSubscription():null}catch(e){return null}}
+async function remCall(action,data){
+ const r=await fetch('/leagues-api.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,...data})});
+ let j={};try{j=await r.json()}catch(e){}
+ if(!r.ok||!j.ok){const e=new Error(j.error||'Could not connect. Please try again.');e.status=r.status;throw e}
+ return j;
+}
+/** Tell the server this device played today (so no reminder today) and the current streak. */
+async function remPlayed(clubSlug,streak){
+ const saved=remSaved();if(!saved||!pushSupported())return;
+ const sub=await currentSub();if(!sub){remSave(null);return}
+ if(saved.club!==clubSlug)return; // reminders are for another club; it still needs reminding
+ try{await remCall('push_update',{endpoint:sub.endpoint,played:clubSlug,streak:Number(streak)||0})}catch(e){if(e.status===404)remSave(null)}
+}
+/** Reminder card. opts: {clubSlug, clubName, streak, played} */
+async function remCard(el,opts){
+ if(!el)return;
+ const saved=remSaved();
+ if(!pushSupported()){
+  if(isIOS()&&!standalone()){el.innerHTML=`<div class="lg-card lg-rem"><h3>🔔 Daily reminder</h3><p class="lg-small">On iPhone, reminders work once ClubDailyFive is on your Home Screen: tap Share in Safari, then <b>Add to Home Screen</b>, and open it from there.</p></div>`;el.hidden=false}
+  return;
+ }
+ const sub=saved?await currentSub():null;
+ const on=!!(saved&&sub);
+ if(saved&&!sub)remSave(null);
+ const options=sel=>SLOTS.map(([k,l])=>`<option value="${k}"${k===sel?' selected':''}>${l}</option>`).join('');
+ if(Notification.permission==='denied'&&!on){el.innerHTML=`<div class="lg-card lg-rem"><h3>🔔 Daily reminder</h3><p class="lg-small">Notifications are blocked for this site. Allow them in your browser’s site settings to get a daily reminder.</p></div>`;el.hidden=false;return}
+ if(on){
+  const other=opts.clubSlug&&saved.club!==opts.clubSlug;
+  el.innerHTML=`<div class="lg-card lg-rem"><h3>🔔 Reminders on</h3><p class="lg-small">Every day at <b>${esc(saved.time)}</b> for <b>${esc(saved.clubName)}</b>, unless you’ve already played.</p>
+   <div class="lg-actions">${other?`<button class="lg-button" data-switch>Switch to ${esc(opts.clubName)}</button>`:''}<label class="lg-time">Time <select data-slot>${options(saved.slot)}</select></label><button class="lg-link" data-off>Turn off</button></div><p class="lg-msg" role="status"></p></div>`;
+  const msg=el.querySelector('.lg-msg');
+  const update=async data=>{try{const j=await remCall('push_update',{endpoint:sub.endpoint,...data});remSave({club:j.club,clubName:j.club_name,slot:j.slot,time:j.time});remCard(el,opts)}catch(e){msg.textContent=e.message}};
+  el.querySelector('[data-slot]').onchange=e=>update({slot:e.target.value});
+  const sw=el.querySelector('[data-switch]');if(sw)sw.onclick=()=>update({club:opts.clubSlug});
+  el.querySelector('[data-off]').onclick=async()=>{try{await remCall('push_unsubscribe',{endpoint:sub.endpoint});await sub.unsubscribe().catch(()=>{})}catch(e){}remSave(null);remCard(el,opts)};
+  el.hidden=false;return;
+ }
+ if(!opts.clubSlug){el.hidden=true;return}
+ el.innerHTML=`<div class="lg-card lg-rem"><h3>🔔 Never miss a day</h3><p class="lg-small">Get a reminder when the ${esc(opts.clubName)} Daily Five is ready. Only one a day, and none if you’ve already played.</p>
+  <div class="lg-actions"><label class="lg-time">Time <select data-slot>${options('morning')}</select></label><button class="lg-button primary" data-on>Remind me</button></div><p class="lg-msg" role="status"></p></div>`;
+ const msg=el.querySelector('.lg-msg');
+ el.querySelector('[data-on]').onclick=async()=>{
+  msg.textContent='Asking your browser…';
+  try{
+   const perm=await Notification.requestPermission();
+   if(perm!=='granted'){msg.textContent='Reminders need notification permission. You can turn it on later in your browser settings.';return}
+   const reg=await navigator.serviceWorker.register('/sw.js');await navigator.serviceWorker.ready;
+   const sub=await reg.pushManager.getSubscription()||await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:keyBytes(window.CDF_VAPID)});
+   const j=await remCall('push_subscribe',{subscription:sub.toJSON(),club:opts.clubSlug,slot:el.querySelector('[data-slot]').value,...(opts.played?{streak:opts.streak||0}:{})});
+   remSave({club:j.club,clubName:j.club_name,slot:j.slot,time:j.time});remCard(el,opts);
+  }catch(e){msg.textContent=e.message||'Could not turn on reminders on this browser.'}
+ };
+ el.hidden=false;
+}
+
+window.CDFLeagues={token,api,me,setup,result,remCard,remPlayed};
 document.addEventListener('DOMContentLoaded',()=>{
  tabs();
  const league=document.querySelector('[data-league-code]');
  if(league){leaguePage(league);return}
+ const rem=document.querySelector('[data-reminder-settings]');if(rem)remCard(rem,{});
  if(document.querySelector('[data-create-form]')){hubPage();return}
  if(document.querySelector('[data-league-filter]')){clubTablePage();return}
  const fans=document.querySelector('[data-setup][data-club]');

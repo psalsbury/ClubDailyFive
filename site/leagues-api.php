@@ -128,6 +128,39 @@ try {
             $db->prepare('DELETE FROM league_members WHERE league_id=? AND player_id=?')->execute([(int)$league['id'], (int)$player['id']]);
             out(['ok' => true] + lg_me_payload($player));
         }
+        case 'push_subscribe': {
+            // Daily reminder sign-up. The subscription endpoint identifies the device; nothing else is stored.
+            require_once __DIR__ . '/push-lib.php';
+            $sub = $d['subscription'] ?? null;
+            $endpoint = (string)($sub['endpoint'] ?? ''); $p256 = (string)($sub['keys']['p256dh'] ?? ''); $auth = (string)($sub['keys']['auth'] ?? '');
+            $host = (string)parse_url($endpoint, PHP_URL_HOST);
+            if (!str_starts_with($endpoint, 'https://') || strlen($endpoint) > 1000 || !push_known_host($host)) fail('This browser’s push service isn’t supported.');
+            if (!preg_match('/^[A-Za-z0-9_-]{80,100}$/', $p256) || !preg_match('/^[A-Za-z0-9_-]{16,30}$/', $auth)) fail('Bad subscription');
+            $club = (string)($d['club'] ?? ''); $slot = (string)($d['slot'] ?? 'morning');
+            if (!isset(lg_clubs()[$club]) || !isset(PUSH_SLOTS[$slot])) fail('Bad request');
+            if (!lg_rate_ok('push', 20)) fail('Too many sign-ups from this connection today.', 429);
+            push_db()->prepare('INSERT INTO push_subs(endpoint,p256dh,auth,club_slug,slot) VALUES(?,?,?,?,?) ON CONFLICT(endpoint) DO UPDATE SET p256dh=excluded.p256dh,auth=excluded.auth,club_slug=excluded.club_slug,slot=excluded.slot')
+                ->execute([$endpoint, $p256, $auth, $club, $slot]);
+            if (isset($d['streak'])) push_db()->prepare('UPDATE push_subs SET last_played=?,streak=? WHERE endpoint=?')->execute([lg_today(), max(0, min(3650, (int)$d['streak'])), $endpoint]);
+            out(['ok' => true, 'club' => $club, 'club_name' => lg_clubs()[$club]['name'], 'slot' => $slot, 'time' => PUSH_SLOTS[$slot][1]]);
+        }
+        case 'push_update': {
+            require_once __DIR__ . '/push-lib.php';
+            $endpoint = (string)($d['endpoint'] ?? '');
+            $row = push_db()->prepare('SELECT club_slug,slot FROM push_subs WHERE endpoint=?'); $row->execute([$endpoint]); $row = $row->fetch();
+            if (!$row) fail('Not found', 404);
+            $club = (string)($d['club'] ?? $row['club_slug']); $slot = (string)($d['slot'] ?? $row['slot']);
+            if (!isset(lg_clubs()[$club]) || !isset(PUSH_SLOTS[$slot])) fail('Bad request');
+            push_db()->prepare('UPDATE push_subs SET club_slug=?,slot=? WHERE endpoint=?')->execute([$club, $slot, $endpoint]);
+            // Played today: no reminder needed today; keep the streak for tomorrow's message.
+            if (($d['played'] ?? null) === $club) push_db()->prepare('UPDATE push_subs SET last_played=?,streak=? WHERE endpoint=?')->execute([lg_today(), max(0, min(3650, (int)($d['streak'] ?? 0))), $endpoint]);
+            out(['ok' => true, 'club' => $club, 'club_name' => lg_clubs()[$club]['name'], 'slot' => $slot, 'time' => PUSH_SLOTS[$slot][1]]);
+        }
+        case 'push_unsubscribe': {
+            require_once __DIR__ . '/push-lib.php';
+            push_db()->prepare('DELETE FROM push_subs WHERE endpoint=?')->execute([(string)($d['endpoint'] ?? '')]);
+            out(['ok' => true]);
+        }
         case 'delete_me': {
             if (!$player) fail('Not found', 404);
             $db->prepare('DELETE FROM leagues WHERE owner_id=? AND id NOT IN (SELECT league_id FROM league_members WHERE player_id<>?)')->execute([(int)$player['id'], (int)$player['id']]);
