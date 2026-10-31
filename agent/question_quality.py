@@ -81,6 +81,9 @@ def long_date(day: int, month: int, year: int) -> str:
     return f"{day} {MONTHS[month - 1]} {year}"
 
 
+SEASON_PHRASE = re.compile(r"\b(in|during|of|for) (?:the )?(\d{4})-(\d{2})\b(?! season)(?=\s*[?,.;:)]|\s*$)")
+
+
 def clean_text(text: str, club: str | None = None) -> str:
     """Presentation clean-up; never changes a fact."""
     text = PREFIX_RE.sub('', text)
@@ -92,6 +95,9 @@ def clean_text(text: str, club: str | None = None) -> str:
     # 24/25 -> 2024-25 (only consecutive two-digit seasons)
     text = re.sub(r"(?<![\d/])(\d{2})/(\d{2})(?![\d/])",
                   lambda m: f"20{m.group(1)}-{m.group(2)}" if (int(m.group(1)) + 1) % 100 == int(m.group(2)) else m.group(0), text)
+    # "in 2026-27" could be read as the calendar years: say "in the 2026-27 season" (Pete, 2026-10-31).
+    text = SEASON_PHRASE.sub(lambda m: f"{m.group(1)} the {m.group(2)}-{m.group(3)} season"
+                             if (int(m.group(2)) + 1) % 100 == int(m.group(3)) else m.group(0), text)
     # Attendance-sized numbers get thousands separators.
     if re.search(r'attendance', text, re.I):
         text = re.sub(r"(?<![\d,.£-])(\d{4,6})(?![\d,-]|\.\d)", lambda m: f"{int(m.group(1)):,}" if int(m.group(1)) >= 1000 and not 1850 <= int(m.group(1)) <= 2100 else m.group(1), text)

@@ -201,8 +201,9 @@ def insert_season_fact(con,club,target,rows,slot):
       if same['use_count']:raise FreshUnavailable('Season fact already asked')
       return same['id']
   wording={'wins':'league wins','draws':'league draws','losses':'league losses','goals-scored':'goals scored in the league','goals-conceded':'goals conceded in the league','yellow':'yellow cards in the league','red':'red cards in the league'}[slot]
-  text=f"How many {wording} had {club['name']} recorded in {season}, through {display_date(date)}?"
-  exp=f"Across their {len(rows)} completed league matches through {display_date(date)}, {club['name']} recorded {val} {wording}."
+  one={'wins':'league win','draws':'league draw','losses':'league loss','goals-scored':'goal scored in the league','goals-conceded':'goal conceded in the league','yellow':'yellow card in the league','red':'red card in the league'}[slot]
+  text=f"How many {wording} had {club['name']} recorded in the {season} season, through {display_date(date)}?"
+  exp=f"Across their {len(rows)} completed league matches through {display_date(date)}, {club['name']} recorded {val} {one if val==1 else wording}."
   opts,answer=numopts(val,key,0,len(rows) if slot in ('wins','draws','losses') else None);payload=json.dumps(opts)
   con.execute('insert into questions(club_id,question_text,options_json,correct_index,explanation,source_url,source_label,content_hash,semantic_key,status,question_kind,fact_date,use_count,last_used_date) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)',(club['id'],text,payload,answer,exp,rows[0]['_url'],'Football-Data.co.uk season records',hashlib.sha256(key.encode()).hexdigest(),key,'reviewed','recent',date,0,None))
   return con.execute('select id from questions where semantic_key=?',(key,)).fetchone()[0]
