@@ -17,6 +17,8 @@ def match_keys(row):
     text = row['question_text'].lower()
     if row.get('semantic_key', '').startswith(('seasonfact|', 'heritage|')):
         return set()
+    if row.get('semantic_key', '').startswith('matchday|'):
+        return {str(row['fact_date'])}
     topics = question_topics(row)
     if row.get('semantic_key','').startswith('v4bank|efl|') and not topics & {'match_score','discipline','cups'}:
         return set()
@@ -39,6 +41,9 @@ def is_trivia(row):
 
 def question_topics(row):
     key = dict(row).get('semantic_key', '')
+    if key.startswith('matchday|'):
+        # Yesterday's match: one per round, and never alongside another question on a recent match score.
+        return {'matchday', 'match_score'} if key.endswith('|score') else {'matchday', 'first_goal'}
     if key.startswith('heritage|'):
         family = key.split('|')[2]
         # A trophy-manager question reveals a trophy, so it conflicts with both families.

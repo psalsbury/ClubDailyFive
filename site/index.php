@@ -18,6 +18,7 @@ $wordleDb = new PDO('sqlite:/var/lib/clubdailyfive/player-wordle/game.sqlite3', 
 $wordleReady=$wordleDb->query("SELECT c.slug FROM clubs c JOIN daily_game d ON d.club_id=c.id WHERE d.game_date='".date('Y-m-d')."'")->fetchAll(PDO::FETCH_COLUMN);
 $wordleReady=array_fill_keys($wordleReady,true);
 function wordleSlug(string $slug): string { return ['coventry-city'=>'coventry','hull-city'=>'hull','ipswich-town'=>'ipswich','leeds-united'=>'leeds','manchester-city'=>'man-city','manchester-united'=>'man-utd','newcastle-united'=>'newcastle','tottenham-hotspur'=>'tottenham'][$slug]??$slug; }
+$matchdayClubs = array_fill_keys($pdo->query("SELECT DISTINCT c.slug FROM daily_questions dq JOIN questions q ON q.id=dq.question_id JOIN clubs c ON c.id=dq.club_id WHERE dq.quiz_date='".date('Y-m-d')."' AND q.semantic_key LIKE 'matchday|%'")->fetchAll(PDO::FETCH_COLUMN), true);
 $selectedGame = in_array((string)($_GET['game'] ?? ''), ['daily','wordle'], true) ? (string)$_GET['game'] : '';
 $slug = preg_replace('/[^a-z0-9-]/', '', strtolower((string)($_GET['club'] ?? '')));
 $club = null;
@@ -43,7 +44,7 @@ if ($club) {
     $dateStmt->execute([(int)$club['id'], $quizDate]);
     $sourceQuizDate = (string)($dateStmt->fetchColumn() ?: $quizDate);
 
-    $stmt = $pdo->prepare('SELECT q.id,q.question_text,q.options_json,q.correct_index,q.explanation,q.source_url,q.source_label,dq.position
+    $stmt = $pdo->prepare('SELECT q.id,q.semantic_key,q.question_text,q.options_json,q.correct_index,q.explanation,q.source_url,q.source_label,dq.position
         FROM daily_questions dq JOIN questions q ON q.id=dq.question_id
         WHERE dq.club_id=? AND dq.quiz_date=? ORDER BY dq.position');
     $stmt->execute([(int)$club['id'], $sourceQuizDate]);
@@ -167,6 +168,7 @@ if (!$club && $selectedGame !== '') {
 /* Monochrome club crests need light ink on the dark site background. */
 img[src*="/assets/crests/derby-county.png"],img[src*="/assets/crests/swansea-city.png"]{filter:brightness(0) invert(1)}
 .other-game{display:block;width:min(360px,100%);margin:12px auto 0;padding:11px 14px;border:1px solid #273650;border-radius:12px;color:#f7f8fc;text-decoration:none;font-size:.86rem;text-align:center;background:#111c31}.other-game:hover,.other-game:focus-visible{border-color:#ffcc33}.other-game[hidden]{display:none!important}</style><link rel="stylesheet" href="/assets/site-header.css?v=2">
+<style>.club{position:relative}.md-badge{position:absolute;top:5px;right:6px;font-size:.8rem;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,.5))}.md-legend{display:inline-block;color:var(--muted);font-size:.82rem}.count.matchday{color:#2ecc8f}</style>
 <?php if ($club): ?><link rel="stylesheet" href="/assets/leagues.css?v=2"><style>.share-actions.three{grid-template-columns:repeat(3,minmax(0,1fr))}</style><?php endif ?>
 </head>
 <body class="<?= $club ? 'quiz-page' : ($selectedGame ? 'home-page club-select-page' : 'home-page game-home-page') ?>">
@@ -213,7 +215,7 @@ tick();setInterval(tick,30000)})();
 </script>
 <?php elseif (!$club): ?>
 <nav class="hub-back" aria-label="Back to games"><a href="/">← Games</a></nav>
-<section class="club-select-intro"><h1><?= $selectedGame === 'daily' ? 'Daily Five' : 'Player Wordle' ?></h1><p>Choose your club.</p></section>
+<section class="club-select-intro"><h1><?= $selectedGame === 'daily' ? 'Daily Five' : 'Player Wordle' ?></h1><p>Choose your club.<?php if ($selectedGame === 'daily' && $matchdayClubs): ?> <span class="md-legend">⚽ = matchday question on yesterday’s game</span><?php endif ?></p></section>
 <nav class="league-tabs" aria-label="Choose a league">
 <?php foreach(['premier-league'=>'Premier League','championship'=>'Championship'] as $key=>$label): ?><button type="button" data-league="<?=h($key)?>" aria-pressed="<?=$key==='premier-league'?'true':'false'?>"><?=h($label)?></button><?php endforeach ?>
 </nav>
@@ -224,7 +226,7 @@ $gameUrl = $selectedGame === 'daily' ? '/daily-five/'.$c['slug'] : '/player-word
 ?>
 <?php if ($ready): ?><a class="club" data-slug="<?=h($c['slug'])?>" data-name="<?=h($c['name'])?>" data-league="<?=h($c['league'])?>" href="<?=h($gameUrl)?>">
 <?php else: ?><div class="club preparing-club" data-league="<?=h($c['league'])?>" aria-label="<?=h($c['name'])?>: player bank in preparation"><?php endif ?>
-<img src="<?=h($c['logo_path'])?>" alt="" width="52" height="52"><span class="club-name"><?=h($c['name'])?></span>
+<img src="<?=h($c['logo_path'])?>" alt="" width="52" height="52"><span class="club-name"><?=h($c['name'])?></span><?php if ($selectedGame === 'daily' && isset($matchdayClubs[$c['slug']])): ?><span class="md-badge" title="Matchday question: yesterday's game"><span aria-hidden="true">⚽</span><span class="visually-hidden">Matchday question today</span></span><?php endif ?>
 <?php if (!$ready): ?><span class="club-info">Coming soon</span></div><?php else: ?></a><?php endif ?>
 <?php endforeach ?></section>
 <p class="selection-note">New challenges at midnight UK time. Your progress and streaks are saved on this device.</p>
@@ -283,7 +285,7 @@ document.querySelectorAll('.club[data-slug]').forEach(el=>el.addEventListener('c
 <section class="result" id="result" hidden><div class="eyebrow">Full time</div><div class="score" id="score"></div><h2 id="resultClub"><?= h($club['name']) ?> Daily Five</h2><div class="tiles" id="tiles"></div><div class="streaks"><div class="streak-box"><span class="streak-number" id="completionStreak">0</span><span class="streak-label">🔥 completion streak</span></div><div class="streak-box"><span class="streak-number" id="perfectStreak">0</span><span class="streak-label">⭐ perfect 5/5 streak</span></div></div><p>You’ve played this club today. Try another club, or return after midnight UK time.</p><img class="share-card-preview" id="cardPreview" alt="Your result card" hidden><div class="share-actions three" aria-label="Share your result"><button class="share-action primary" id="shareNative">Share</button><button class="share-action" id="shareCopy">Copy text</button><button class="share-action" id="shareSave">Save image</button></div><p id="shareStatus" role="status"></p><textarea id="shareFallback" class="share-fallback" aria-label="Result to copy" readonly hidden></textarea><section class="lg-card lg-result-panel" id="fanPanel" hidden aria-live="polite"></section><?php if(isset($wordleReady[wordleSlug($club['slug'])])):?><a class="other-game" id="otherGame" href="/player-wordle/<?=h(wordleSlug($club['slug']))?>">Try today’s Player Wordle →</a><?php endif?><a class="other-game" href="/clubs/<?=h($club['slug'])?>"><?=h($club['name'])?> quiz questions &amp; answers →</a><a class="again" href="/daily-football-quiz">Back to club selection</a></section>
 <script src="/assets/share-card.js?v=1"></script><script src="/assets/leagues.js?v=3"></script>
 <script>
-const questions=<?= json_encode(array_map(fn($q)=>['id'=>(int)$q['id'],'q'=>$q['question_text'],'o'=>json_decode($q['options_json'],true),'a'=>(int)$q['correct_index'],'e'=>$q['explanation'],'u'=>$q['source_url'],'s'=>$q['source_label']],$questions), JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE) ?>;
+const questions=<?= json_encode(array_map(fn($q)=>['id'=>(int)$q['id'],'q'=>$q['question_text'],'o'=>json_decode($q['options_json'],true),'a'=>(int)$q['correct_index'],'e'=>$q['explanation'],'u'=>$q['source_url'],'s'=>$q['source_label'],'m'=>str_starts_with((string)$q['semantic_key'],'matchday|')],$questions), JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE) ?>;
 window.CDF_CLUBS=<?= json_encode(array_map(fn($c)=>['slug'=>$c['slug'],'name'=>$c['name'],'league'=>$c['league']],$clubs), JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE) ?>;
 const clubAccent=<?= json_encode($club['accent']) ?>, clubCrest=<?= json_encode($club['logo_path']) ?>;
 const club=<?= json_encode($club['name']) ?>, clubSlug=<?= json_encode($club['slug']) ?>, quizDate=<?= json_encode($quizDate) ?>, roundId=questions.map(x=>x.id).join('-');
@@ -308,7 +310,7 @@ function updateStreaks(){let s=readStreaks();if(s.lastCompleted!==quizDate){cons
 function readDailyResult(){return clubResult(clubSlug,club)}
 function showResult(r){const other=$('otherGame');if(other){try{const pw=JSON.parse(localStorage.getItem('pw:'+({ 'coventry-city':'coventry','hull-city':'hull','ipswich-town':'ipswich','leeds-united':'leeds','manchester-city':'man-city','manchester-united':'man-utd','newcastle-united':'newcastle','tottenham-hotspur':'tottenham'}[clubSlug]||clubSlug))||'{}'),round=JSON.parse(localStorage.getItem('pwgame:'+playDate+':'+({ 'coventry-city':'coventry','hull-city':'hull','ipswich-town':'ipswich','leeds-united':'leeds','manchester-city':'man-city','manchester-united':'man-utd','newcastle-united':'newcastle','tottenham-hotspur':'tottenham'}[clubSlug]||clubSlug))||'{}');other.hidden=(pw.date===playDate&&pw.done===true)||round.done===true}catch(e){}}resultData=r;score=Number(r.score)||0;marks=Array.isArray(r.marks)?r.marks:[];$('quiz').hidden=true;$('quizHead').hidden=true;$('result').hidden=false;$('score').textContent=`${score}/5`;$('resultClub').textContent=`${r.club||club} Daily Five`;$('tiles').textContent=marks.map(x=>x?'🟩':'⬛').join('');$('completionStreak').textContent=r.completion||0;$('perfectStreak').textContent=r.perfect||0;afterResult(r)}
 $('progress').innerHTML=questions.map((_,i)=>`<span class="pip" id="p${i}"></span>`).join('');
-function render(){const x=questions[at];$('reportQuestion').open=false;$('reportStatus').textContent='';document.querySelectorAll('[data-reason]').forEach(b=>b.disabled=false);track('shown',x.id);$('count').textContent=`Question ${at+1} of 5`;$('question').textContent=x.q;$('answers').innerHTML='';$('feedback').className='feedback';$('feedback').innerHTML='';$('next').className='next';x.o.forEach((label,i)=>{const b=document.createElement('button');b.className='answer';b.textContent=label;b.onclick=()=>choose(i);$('answers').appendChild(b)});}
+function render(){const x=questions[at];$('reportQuestion').open=false;$('reportStatus').textContent='';document.querySelectorAll('[data-reason]').forEach(b=>b.disabled=false);track('shown',x.id);$('count').textContent=x.m?`⚽ Matchday · Question ${at+1} of 5`:`Question ${at+1} of 5`;$('count').classList.toggle('matchday',!!x.m);$('question').textContent=x.q;$('answers').innerHTML='';$('feedback').className='feedback';$('feedback').innerHTML='';$('next').className='next';x.o.forEach((label,i)=>{const b=document.createElement('button');b.className='answer';b.textContent=label;b.onclick=()=>choose(i);$('answers').appendChild(b)});}
 function choose(i){if(!checkDay())return;if(at===0&&marks.length===0)track('started');const done=readDailyResult();if(done){showResult(done);return}if(marks.length>at)return;const x=questions[at],buttons=[...document.querySelectorAll('.answer')];buttons.forEach((b,n)=>{b.disabled=true;if(n===x.a)b.classList.add('correct');if(n===i&&i!==x.a)b.classList.add('wrong')});const ok=i===x.a;if(ok)score++;marks.push(ok);choices.push(i);localStorage.setItem(progressKey,JSON.stringify({roundId,marks,score,choices}));$('feedback').innerHTML=`<strong>${ok?'Correct.':'Not quite.'}</strong> ${x.e} <a href="${x.u}" target="_blank" rel="noopener">${x.s} ↗</a>${ok?'<span class="correct-confirm" aria-label="Correct answer">✓</span>':''}`;$('feedback').classList.add('show');$('next').textContent=at===4?'See result':'Next question';$('next').classList.add('show');document.getElementById(`p${at}`).classList.add('done');}
 document.querySelectorAll('[data-reason]').forEach(b=>b.onclick=async()=>{
  const buttons=[...document.querySelectorAll('[data-reason]')];buttons.forEach(x=>x.disabled=true);$('reportStatus').textContent='Sending…';

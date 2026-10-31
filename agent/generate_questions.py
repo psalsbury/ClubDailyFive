@@ -7,6 +7,7 @@ from improve_questions import normalise
 from question_quality import clean_text, lint_question, numeric_options, score_options, numeric_rank_report
 from question_variety import select_varied, validate_round, banned_question
 from question_era import recent_enough, one_old_at_most
+import matchday
 DB=os.getenv('QUIZ_DB','/var/lib/clubdailyfive/clubquiz.sqlite'); BACKUPS='/var/backups/clubdailyfive-question-db'; UK=ZoneInfo('Europe/London')
 DIVS=('E0','E1','E2','E3')
 ALIASES={'Arsenal':'arsenal','Aston Villa':'aston-villa','Bournemouth':'bournemouth','Brentford':'brentford','Brighton':'brighton','Chelsea':'chelsea','Coventry':'coventry-city','Crystal Palace':'crystal-palace','Everton':'everton','Fulham':'fulham','Hull':'hull-city','Ipswich':'ipswich-town','Leeds':'leeds-united','Liverpool':'liverpool','Man City':'manchester-city','Man United':'manchester-united','Newcastle':'newcastle-united',"Nott'm Forest":'nottingham-forest','Sunderland':'sunderland','Tottenham':'tottenham-hotspur'}
@@ -22,6 +23,7 @@ NO_REPEAT_DAYS=30
 # before this date do not count towards the no-repeat rules.
 HISTORY_START='2026-10-31'
 _CLUB_NAMES={}
+_MD_SKIPPED=set()
 def club_name(con,club_id):
   if club_id not in _CLUB_NAMES:
     row=con.execute('select name from clubs where id=?',(club_id,)).fetchone(); _CLUB_NAMES[club_id]=row[0] if row else ''
@@ -154,6 +156,24 @@ def insert_fresh(con,club,target,rows,selector_override=None):
   con.execute('insert into questions(club_id,question_text,options_json,correct_index,explanation,source_url,source_label,content_hash,semantic_key,status,question_kind,fact_date,use_count,last_used_date) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)',(club['id'],text,payload,idx,exp,latest['_url'],'Football-Data.co.uk current-season records',ch,key,'reviewed','recent',date,0,None))
   return con.execute('select id from questions where semantic_key=?',(key,)).fetchone()[0]
 
+def insert_matchday(con,club,target,matches):
+  # The day after a club plays: a verified question about that match (ESPN scorers and lineups).
+  m=matches.get(club['slug'])
+  if not m:raise FreshUnavailable('No match yesterday')
+  q=matchday.question(m,club['slug'])
+  if not q:raise FreshUnavailable('No verifiable matchday question')
+  existing=con.execute('select id from questions where semantic_key=?',(q['key'],)).fetchone()
+  if existing:return existing[0]
+  if q['options'] is None:
+    opts,idx=scoreopts(q['gf'],q['ga'],q['key'])
+  else:
+    opts,idx=q['options'],q['answer']
+  text=clean_text(q['text'],club['name']);exp=clean_text(q['explanation'],club['name'])
+  payload=json.dumps(opts,ensure_ascii=False)
+  con.execute('insert into questions(club_id,question_text,options_json,correct_index,explanation,source_url,source_label,content_hash,semantic_key,status,question_kind,fact_date,use_count,last_used_date) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+    (club['id'],text,payload,idx,exp,q['source_url'],q['source_label'],hashlib.sha256((text+'|'+q['key']).encode()).hexdigest(),q['key'],'reviewed','recent',q['fact_date'],0,None))
+  return con.execute('select id from questions where semantic_key=?',(q['key'],)).fetchone()[0]
+
 def insert_season_fact(con,club,target,rows,slot):
   if not rows:raise FreshUnavailable('No season data')
   stats=[persp(r) for r in rows]
@@ -187,7 +207,21 @@ def insert_season_fact(con,club,target,rows,slot):
   con.execute('insert into questions(club_id,question_text,options_json,correct_index,explanation,source_url,source_label,content_hash,semantic_key,status,question_kind,fact_date,use_count,last_used_date) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)',(club['id'],text,payload,answer,exp,rows[0]['_url'],'Football-Data.co.uk season records',hashlib.sha256(key.encode()).hexdigest(),key,'reviewed','recent',date,0,None))
   return con.execute('select id from questions where semantic_key=?',(key,)).fetchone()[0]
 
-def choose_round(con,club,target,rows,bank,fixed=None):
+def choose_round(con,club,target,rows,bank,fixed=None,matches=None):
+  if matches and club['slug'] in matches:
+    con.execute('savepoint matchday_choice')
+    try:
+      qid=insert_matchday(con,club,target,matches)
+      fresh=con.execute('select * from questions where id=?',(qid,)).fetchone()
+      if lint_question(fresh):raise FreshUnavailable('Matchday question failed quality check: '+', '.join(lint_question(fresh)))
+      selected=list(fixed) if fixed is not None else select_varied(bank,fresh)
+      validate_round([*selected,fresh])
+    except (FreshUnavailable,RuntimeError,ValueError) as e:
+      if club['slug'] not in _MD_SKIPPED:_MD_SKIPPED.add(club['slug']);print(f"Matchday question skipped for {club['slug']}: {e}")
+      con.execute('rollback to matchday_choice');con.execute('release matchday_choice')
+    else:
+      con.execute('release matchday_choice')
+      return selected,fresh
   for choice in (None,0,1):
     con.execute('savepoint fresh_choice')
     try:
@@ -268,6 +302,10 @@ def main():
     assert_sterling(dict(question))
   current=load_current(target)
   try:
+    matches=matchday.load(target,clubs)
+  except Exception as e:
+    matches={}; print(f'ATTENTION: matchday questions unavailable tonight ({e}); recent-match questions used instead')
+  try:
     con.execute('begin immediate')
     # Season-to-date aggregate questions are snapshots. Retire older snapshots
     # whenever newer completed league data exists for that club.
@@ -291,7 +329,7 @@ def main():
             # Keep rounds about recent football: at most one older (trophy/record/identity) question.
             bank = one_old_at_most(bank,target,club['name'])
             if len(bank)<4: continue
-            selected,fresh=choose_round(con,club,target,current.get(club['slug'],[]),bank)
+            selected,fresh=choose_round(con,club,target,current.get(club['slug'],[]),bank,matches=matches)
             validate_round([*selected,fresh])
             problems=[p for q in [*selected,fresh] for p in lint_question(q)]
             if problems:raise RuntimeError(f"round failed quality check: {problems}")
@@ -301,6 +339,8 @@ def main():
         if days<NO_REPEAT_DAYS: short_window[club['slug']]=days
         ids=[r['id'] for r in selected]+[fresh['id']]
         random.Random(hashlib.sha256(f'{target}|{club["slug"]}|shuffle'.encode()).digest()).shuffle(ids)
+        if fresh['semantic_key'].startswith('matchday|'):
+          ids.remove(fresh['id']); ids.insert(0,fresh['id'])  # the matchday question opens the round
         con.execute('release club_round'); rounds.append((club,ids))
       except Exception as e:
         con.execute('rollback to club_round'); con.execute('release club_round')
@@ -317,6 +357,8 @@ def main():
     con.execute("insert into generation_runs(run_date,finished_at,status,notes) values(?,CURRENT_TIMESTAMP,'complete',?)",(target,f'V5: 1 sourced club trivia + 3 varied bank + 1 unused match fact/recent-season fallback; 10-day recent cutoff; backup={backup}')); con.commit()
   except Exception: con.rollback(); raise
   print(f'published {len(rounds)*5} questions for {target}')
+  md=[r[0] for r in con.execute("select c.slug from daily_questions d join questions q on q.id=d.question_id join clubs c on c.id=d.club_id where d.quiz_date=? and q.semantic_key like 'matchday|%'",(target,))]
+  print(f"Matchday questions: {len(md)} of {len(matches)} clubs that played yesterday"+(': '+', '.join(sorted(md)) if md else ''))
   for line in repeated:print(f'ATTENTION: no new round could be built, so the last round is repeated for {line}')
   for line in skipped:print(f'ATTENTION: no round published for {line}')
   published=[q for q in con.execute('select q.* from daily_questions d join questions q on q.id=d.question_id where d.quiz_date=?',(target,))]
